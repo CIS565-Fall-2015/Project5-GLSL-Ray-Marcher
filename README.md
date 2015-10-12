@@ -27,13 +27,13 @@ This is due at midnight on the evening of Monday, October 19.
 
 **Summary:** In this project, you'll see yet another way in which GPU
 parallelism can be used to render scenes. You'll write a program in the popular
-online shader demo editor [Shadertoy](http://www.shadertoy.com/). Your goal
+online shader editor [Shadertoy](http://www.shadertoy.com/). Your goal
 will be to make one or more interesting demos showing off different features.
 
 Ray marching is an iterative ray casting method in which objects are
-represented as implicit surfaces defined by signed distance fields (SDFs). This
+represented as implicit surfaces defined by signed distance functions (SDFs). This
 method is widely used in the Shadertoy community to render complex scenes which
-are defined in the fragment shader code of every pixel.
+are defined in the fragment shader code executed for each pixel.
 
 **Important Notes:**
 * Even though you will be coding in Shadertoy, it is important as always to
