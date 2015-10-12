@@ -26,9 +26,11 @@ Instructions (delete me)
 This is due at midnight on the evening of Monday, October 19.
 
 **Summary:** In this project, you'll see yet another way in which GPU
-parallelism can be used to render scenes. You'll write a program in the popular
-online shader editor [Shadertoy](http://www.shadertoy.com/). Your goal
-will be to make one or more interesting demos showing off different features.
+parallelism and compute-efficiency can be used to render scenes.
+You'll write a program in the popular online shader editor
+[Shadertoy](http://www.shadertoy.com/).
+Your goal will be to implement and show off different features in a cool and
+interesting demo. See Shadertoy for inspiration - and get creative!
 
 Ray marching is an iterative ray casting method in which objects are
 represented as implicit surfaces defined by signed distance functions (SDFs). This
