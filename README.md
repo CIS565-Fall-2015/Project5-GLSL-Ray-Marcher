@@ -45,7 +45,7 @@ are defined in the fragment shader code executed for each pixel.
 
 **Provided Code:**
 The provided code in `raymarch.glsl` is straight from iq's Raymarching
-Primitives; see {iq-prim}. It just sets up a nice starter camera.
+Primitives; see {iq-prim}. It just sets up a simple starter camera.
 
 ### Features
 
@@ -73,7 +73,7 @@ You must do at least 10 points worth of extra features.
 * (0.25pt each up to 1pts) Other basic distance estimators/operations {McGuire 7/11}
 * Advanced distance estimators
   * (3pts) Terrain rendering (using naive ray marching) {iq-terr}
-  * (3pts) Fractal rendering (e.g. Menger sponge, Mandelbulb {McGuire 13.1})
+  * (3pts) Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
 * Lighting effects
   * (3pts) Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
   * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
@@ -81,6 +81,10 @@ You must do at least 10 points worth of extra features.
   * (3pts) Over-relaxation method of sphere tracing {McGuire 12.1}
   * (2pts) Analytical bounding spheres on objects in the scene {McGuire 12.2/12.3}
   * (1pts) Analytical infinite planes {McGuire 12.3}
+
+This extra feature list is not comprehensive. If you have a particular idea
+that you would like to implement, please **contact us first** (preferably on
+the mailing list).
 
 ### Analysis
 
