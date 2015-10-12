@@ -1,10 +1,9 @@
-GLSL Ray Marching
-=================
+# GLSL Ray Marching: [CIS565 2015F] YOUR TITLE HERE
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
 * (TODO) YOUR NAME HERE
-* Tested on: (TODO) Google Chrome 222.2 on
+* Tested on: (TODO) **Google Chrome 222.2** on
   Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
 
 ### Live on Shadertoy (TODO)
@@ -40,8 +39,8 @@ are defined in the fragment shader code executed for each pixel.
 **Important Notes:**
 * Even though you will be coding in Shadertoy, it is important as always to
   save versions of your code so that you do not lose progress! Commit often!
-* A significant portion of this project will be in performance analysis - don't
-  save it for later.
+* A significant portion of this project will be in write-up and performance
+  analysis - don't save it for later.
 
 **Provided Code:**
 The provided code in `raymarch.glsl` is straight from iq's Raymarching
@@ -86,6 +85,12 @@ This extra feature list is not comprehensive. If you have a particular idea
 that you would like to implement, please **contact us first** (preferably on
 the mailing list).
 
+## Write-up
+
+For each feature (required or extra), include a screenshot which clearly
+shows that feature in action. Briefly describe the feature and mention which
+reference(s) you used.
+
 ### Analysis
 
 * Provide an analysis comparing naive ray marching with sphere tracing
@@ -95,8 +100,9 @@ the mailing list).
   * This can be done by taking measurements with different parts of your code
     enabled (e.g. raymarching, raymarching+shadow, raymarching+shadow+AO).
   * Plot this analysis using pie charts or a 100% stacked bar chart.
-* For each feature, estimate whether branch divergence plays a role in its
-  performance characteristics, and point out the branch in question.
+* For each feature (required or extra), estimate whether branch divergence
+  plays a role in its performance characteristics, and, if so, point out the
+  branch in question.
   (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
 * For each optimization feature, compare performance with and without the
   optimization. Describe and demo the types of scenes which benefit from the
@@ -147,8 +153,11 @@ please reference the source found at the bottom of the slide.
 
 ### Post on Shadertoy
 
-Post your shader on Shadertoy (preferably *public*, but you cannot use
-*draft*). In the Shadertoy description, include the following:
+Post your shader on Shadertoy (preferably *public*; *draft* will not work).
+For your title, come up with your own demo title and use the format
+`[CIS565 2015F] YOUR TITLE HERE` (also add this to the top of your README).
+
+In the Shadertoy description, include the following:
 
 * A link to your GitHub repository with the Shadertoy code.
 * **IMPORTANT:** A copy of the *Acknowledgements* section from above.
