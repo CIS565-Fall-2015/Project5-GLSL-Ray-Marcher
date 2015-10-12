@@ -23,7 +23,7 @@ This Shadertoy uses material from the following resources:
 Instructions (delete me)
 ========================
 
-This is due at midnight on the evening of **INSTRUCTOR TODO**.
+This is due at midnight on the evening of Monday, October 19.
 
 **Summary:** In this project, you'll see yet another way in which GPU
 parallelism can be used to render scenes. You'll write a program in the popular
