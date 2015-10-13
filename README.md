@@ -71,10 +71,12 @@ You must do at least 10 points worth of extra features.
 
 **INSTRUCTOR TODO: review point values**
 
-* (0.25pt each up to 1pts) Other basic distance estimators/operations {McGuire 7/11}
+* (0.25pt each, up to 1pt) Other basic distance estimators/operations {McGuire 7/11}
 * Advanced distance estimators
-  * (3pts) Terrain rendering (using naive ray marching) {iq-terr}
+  * (3pts) Height-mapped terrain rendering {iq-terr}
   * (3pts) Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
+  * **Note** that these require naive ray marching, if there is no definable
+    SDF. They may be optimized using bounding spheres (see below).
 * Lighting effects
   * (3pts) Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
   * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
