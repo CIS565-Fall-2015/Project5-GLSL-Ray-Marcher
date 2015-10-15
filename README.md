@@ -50,6 +50,8 @@ Primitives; see {iq-prim}. It just sets up a simple starter camera.
 
 ### Features
 
+All features must be visible in your final demo for full credit.
+
 **Required Features:**
 
 * Two ray marching methods (comparative analysis required)
@@ -68,8 +70,6 @@ Primitives; see {iq-prim}. It just sets up a simple starter camera.
 **Extra Features:**
 
 You must do at least 10 points worth of extra features.
-
-**INSTRUCTOR TODO: review point values**
 
 * (0.25pt each, up to 1pt) Other basic distance estimators/operations {McGuire 7/11}
 * Advanced distance estimators
