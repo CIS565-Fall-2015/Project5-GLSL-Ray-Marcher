@@ -1,6 +1,45 @@
+float sdSphere(vec3 p, float s)
+{
+	return length(p) - s;
+}
+vec4 map(in vec3 pos)
+{
+	return vec4(vec3(50,0,0),sdSphere(pos,0.5));
+}
+
+vec4 castRay_ST(in vec3 ro,in vec3 rd)
+{
+	float tmin = 1.0;
+	float tmax = 20.0;
+
+	float precis = 0.002;
+	float t = tmin;
+	vec3 m = vec3(-1,-1,-1);
+	for (int i = 0; i<50; i++)
+	{
+		vec4 res = map(ro + rd*t);
+		if (res.w<precis || t>tmax) break;
+		t += res.w;
+		m = res.xyz;
+	}
+
+	if (t>tmax) t = -1.0;
+	return vec4(m,t);
+}
+
 vec3 render(in vec3 ro, in vec3 rd) {
     // TODO
-    return rd;  // camera ray direction debug view
+	vec3 col = vec3(0.8,0.9,1.0);
+	vec4 res = castRay_ST(ro, rd);
+	float t = res.w;
+	vec3 m = res.xyz;
+	if (t>-0.5)  // Ray intersects a surface
+	{
+		// material        
+		col = m;//0.45 + 0.3*sin(vec3(0.05, 0.08, 0.10)*(m - 1.0));
+	}
+	return vec3(clamp(col, 0.0, 1.0));
+    //return rd;  // camera ray direction debug view
 }
 
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
