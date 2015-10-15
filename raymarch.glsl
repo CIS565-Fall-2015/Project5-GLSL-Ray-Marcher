@@ -1,8 +1,13 @@
+// Some Codes are Created by inigo quilez - iq/2013
+// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+// More info here: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
+
+int itrNum = 0;
+
 float sdSphere(vec3 p, float s)
 {
 	return length(p) - s;
 }
-
 
 
 vec4 map(in vec3 pos)
@@ -10,25 +15,37 @@ vec4 map(in vec3 pos)
 	return vec4(vec3(50, 0, 0), sdSphere(pos, 0.5));
 }
 
+vec3 calcNormal( in vec3 pos )
+{
+    vec3 eps = vec3( 0.001, 0.0, 0.0 );
+    vec3 nor = vec3(
+        map(pos+eps.xyy).w - map(pos-eps.xyy).w,
+        map(pos+eps.yxy).w - map(pos-eps.yxy).w,
+        map(pos+eps.yyx).w - map(pos-eps.yyx).w );
+    return normalize(nor);
+}
+
 vec4 castRay_Naive(in vec3 ro, in vec3 rd)
 {
 	float tmin = 1.0;
 	float tmax = 20.0;
 
-	float precis = 0.1;
+	float precis = 0.02;
 	float t = tmin;
 	vec3 m = vec3(-1, -1, -1);
-	for (int i = 0; i<100; i++)
+	for (int i = 0; i<1000; i++)
 	{
 		vec4 res = map(ro + rd*t);
 		if (res.w<precis)
 		{
-			m = res.xyz;
+			m = calcNormal(ro + rd*t);//res.xyz;
+            itrNum = i;
 			break;
 		}
 		else if (t>tmax)
 		{
 			m = vec3(0.8, 0.9, 1.0);
+            itrNum = i;
 			break;
 		}
 		else m = vec3(0.5, 0.5, 1.0);
@@ -50,9 +67,14 @@ vec4 castRay_ST(in vec3 ro, in vec3 rd)
 	for (int i = 0; i<50; i++)
 	{
 		vec4 res = map(ro + rd*t);
-		if (res.w<precis || t>tmax) break;
+        if (res.w<precis || t>tmax)
+        {
+            itrNum = i;
+            break;
+        }
 		t += res.w;
 		m = res.xyz;
+        m = calcNormal(ro + rd*t);
 	}
 
 	if (t>tmax) t = -1.0;
@@ -62,13 +84,14 @@ vec4 castRay_ST(in vec3 ro, in vec3 rd)
 vec3 render(in vec3 ro, in vec3 rd) {
 	// TODO
 	vec3 col = vec3(0.8, 0.9, 1.0);
-	vec4 res = castRay_Naive(ro, rd);
+	vec4 res = castRay_ST(ro, rd);
 	float t = res.w;
 	vec3 m = res.xyz;
 	if (t>-0.5)  // Ray intersects a surface
 	{
 		// material        
-		col = m;//0.45 + 0.3*sin(vec3(0.05, 0.08, 0.10)*(m - 1.0));
+		//col = m;
+        col = 0.45 + 0.3*sin(vec3(0.05, 0.08, 0.10)*(float(itrNum) - 6.0));
 	}
 	return vec3(clamp(col, 0.0, 1.0));
 	//return rd;  // camera ray direction debug view
