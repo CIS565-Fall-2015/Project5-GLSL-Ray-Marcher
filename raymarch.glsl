@@ -54,10 +54,10 @@ vec4 opU(vec4 d1, vec4 d2)
 
 vec4 map(in vec3 pos)
 {
-    vec3 Ts = vec3(0,1.0,0.0);
+    vec3 Ts = vec3(0,0.5,0);
     vec3 Rs = vec3(0,0.0,0.0);
-    vec3 Ss = vec3(1.0,2.0,1.0);
-    vec4 sphere = vec4(vec3(0.8, 0, 0), sdSphere(TransP(pos,Ts,Rs,Ss), 0.5));
+    vec3 Ss = vec3(0.5,0.5,0.5);
+    vec4 sphere = vec4(vec3(0.8, 0, 0), Ss.x*Ss.y*Ss.z*sdSphere(TransP(pos,Ts,Rs,Ss), 0.5));
     vec4 plane = vec4(vec3(1, 1, 0.5), sdPlane(pos));
     vec4 res = opU(sphere,plane);
 	return res;
@@ -109,7 +109,7 @@ vec4 castRay_ST(in vec3 ro, in vec3 rd)
 	float tmin = 1.0;
 	float tmax = 20.0;
 
-	float precis = 0.002;
+	float precis = 0.02;
 	float t = tmin;
 	vec3 m = vec3(-1, -1, -1);
 	for (int i = 0; i<50; i++)
@@ -140,9 +140,9 @@ vec3 render(in vec3 ro, in vec3 rd) {
 	if (t>-0.5)  // Ray intersects a surface
 	{
 		// material        
-		//col = m;
+		col = m;
         //col = mix( col, vec3(0.8,0.9,1.0), 1.0-exp( -0.0005*t*t ) );
-        col = nor;
+        //col = nor;
         //col = 0.45 + 0.3*sin(vec3(0.05, 0.08, 0.10)*(float(itrNum) - 6.0));
 	}
     
@@ -153,7 +153,7 @@ vec3 render(in vec3 ro, in vec3 rd) {
     vec3 brdf = vec3(0.0);
     brdf += 1.20*dif*vec3(1.0,1,1);
 
-   // col = col*brdf;
+    col = col*brdf;
 
 	return vec3(clamp(col, 0.0, 1.0));
 	//return rd;  // camera ray direction debug view
