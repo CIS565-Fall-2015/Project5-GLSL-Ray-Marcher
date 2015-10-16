@@ -4,9 +4,9 @@
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
-* (TODO) YOUR NAME HERE
-* Tested on: (TODO) **Google Chrome 222.2** on
-  Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* Shuai Shao (Shrek)
+* Tested on: **Google Chrome 46.0.2490.71 m** on
+  Windows 10, i7-4710HQ @ 2.50GHz 16GB, GeForce GTX 970M (Personal)
 
 ### Live on Shadertoy (TODO)
 
