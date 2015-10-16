@@ -3,6 +3,7 @@
 // More info here: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
 
 int itrNum = 0;
+float dist = 0.0;
 
 vec3 TransP(vec3 pos, vec3 T, vec3 R, vec3 S)
 {
@@ -56,7 +57,7 @@ vec4 map(in vec3 pos)
 {
     vec3 Ts = vec3(0,0.5,0);
     vec3 Rs = vec3(0,0.0,0.0);
-    vec3 Ss = vec3(0.5,0.5,0.5);
+    vec3 Ss = vec3(1,1,1);
     vec4 sphere = vec4(vec3(0.8, 0, 0), Ss.x*Ss.y*Ss.z*sdSphere(TransP(pos,Ts,Rs,Ss), 0.5));
     vec4 plane = vec4(vec3(1, 1, 0.5), sdPlane(pos));
     vec4 res = opU(sphere,plane);
@@ -84,6 +85,7 @@ vec4 castRay_Naive(in vec3 ro, in vec3 rd)
 	for (int i = 0; i<1000; i++)
 	{
 		vec4 res = map(ro + rd*t);
+        dist += t*length(rd);
 		if (res.w<precis)
 		{
 			//m = calcNormal(ro + rd*t);//res.xyz;
@@ -109,19 +111,27 @@ vec4 castRay_ST(in vec3 ro, in vec3 rd)
 	float tmin = 1.0;
 	float tmax = 20.0;
 
-	float precis = 0.02;
+	float precis = 0.005;
 	float t = tmin;
-	vec3 m = vec3(-1, -1, -1);
+	vec3 m = vec3(0.7, 0.4, 0.1);
 	for (int i = 0; i<50; i++)
 	{
 		vec4 res = map(ro + rd*t);
-        if (res.w<precis || t>tmax)
+        dist += t*length(rd);
+        m = res.xyz;
+        if (res.w<precis)
         {
             itrNum = i;
             break;
         }
+        else if(t>tmax)
+        {
+            m = vec3(0.8, 0.9, 1.0);
+            dist = 1000.0;
+            break;
+        }
 		t += res.w;
-		m = res.xyz;
+		
         //m = calcNormal(ro + rd*t);
 	}
 
@@ -143,17 +153,16 @@ vec3 render(in vec3 ro, in vec3 rd) {
 		col = m;
         //col = mix( col, vec3(0.8,0.9,1.0), 1.0-exp( -0.0005*t*t ) );
         //col = nor;
-        //col = 0.45 + 0.3*sin(vec3(0.05, 0.08, 0.10)*(float(itrNum) - 6.0));
-	}
+        //col = 0.45 + 0.3*sin(vec3(0.05, 0.08, 0.10)*(float(itrNum) - 6.0)); 
+        vec3  lig = normalize( vec3(-0.6, 0.7, -0.5) );
+        float amb = clamp( 0.5+0.5*nor.y, 0.0, 1.0 );
+        float dif = clamp( dot( nor, lig ), 0.0, 1.0 );
+        vec3 brdf = vec3(0.0);
+        brdf += 1.20*dif*vec3(1.0,1,1);
+        col = col*brdf;
+        col = vec3(1.0-dist/500.0);
+    }
     
-    vec3  lig = normalize( vec3(-0.6, 0.7, -0.5) );
-    float amb = clamp( 0.5+0.5*nor.y, 0.0, 1.0 );
-    float dif = clamp( dot( nor, lig ), 0.0, 1.0 );
-    
-    vec3 brdf = vec3(0.0);
-    brdf += 1.20*dif*vec3(1.0,1,1);
-
-    col = col*brdf;
 
 	return vec3(clamp(col, 0.0, 1.0));
 	//return rd;  // camera ray direction debug view
@@ -197,7 +206,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 	// render
 	vec3 col = render(ro, rd);
 
-	col = pow(col, vec3(0.4545));
+	//col = pow(col, vec3(0.4545));
 
 	fragColor = vec4(col, 1.0);
 }
