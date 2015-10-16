@@ -1,6 +1,39 @@
+float g(float t, in vec3 ro, in vec3 rd){
+    return length(ro+rd*t-vec3(0.0, 0.25, 0.0))-0.25;
+}    
+
+vec2 naiveMarch(in vec3 ro, in vec3 rd){
+    float maxDist = 21.0;
+    float dt = 0.1;
+    float t = 1.0;
+    float m = -1.0;
+    float eps = 0.000001;
+    for (int i = 0; i < 200; i++){
+        if (g(t, ro, rd) < eps){
+            m = 1.0;
+            break;
+        }
+        t+= dt;
+    }
+    return vec2(t, m);
+}
+
 vec3 render(in vec3 ro, in vec3 rd) {
-    // TODO
-    return rd;  // camera ray direction debug view
+    // Sky
+    vec3 col = vec3(0.8,0.8,1.0)*(rd.y+1.0);
+    
+    // Ray marching
+#if 1
+    vec2 res = naiveMarch(ro, rd);
+#else
+    vec2 res = sphereMarch(ro, rd);
+#endif
+    
+    if (res.y > 0.0){
+        col = vec3(1.0, 0.0, 0.0);
+    }    
+    
+    return clamp(col, 0.0, 1.0);
 }
 
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
