@@ -85,7 +85,8 @@ vec4 castRay_Naive(in vec3 ro, in vec3 rd)
 	for (int i = 0; i<1000; i++)
 	{
 		vec4 res = map(ro + rd*t);
-        dist += t*length(rd);
+        dist = length(rd*t);
+        
 		if (res.w<precis)
 		{
 			//m = calcNormal(ro + rd*t);//res.xyz;
@@ -95,10 +96,12 @@ vec4 castRay_Naive(in vec3 ro, in vec3 rd)
 		else if (t>tmax)
 		{
 			m = vec3(0.8, 0.9, 1.0);
+            dist = 1000.0;
             itrNum = i;
 			break;
 		}
 		else m = vec3(0.5, 0.5, 1.0);
+        
 		t += precis;
 	}
 
@@ -111,17 +114,18 @@ vec4 castRay_ST(in vec3 ro, in vec3 rd)
 	float tmin = 1.0;
 	float tmax = 20.0;
 
-	float precis = 0.005;
+	float precis = 0.001;
 	float t = tmin;
 	vec3 m = vec3(0.7, 0.4, 0.1);
-	for (int i = 0; i<50; i++)
+	for (int i = 0; i<100; i++)
 	{
 		vec4 res = map(ro + rd*t);
-        dist += t*length(rd);
-        m = res.xyz;
+        dist = length(rd*t);
+        
         if (res.w<precis)
         {
             itrNum = i;
+            m = res.xyz;
             break;
         }
         else if(t>tmax)
@@ -130,6 +134,7 @@ vec4 castRay_ST(in vec3 ro, in vec3 rd)
             dist = 1000.0;
             break;
         }
+        else m = vec3(0.5, 0.5, 1.0);
 		t += res.w;
 		
         //m = calcNormal(ro + rd*t);
@@ -142,7 +147,8 @@ vec4 castRay_ST(in vec3 ro, in vec3 rd)
 vec3 render(in vec3 ro, in vec3 rd) {
 	// TODO
 
-	vec4 res = castRay_ST(ro, rd);
+    vec4 res = castRay_ST(ro, rd);
+    //vec4 res = castRay_Naive(ro,rd);
 	float t = res.w;
     vec3 col = vec3(0.8, 0.9, 1.0);
     vec3 nor = calcNormal(ro + rd*t);
@@ -160,7 +166,7 @@ vec3 render(in vec3 ro, in vec3 rd) {
         vec3 brdf = vec3(0.0);
         brdf += 1.20*dif*vec3(1.0,1,1);
         col = col*brdf;
-        col = vec3(1.0-dist/500.0);
+        col = vec3(1.0-dist/10.0);
     }
     
 
