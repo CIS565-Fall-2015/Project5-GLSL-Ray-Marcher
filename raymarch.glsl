@@ -51,6 +51,12 @@ float sdSphere(vec3 p, float s)
 float sdPlane(vec3 p)
 {
 	return p.y;
+    
+}
+
+float sdPlane_height(vec3 p,float s,float repeat)
+{
+	return p.y - s*length(texture2D( iChannel0, repeat*p.xz, 0.0 ).xyz);
 }
 
 vec4 opU(vec4 d1, vec4 d2)
@@ -64,10 +70,11 @@ vec4 map(in vec3 pos)
     vec3 Ts = vec3(0,0.5,0);
     vec3 Rs = vec3(0,0.0,0.0);
     vec3 Ss = vec3(1,1,1);
+    vec4 plane_height = vec4(vec3(0.6,0.6,0.6),sdPlane_height(pos,0.2,0.1));
     vec4 sphere = vec4(vec3(0.8, 0, 0), Ss.x*Ss.y*Ss.z*sdSphere(TransP(pos,Ts,Rs,Ss), 0.5));
     vec4 plane = vec4(vec3(1, 1, 0.5), sdPlane(pos));
     vec4 cube = vec4(vec3(0.2,0.2,1),sdBox(TransP(pos,vec3(0.5,1,0),vec3(0),vec3(1)),vec3(0.1,0.2,0.1)));
-    vec4 res = opU(sphere,plane);
+    vec4 res = opU(sphere,plane_height);
 	res = opU(res,cube);
     return res;
 }
@@ -98,6 +105,7 @@ vec4 castRay_Naive(in vec3 ro, in vec3 rd)
 		if (res.w<precis)
 		{
 			//m = calcNormal(ro + rd*t);//res.xyz;
+            m = res.rgb;
             itrNum = i;
 			break;
 		}
@@ -155,8 +163,7 @@ vec4 castRay_ST(in vec3 ro, in vec3 rd)
 vec3 render(in vec3 ro, in vec3 rd) {
 	// TODO
 
-    vec4 res = castRay_ST(ro, rd);
-    //vec4 res = castRay_Naive(ro,rd);
+    vec4 res = castRay_Naive(ro, rd);
 	float t = res.w;
     vec3 col = vec3(0.8, 0.9, 1.0);
     vec3 nor = calcNormal(ro + rd*t);
