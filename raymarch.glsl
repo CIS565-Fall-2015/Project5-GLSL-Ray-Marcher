@@ -1,6 +1,139 @@
-vec3 render(in vec3 ro, in vec3 rd) {
-    // TODO
-    return rd;  // camera ray direction debug view
+// Reference : https://www.shadertoy.com/view/Xds3zN
+
+#define DEPTH_COLOR 1
+#define NORMAL_COLOR 2
+#define LAMBERT_COLOR 3
+
+#define COLOR_MODE 3
+
+#define MAX_DIS 5.2
+
+//-------------------------------------------------------
+//					Distance Estimators
+//-------------------------------------------------------
+
+float sdSphere( vec3 p, float s )
+{
+    return length(p)-s;
+}
+
+float sdTorus( vec3 p, vec2 t )
+{
+  return length( vec2(length(p.xz)-t.x,p.y) )-t.y;
+}
+
+float sdEllipsoid( in vec3 p, in vec3 r )
+{
+    return (length( p/r ) - 1.0) * min(min(r.x,r.y),r.z);
+}
+
+//Function to create the actual scene
+float disEstimator(vec3 pt)
+{
+    float dis = min(sdTorus(pt-vec3(0.0), vec2(1.0, 0.1)), 
+               sdSphere(pt-vec3(0.0), 0.5));
+//	dis = min(sdTorus(pt-vec3(0.0), vec2(1.0, 0.1)), 
+  //             sdSphere(pt-vec3(0.0), 0.5));
+    
+    return dis;
+}
+
+//-------------------------------------------------------
+//				Color calculation functions
+//-------------------------------------------------------
+
+vec3 getNormal( in vec3 pos )
+{
+	vec3 eps = vec3( 0.001, 0.0, 0.0 );
+	vec3 nor = vec3(
+	    disEstimator(pos+eps.xyy) - disEstimator(pos-eps.xyy),
+	    disEstimator(pos+eps.yxy) - disEstimator(pos-eps.yxy),
+	    disEstimator(pos+eps.yyx) - disEstimator(pos-eps.yyx));
+	return normalize(nor);
+}
+
+vec3 getLambertColor(vec3 pt, vec3 ro)
+{
+ 	vec3 lightPos = vec3(5.0,5.0,0.0);
+    vec3 lightCol = vec3(1.0);
+    vec3 lightVector = normalize(lightPos - pt);
+    
+    vec3 normal = getNormal(pt);
+
+//	vec3 camVector = normalize(ro - pt);
+    
+	return clamp(dot(normal, lightVector), 0.0, 1.0) * lightCol;
+}
+
+vec3 colorCalculation(vec3 pt, float t, float maxDis, vec3 ro)
+{
+    if(COLOR_MODE == DEPTH_COLOR)
+		return vec3(abs((maxDis-t) / maxDis));
+    else if(COLOR_MODE == NORMAL_COLOR)
+        return abs(getNormal(pt));
+	else if(COLOR_MODE == LAMBERT_COLOR)
+        return getLambertColor(pt, ro);
+        
+	return vec3(0.0);
+}
+
+//-------------------------------------------------------
+//				Ray Cast Functions
+//-------------------------------------------------------
+
+vec3 naiveRayCast(in vec3 ro, in vec3 rd)
+{
+    vec3 pt = ro;
+	for(float t = 0.00; t < MAX_DIS; t+=0.01)
+	{
+        pt = ro + rd * t;
+        
+        float dis = disEstimator(pt);
+        
+     	if(dis < 0.0)
+        {
+            return colorCalculation(pt, t, MAX_DIS, ro);
+        }
+	}
+    
+    return vec3(0.0);
+}
+
+vec3 sphericalRayCast(in vec3 ro, in vec3 rd)
+{
+    vec3 pt = ro;
+    float epsilon = 0.01;
+    
+    float dt = disEstimator(pt);
+	float t = 0.0;
+    
+    for(int i = 0; i<50; i++)
+	{
+        pt = ro + t * rd;
+        
+        dt = disEstimator(pt);
+        
+     	if(dt < epsilon)
+        {   
+            return colorCalculation(pt, t, MAX_DIS, ro);
+        }
+        
+		t += dt;
+        if(t > MAX_DIS)
+        {
+         	return vec3(0.0);
+        }
+	}
+    
+    return vec3(0.0);
+}
+
+//-------------------------------------------------------
+
+vec3 render(in vec3 ro, in vec3 rd)
+{
+   // return naiveRayCast(ro, rd);
+    return sphericalRayCast(ro, rd);
 }
 
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
