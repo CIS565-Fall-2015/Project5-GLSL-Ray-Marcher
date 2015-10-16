@@ -10,9 +10,9 @@
 //MACRO
 
 //#define DEBUG_DISTANCE_TO_SURFACE
-#define DEBUG_NUM_RAY_MARCH_ITERATIONS
+//#define DEBUG_NUM_RAY_MARCH_ITERATIONS
 
-//#define NAIVE_TRACE
+#define NAIVE_TRACE
 
 
 #define MAX_ITERATIONS_NAIVE 2000
@@ -166,6 +166,12 @@ mat3 rotationMatrix(vec3 axis, float angle)
 
 //----------------------------------------------------------------------
 
+float terrain(vec3 pos)
+{
+	float h = sin(pos.x)*sin(pos.z);
+	return pos.y-h;
+}
+
 vec2 map( in vec3 pos )
 {
     vec2 res = opU( vec2( sdPlane(     pos), 1.0 ),
@@ -179,7 +185,10 @@ vec2 map( in vec3 pos )
 vec2 castRay( in vec3 ro, in vec3 rd )
 {
 
+//interpolate and dynamic delta
 #ifdef NAIVE_TRACE
+
+
 	float tmin = 1.0;
     float tmax = 20.0;
 	float dt = 0.01;
@@ -187,18 +196,61 @@ vec2 castRay( in vec3 ro, in vec3 rd )
 	float t = tmin;
 	vec2 res = map(ro+rd*t);
 
+    float lh = 0.0;
+    float ly = 0.0;
 	//while loop is not allowed in shader toy
 	for( int i=0; i<MAX_ITERATIONS_NAIVE; i++ )
     {
-		if(t >= tmax || res.x <= 0.0) break;
+        vec3 p = ro+rd*t;
+        res = map(p);
+		if(t >= tmax)
+        {
+            break;
+        }
+            
+        if(res.x <= 0.0)
+        {
+            t = t - dt + dt *(lh-ly)/(p.y-ly-(p.y-res.x)+lh);
+            break;
+        }
 
 		t = t + dt;
-		res = map(ro+rd*t);
-
+        
+		
+        
+        //changing dt and interpolate
+        dt = 0.01*t;
+        lh = p.y - res.x;
+        ly = p.y;
 #ifdef DEBUG_NUM_RAY_MARCH_ITERATIONS
 		num_ray_march_interations = num_ray_march_interations + 1;
 #endif
 	}
+
+
+	//naive way
+//#ifdef NAIVE_TRACE
+
+
+//	float tmin = 1.0;
+//    float tmax = 20.0;
+//	float dt = 0.01;
+
+//	float t = tmin;
+//	vec2 res = map(ro+rd*t);
+
+//	//while loop is not allowed in shader toy
+//	for( int i=0; i<MAX_ITERATIONS_NAIVE; i++ )
+//    {
+//		if(t >= tmax || res.x <= 0.0) break;
+
+//		t = t + dt;
+//		res = map(ro+rd*t);
+
+//#ifdef DEBUG_NUM_RAY_MARCH_ITERATIONS
+//		num_ray_march_interations = num_ray_march_interations + 1;
+//#endif
+//	}
 
     if( t>tmax ) res.y=-1.0;
 	return vec2(t,res.y);
