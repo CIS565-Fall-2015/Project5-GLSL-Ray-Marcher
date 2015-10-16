@@ -37,6 +37,12 @@ vec3 TransP(vec3 pos, vec3 T, vec3 R, vec3 S)
     return localPos.xyz;
 }
 
+float sdBox(vec3 x,vec3 b)
+{
+    vec3 d = abs(x)-b;
+    return min(max(d.z,max(d.x,d.y)),0.0)+length(max(d,vec3(0.0))); 
+}
+
 float sdSphere(vec3 p, float s)
 {
 	return length(p) - s;
@@ -60,8 +66,10 @@ vec4 map(in vec3 pos)
     vec3 Ss = vec3(1,1,1);
     vec4 sphere = vec4(vec3(0.8, 0, 0), Ss.x*Ss.y*Ss.z*sdSphere(TransP(pos,Ts,Rs,Ss), 0.5));
     vec4 plane = vec4(vec3(1, 1, 0.5), sdPlane(pos));
+    vec4 cube = vec4(vec3(0.2,0.2,1),sdBox(TransP(pos,vec3(0.5,1,0),vec3(0),vec3(1)),vec3(0.1,0.2,0.1)));
     vec4 res = opU(sphere,plane);
-	return res;
+	res = opU(res,cube);
+    return res;
 }
 
 vec3 calcNormal( in vec3 pos )
@@ -161,12 +169,12 @@ vec3 render(in vec3 ro, in vec3 rd) {
         //col = nor;
         //col = 0.45 + 0.3*sin(vec3(0.05, 0.08, 0.10)*(float(itrNum) - 6.0)); 
         vec3  lig = normalize( vec3(-0.6, 0.7, -0.5) );
-        float amb = clamp( 0.5+0.5*nor.y, 0.0, 1.0 );
+        //float amb = clamp( 0.5+0.5*nor.y, 0.0, 1.0 );
         float dif = clamp( dot( nor, lig ), 0.0, 1.0 );
         vec3 brdf = vec3(0.0);
         brdf += 1.20*dif*vec3(1.0,1,1);
         col = col*brdf;
-        col = vec3(1.0-dist/10.0);
+        //col = vec3(1.0-dist/10.0);
     }
     
 
