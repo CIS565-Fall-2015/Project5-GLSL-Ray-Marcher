@@ -1,21 +1,95 @@
-float g(float t, in vec3 ro, in vec3 rd){
-    return length(ro+rd*t-vec3(0.0, 0.25, 0.0))-0.25;
-}    
+#define NAIVE_MARCHING 0
 
-vec2 naiveMarch(in vec3 ro, in vec3 rd){
+vec3 shade(mat3 res, vec3 lightCol){
+    if (res[0].y == 1.0){
+        return res[1];
+        //return lightCol;
+    }
+    if (res[0].y == 2.0){
+        return vec3(0.5, 0.5, 0.5);
+    }
+    if (res[0].y == 3.0){
+        return vec3(1.0,1.0,1.0);
+    }
+    return vec3(1.0,1.0,1.0);
+}
+
+float dSphere(vec3 X, vec3 C, float r){
+    return length(X-C)-r;
+}
+
+float dPlane(vec3 X, vec3 C, vec3 n){
+    return dot(X-C, n);
+}
+
+float dBox(vec3 X, vec3 C, vec3 b){
+    vec3 d = abs(X-C)-b;
+    vec3 maxComp = max(max(vec3(d.x), vec3(d.y)), vec3(d.z));
+    return min(maxComp.x, 0.0)+length(max(d, vec3(0.0)));
+}
+
+vec2 oUnion(vec2 r1, vec2 r2){
+    if (r1.x < r2.x){
+        return r1;
+    } else {
+        return r2;
+    }
+}
+
+// Distance estimator wrapper
+vec2 g(float t, in vec3 ro, in vec3 rd){
+    // Union
+    float sphereDist = dSphere(ro+rd*t, vec3(0.0, 0.25, 0.0), 0.25);
+    float planeDist = dPlane(ro+rd*t, vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
+    
+    vec2 res = oUnion(vec2(sphereDist, 1.0), vec2(planeDist, 2.0));
+    
+    float boxDist = dBox(ro+rd*t, vec3(-1.0, 0.1, 0.0), vec3(0.1, 0.1, 0.1));
+    
+    res = oUnion(vec2(boxDist, 3.0), res);
+    
+    return res;
+}
+
+vec3 findNormal(float t, vec3 ro, vec3 rd){
+    vec3 eps = vec3(0.000001, 0.0, 0.0);
+    vec3 norm = vec3(
+        g(t, ro+eps.xyy, rd).x-g(t, ro-eps.xyy, rd).x,
+        g(t, ro+eps.yxy, rd).x-g(t, ro-eps.yxy, rd).x,
+        g(t, ro+eps.yyx, rd).x-g(t, ro-eps.yyx, rd).x
+    );
+    return normalize(norm);
+}
+
+mat3 naiveMarch(in vec3 ro, in vec3 rd){
     float maxDist = 21.0;
-    float dt = 0.1;
+    float dt = 0.01;
+    float t = 1.0;
+    float m = -1.0;
+    float eps = 0.000001;
+    for (int i = 0; i < 2000; i++){
+        vec2 res = g(t, ro, rd);
+        if (res.x < eps){
+            return mat3(res, i, findNormal(t, ro, rd), vec3(0.0));
+        }
+        t+= dt;
+    }
+    return mat3(t, m, 199, vec3(0.0), vec3(0.0));
+}
+
+mat3 sphereMarch(in vec3 ro, in vec3 rd){
+    float maxDist = 21.0;
     float t = 1.0;
     float m = -1.0;
     float eps = 0.000001;
     for (int i = 0; i < 200; i++){
-        if (g(t, ro, rd) < eps){
-            m = 1.0;
-            break;
+        vec2 res = g(t, ro, rd);
+        if (res.x < eps){
+            return mat3(res, i, findNormal(t, ro, rd), vec3(0.0));
         }
-        t+= dt;
+        t+= res.x;
     }
-    return vec2(t, m);
+    return mat3(t, m, 199, vec3(0.0), vec3(0.0));
 }
 
 vec3 render(in vec3 ro, in vec3 rd) {
@@ -23,15 +97,16 @@ vec3 render(in vec3 ro, in vec3 rd) {
     vec3 col = vec3(0.8,0.8,1.0)*(rd.y+1.0);
     
     // Ray marching
-#if 1
-    vec2 res = naiveMarch(ro, rd);
+    vec3 lightCol;
+#if NAIVE_MARCHING
+    mat3 res = naiveMarch(ro, rd);
+    lightCol = vec3(1.0,0.0,0.0);
 #else
-    vec2 res = sphereMarch(ro, rd);
+    mat3 res = sphereMarch(ro, rd);
+    lightCol = vec3(0.0,0.0,1.0);
 #endif
     
-    if (res.y > 0.0){
-        col = vec3(1.0, 0.0, 0.0);
-    }    
+    if (res[0].y > 0.0) col = shade(res, lightCol);
     
     return clamp(col, 0.0, 1.0);
 }
