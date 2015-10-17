@@ -1,7 +1,9 @@
 // Reference : https://www.shadertoy.com/view/Xds3zN
 
 #define MAX_DIS 100.0
-#define MAX_STEPS 50
+#define MAX_STEPS 100
+#define EPSILON 0.001
+#define SHADOW_SCALE 30.0
 
 //--------Color Modes----------
 //#define DEPTH_COLOR
@@ -52,6 +54,7 @@ float disEstimator(vec3 pt)
 //				Color calculation functions
 //-------------------------------------------------------
 
+//Function to calculate the normal
 vec3 getNormal( in vec3 pos )
 {
 	vec3 eps = vec3( 0.001, 0.0, 0.0 );
@@ -62,6 +65,43 @@ vec3 getNormal( in vec3 pos )
 	return normalize(nor);
 }
 
+#ifdef SHADOW_SCALE
+//Function to calculate the soft shadow
+float getSoftShadow(vec3 pt, vec3 lightPos)
+{
+    float t = 2.0;
+    float minT = 2.0;
+    
+    vec3 rd = normalize(lightPos - pt);
+    vec3 ro = pt;
+    float maxT = (lightPos.x - ro.x) / rd.x;
+	float shadow = 1.0;
+    
+	for(int i=0; i<MAX_STEPS; ++i )
+    {
+		pt = ro + t * rd;
+
+        float dt = disEstimator(pt);
+        
+        if(dt < EPSILON)
+        {
+			return 0.0;
+        }
+
+        t += dt;
+        shadow = min(shadow, SHADOW_SCALE * (dt / t));		
+        
+        if(t > maxT)
+        {
+          	return shadow;
+        }
+    }
+    
+    return clamp(shadow, 0.0, 1.0);
+}
+#endif
+
+//Function to calculate lambert color
 vec3 getLambertColor(vec3 pt, vec3 ro)
 {
  	vec3 lightPos = vec3(5.0,5.0,0.0);
@@ -69,10 +109,16 @@ vec3 getLambertColor(vec3 pt, vec3 ro)
     vec3 lightVector = normalize(lightPos - pt);
     
     vec3 normal = getNormal(pt);
-
-	return clamp(dot(normal, lightVector), 0.0, 1.0) * lightCol + 0.01;
+    
+    #ifdef SHADOW_SCALE
+		float shadow = getSoftShadow(pt, lightPos);
+		return clamp(dot(normal, lightVector), 0.0, 1.0) * lightCol * (shadow) + 0.01;
+    #else
+	    return clamp(dot(normal, lightVector), 0.0, 1.0) * lightCol + 0.01;
+    #endif
 }
 
+//Function to calculate color based on number of steps
 vec3 getStepCountColor(vec2 steps)
 {
     float t = (steps.y - steps.x) / steps.y;
@@ -80,6 +126,7 @@ vec3 getStepCountColor(vec2 steps)
     return vec3(1.0-t, t, 0);
 }
 
+//Function to calculate colors
 vec3 colorCalculation(vec3 pt, vec2 dis, vec3 ro, vec2 steps)
 {
     #ifdef DEPTH_COLOR
@@ -117,7 +164,7 @@ vec3 naiveRayCast(in vec3 ro, in vec3 rd)
         
         float dis = disEstimator(pt);
         
-     	if(dis < 0.0)
+     	if(dis < EPSILON)
         {
             return colorCalculation(pt, vec2(t, MAX_DIS), ro, vec2(i, maxSteps));
         }
@@ -129,20 +176,19 @@ vec3 naiveRayCast(in vec3 ro, in vec3 rd)
 vec3 sphericalRayCast(in vec3 ro, in vec3 rd)
 {
     vec3 pt = ro;
-    float epsilon = 0.01;
-    
-    float dt = disEstimator(pt);
+   	
+//    float dt = disEstimator(pt);
 	float t = 0.0;
     
-    for(float i = 1.0; i<50.0; i++)
+    for(int i = 1; i<MAX_STEPS; i++)
 	{
         pt = ro + t * rd;
         
-        dt = disEstimator(pt);
+        float dt = disEstimator(pt);
         
-     	if(dt < epsilon)
+     	if(dt < EPSILON)
         {   
-            return colorCalculation(pt, vec2(t, MAX_DIS), ro, vec2(i, 50));
+            return colorCalculation(pt, vec2(t, MAX_DIS), ro, vec2(float(i), MAX_STEPS));
         }
         
 		t += dt;
