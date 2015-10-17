@@ -1,3 +1,4 @@
+#define QUARTER_PI 0.7853981634
 #define NAIVE_MARCHING 0
 #define RENDER_NORMAL 0
 #define RENDER_DISTANCE 0
@@ -42,16 +43,39 @@ float dPlane(vec3 X, vec3 C, vec3 n){
 
 float dBox(vec3 X, vec3 C, vec3 b){
     vec3 d = abs(X-C)-b;
-    vec3 maxComp = max(max(vec3(d.x), vec3(d.y)), vec3(d.z));
-    return min(maxComp.x, 0.0)+length(max(d, vec3(0.0)));
+    float maxComp = max(max(d.x, d.y), d.z);
+    return min(maxComp, 0.0)+length(max(d, vec3(0.0)));
 }
 
 vec2 oUnion(vec2 r1, vec2 r2){
-    if (r1.x < r2.x){
-        return r1;
-    } else {
-        return r2;
-    }
+    return r1.x < r2.x ? r1 : r2;
+}
+
+mat3 transpose(mat3 mx){
+    mat3 t_mx = mat3(
+        mx[0].x, mx[1].x, mx[2].x,
+        mx[0].y, mx[1].y, mx[2].y,
+        mx[0].z, mx[1].z, mx[2].z
+    );
+    return t_mx;
+}
+
+mat4 inverseTransform(vec3 translate, vec3 scale, mat3 rotate){
+    mat4 inv_tranH = mat4(1.0);
+    inv_tranH[3] = vec4(-translate, 1.0);
+    
+    mat3 inv_rot = transpose(rotate);
+    mat4 inv_rotH = mat4(1.0);
+    inv_rotH[0] = vec4(inv_rot[0], 0.0);
+    inv_rotH[1] = vec4(inv_rot[1], 0.0);
+    inv_rotH[2] = vec4(inv_rot[2], 0.0);
+    
+    mat4 inv_scalH = mat4(1.0);
+    inv_scalH[0].x = 1.0/scale.x;
+    inv_scalH[1].y = 1.0/scale.y;
+    inv_scalH[2].z = 1.0/scale.z;
+    
+    return inv_scalH*inv_rotH*inv_tranH;
 }
 
 // Distance estimator wrapper
@@ -65,6 +89,19 @@ vec2 g(float t, in vec3 ro, in vec3 rd){
     float boxDist = dBox(ro+rd*t, vec3(-1.0, 0.1, 0.0), vec3(0.1, 0.1, 0.1));
     
     res = oUnion(vec2(boxDist, 3.0), res);
+    
+    vec3 scale = vec3(1.0, 1.0, 2.0);
+    vec3 translate = vec3(1.0,0.1,0.1);
+    mat3 rotate = mat3(cos(QUARTER_PI), 0, -sin(QUARTER_PI), 0, 1, 0, sin(QUARTER_PI), 0, cos(QUARTER_PI));
+    
+    mat4 M = inverseTransform(translate, scale, rotate);
+    vec4 tX = M*vec4((ro+rd*t), 1.0);
+    vec3 X = vec3(tX.x/tX.w, tX.y/tX.w, tX.z/tX.w);
+    
+    float boxDist2 = dBox(X, vec3(0.0, 0.0, 0.0), vec3(0.1, 0.1, 0.1))
+        *1.0/(scale.x*scale.y*scale.z);
+    
+    res = oUnion(vec2(boxDist2, 3.0), res);
     
     return res;
 }
