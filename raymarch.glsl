@@ -1,12 +1,18 @@
 // Reference : https://www.shadertoy.com/view/Xds3zN
 
-#define DEPTH_COLOR 1
-#define NORMAL_COLOR 2
-#define LAMBERT_COLOR 3
-
-#define COLOR_MODE 3
-
 #define MAX_DIS 5.2
+#define MAX_STEPS 50
+
+//--------Color Modes----------
+//#define DEPTH_COLOR
+//#define STEP_COUNT_COLOR
+//#define NORMAL_COLOR
+#define LAMBERT_COLOR
+
+
+//--------Ray Casting Modes
+#define NAIVE_RAY_CAST
+//#define SPHERICAL_RAY_CAST
 
 //-------------------------------------------------------
 //					Distance Estimators
@@ -60,20 +66,34 @@ vec3 getLambertColor(vec3 pt, vec3 ro)
     
     vec3 normal = getNormal(pt);
 
-//	vec3 camVector = normalize(ro - pt);
-    
-	return clamp(dot(normal, lightVector), 0.0, 1.0) * lightCol;
+	return clamp(dot(normal, lightVector), 0.0, 1.0) * lightCol + 0.01;
 }
 
-vec3 colorCalculation(vec3 pt, float t, float maxDis, vec3 ro)
+vec3 getStepCountColor(vec2 steps)
 {
-    if(COLOR_MODE == DEPTH_COLOR)
-		return vec3(abs((maxDis-t) / maxDis));
-    else if(COLOR_MODE == NORMAL_COLOR)
+    float t = (steps.y - steps.x) / steps.y;
+	vec2 c = vec2(t, 0.0);
+    return vec3(1.0-t, t, 0);
+}
+
+vec3 colorCalculation(vec3 pt, vec2 dis, vec3 ro, vec2 steps)
+{
+    #ifdef DEPTH_COLOR
+		return vec3(abs((dis.y - dis.x) / dis.y));
+    #endif
+    
+    #ifdef STEP_COUNT_COLOR
+		return getStepCountColor(steps);
+	#endif
+    
+    #ifdef NORMAL_COLOR
         return abs(getNormal(pt));
-	else if(COLOR_MODE == LAMBERT_COLOR)
+	#endif
+    
+    #ifdef LAMBERT_COLOR
         return getLambertColor(pt, ro);
-        
+	#endif
+    
 	return vec3(0.0);
 }
 
@@ -84,15 +104,18 @@ vec3 colorCalculation(vec3 pt, float t, float maxDis, vec3 ro)
 vec3 naiveRayCast(in vec3 ro, in vec3 rd)
 {
     vec3 pt = ro;
+    float i = 0.0;
+    int maxSteps = 500;
 	for(float t = 0.00; t < MAX_DIS; t+=0.01)
 	{
+        ++i;
         pt = ro + rd * t;
         
         float dis = disEstimator(pt);
         
      	if(dis < 0.0)
         {
-            return colorCalculation(pt, t, MAX_DIS, ro);
+            return colorCalculation(pt, vec2(t, MAX_DIS), ro, vec2(i, maxSteps));
         }
 	}
     
@@ -107,7 +130,7 @@ vec3 sphericalRayCast(in vec3 ro, in vec3 rd)
     float dt = disEstimator(pt);
 	float t = 0.0;
     
-    for(int i = 0; i<50; i++)
+    for(float i = 1.0; i<50.0; i++)
 	{
         pt = ro + t * rd;
         
@@ -115,12 +138,13 @@ vec3 sphericalRayCast(in vec3 ro, in vec3 rd)
         
      	if(dt < epsilon)
         {   
-            return colorCalculation(pt, t, MAX_DIS, ro);
+            return colorCalculation(pt, vec2(t, MAX_DIS), ro, vec2(i, 50));
         }
         
 		t += dt;
+        
         if(t > MAX_DIS)
-        {
+  	    {
          	return vec3(0.0);
         }
 	}
@@ -128,12 +152,16 @@ vec3 sphericalRayCast(in vec3 ro, in vec3 rd)
     return vec3(0.0);
 }
 
+
 //-------------------------------------------------------
 
 vec3 render(in vec3 ro, in vec3 rd)
 {
-   // return naiveRayCast(ro, rd);
-    return sphericalRayCast(ro, rd);
+    #ifdef NAIVE_RAY_CAST
+	    return naiveRayCast(ro, rd);
+    #else 
+        return sphericalRayCast(ro, rd);
+    #endif
 }
 
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
