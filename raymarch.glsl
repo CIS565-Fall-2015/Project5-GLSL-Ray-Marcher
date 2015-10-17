@@ -1,4 +1,5 @@
 #define QUARTER_PI 0.7853981634
+#define PI 3.1415926535879
 #define NAIVE_MARCHING 0
 #define RENDER_NORMAL 0
 #define RENDER_DISTANCE 0
@@ -61,6 +62,10 @@ vec2 g(float t, in vec3 ro, in vec3 rd){
     
     res = oUnion(vec2(boxDist, 3.0), res);
     
+    float boxDist3 = dBox(ro+rd*t, vec3(0.0, 0.1, 1.0), vec3(0.1, 0.1, 0.1));
+    
+    res = oUnion(vec2(boxDist3, 3.0), res);
+    
     vec3 scale = vec3(1.0, 2.0, 1.0);
     vec3 translate = vec3(1.0,0.3,0.0);
     mat3 rotate = mat3(cos(QUARTER_PI), 0, -sin(QUARTER_PI), 0, 1, 0, sin(QUARTER_PI), 0, cos(QUARTER_PI));
@@ -92,7 +97,7 @@ mat3 naiveMarch(in vec3 ro, in vec3 rd){
     float t = 1.0;
     float m = -1.0;
     float eps = 0.000001;
-    for (int i = 0; i < 2000; i++){
+    for (int i = 0; i < 1000; i++){
         vec2 res = g(t, ro, rd);
         if (res.x < eps){
             return mat3(res, i, findNormal(t, ro, rd), t, vec2(0.0));
@@ -106,7 +111,7 @@ mat3 sphereMarch(in vec3 ro, in vec3 rd){
     float t = 1.0;
     float m = -1.0;
     float eps = 0.000001;
-    for (int i = 0; i < 2000; i++){
+    for (int i = 0; i < 500; i++){
         vec2 res = g(t, ro, rd);
         if (res.x < eps){
             return mat3(res, i, findNormal(t, ro, rd), t, vec2(0.0));
@@ -117,18 +122,37 @@ mat3 sphereMarch(in vec3 ro, in vec3 rd){
 }
 
 float softShadow(vec3 ro, vec3 rd){
-    float t = 0.1;
+    float t = 0.0001;
     float eps = 0.00001;
     vec2 res;
     float distAway = 1.0;
     float scatterConstraint = 6.0;
-    for (int i = 0; i < 22; i++){
+    for (int i = 0; i < 30; i++){
         res = g(t, ro, rd);
-        distAway = min(distAway, scatterConstraint*res.x/(res.x+t));
-        if (res.x < eps) break;
-        t+= clamp(res.x, 0.01, 0.05);
+        if (res.x < eps){
+            return 0.0;
+        }
+        distAway = min(distAway, scatterConstraint*res.x/t);
+        t+= res.x;
     }
-    return 0.2+clamp(distAway, 0.0, 0.8);
+    return clamp(distAway, 0.0, 1.0);
+}
+
+float ambientOcclusion(vec3 ro, vec3 rd){
+    float t = 0.1;
+    float dt = 0.01;
+    vec2 res;
+    float f = 1.0;
+    for (int i = 1; i < 30; i++){
+        res = g(t, ro, rd);
+        if (res.x < dt){
+            float r = dt*float(i);
+            f = acos((r-res.x)/r)/PI;
+            break;
+        }
+        t+= dt;
+    }
+    return clamp(f, 0.0, 1.0);
 }
 
 vec3 shade(mat3 res, vec3 ro, vec3 rd){
@@ -139,7 +163,7 @@ vec3 shade(mat3 res, vec3 ro, vec3 rd){
     vec3 lightCol = vec3(0.91, 0.91, 1.0);
 #endif
 #if RENDER_NORMAL
-    return res[1];
+    return abs(res[1]);
 #elif RENDER_DISTANCE
     return vec3(res[2].x/21.0);
 #elif RENDER_ITER
@@ -156,14 +180,21 @@ vec3 shade(mat3 res, vec3 ro, vec3 rd){
     if (res[0].y == 3.0){
         m = vec3(1.0,1.0,0.0);
     }
-    // Lambert
+    
     vec3 L = normalize(lightPos - (ro+rd*res[2].x));
-    vec3 diffuse = dot(L, res[1])*lightCol*m;
+    vec3 L2 = normalize(-lightPos - (ro+rd*res[2].x));
     
     // Soft shadow
     float shadow = softShadow(ro+rd*res[2].x, L);
     
-    return diffuse*shadow;
+    // Ambient occlusion
+    float occlusion = ambientOcclusion(ro+rd*res[2].x, res[1]);
+    
+    // Lambert
+    vec3 diffuse = dot(L, res[1])*lightCol*m;
+    vec3 ambient = dot(res[1], res[1])*vec3(0.8,0.8,1.0)*m;
+    
+    return diffuse*shadow+0.5*ambient*occlusion;
 #endif
 }
 
