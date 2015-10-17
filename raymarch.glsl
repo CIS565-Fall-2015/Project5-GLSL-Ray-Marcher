@@ -20,7 +20,15 @@ float dBox(vec3 X, vec3 C, vec3 b){
     return min(maxComp, 0.0)+length(max(d, vec3(0.0)));
 }
 
-vec3 oUnion(vec3 r1, vec3 r2){
+float dRoBox(vec3 X, vec3 C, vec3 b){
+    return length(max(abs(X-C)-b, vec3(0.0)))-0.05;
+}
+
+float dTorus(vec3 X, vec3 C, float r, float R){
+    return length(vec2(length(X.xz-C.xz)-r, X.y-C.y))-R;
+}
+
+vec2 oUnion(vec2 r1, vec2 r2){
     return r1.x < r2.x ? r1 : r2;
 }
 
@@ -57,15 +65,19 @@ vec2 g(float t, in vec3 ro, in vec3 rd){
     float sphereDist = dSphere(ro+rd*t, vec3(0.0, 0.25, 0.0), 0.25);
     float planeDist = dPlane(ro+rd*t, vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
     
-    vec3 res = oUnion(vec3(sphereDist, 1.0, 1.0), vec3(planeDist, 2.0, 2.0));
+    vec2 res = oUnion(vec2(sphereDist, 1.0), vec2(planeDist, 2.0));
     
     float boxDist = dBox(ro+rd*t, vec3(-1.0, 0.2, 0.0), vec3(0.1, 0.1, 0.1));
     
-    res = oUnion(vec3(boxDist, 3.0, 3.0), res);
+    res = oUnion(vec2(boxDist, 3.0), res);
     
-    float boxDist3 = dBox(ro+rd*t, vec3(0.0, 0.1, 1.0), vec3(0.1, 0.1, 0.1));
+    float boxDist3 = dRoBox(ro+rd*t, vec3(0.0, 0.2, 1.0), vec3(0.1, 0.1, 0.1));
     
-    res = oUnion(vec3(boxDist3, 3.0, 4.0), res);
+    res = oUnion(vec2(boxDist3, 3.0), res);
+    
+    float torusDist = dTorus(ro+rd*t, vec3(0.7, 0.2, -0.7), 0.3, 0.15);
+    
+    res = oUnion(vec2(torusDist, 4.0), res);
     
     vec3 scale = vec3(1.0, 2.0, 1.0);
     vec3 translate = vec3(1.0,0.3,0.0);
@@ -77,9 +89,9 @@ vec2 g(float t, in vec3 ro, in vec3 rd){
     
     float boxDist2 = dBox(X, vec3(0.0, 0.0, 0.0), vec3(0.1, 0.1, 0.1));
     
-    res = oUnion(vec3(boxDist2, 3.0, 5.0), res);
+    res = oUnion(vec2(boxDist2, 3.0), res);
     
-    return vec2(res.x, res.y);
+    return res;
 }
 
 vec3 findNormal(float t, vec3 ro, vec3 rd){
@@ -136,9 +148,11 @@ float softShadow(vec3 ro, vec3 rd){
     float eps = 0.00001;
     vec2 res;
     float distAway = 1.0;
-    float scatterConstraint = 6.0;
-    for (int i = 0; i < 30; i++){
+    float maxDist = 1.0;
+    float scatterConstraint = 5.0;
+    for (int i = 0; i < 60; i++){
         res = g(t, ro, rd);
+        if (res.x > maxDist) break;
         if (res.x < eps){
             return 0.0;
         }
@@ -188,6 +202,9 @@ vec3 shade(mat3 res, vec3 ro, vec3 rd){
     }
     if (res[0].y == 3.0){
         m = vec3(1.0,1.0,0.0);
+    }
+    if (res[0].y == 4.0){
+        m = vec3(0.3, 0.8, 0.3) - vec3(0.3)*mod( floor(5.0*(ro+rd*res[2].x).z) + floor(5.0*(ro+rd*res[2].x).x), 2.0);
     }
     
     vec3 L = normalize(lightPos - (ro+rd*res[2].x));
