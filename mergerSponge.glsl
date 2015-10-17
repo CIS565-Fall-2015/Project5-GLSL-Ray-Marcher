@@ -59,7 +59,7 @@ float sdPlane(vec3 p)
 vec4 MergeSponge(float boundDist,vec3 pos)
 {  
     float s = 1.0;
-    vec3 col = vec3(1.0,0.2,0.5);
+    vec3 col = vec3(1.0,0.1,0.2);
     for(int m=0;m<leve_MergeSponge;m++)
     {
         //vec3 a = abs(mod((pos)*s, 2.0)-1.0)-0.5;
@@ -75,12 +75,13 @@ vec4 MergeSponge(float boundDist,vec3 pos)
 
         if(c>boundDist)
         {
-            col.r/=1.5;
-            col.g*=1.2;
+            col.r*=0.5;
+            col.g*=2.4;
+            col.b*=2.6;
             boundDist = c;
         }	        
     }
-    return vec4(col,boundDist);
+    return vec4(clamp(col,0.0,1.0),boundDist);
 }
 
 vec4 opU(vec4 d1, vec4 d2)
