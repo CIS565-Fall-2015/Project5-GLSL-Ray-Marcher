@@ -1,17 +1,25 @@
-// Created by inigo quilez - iq/2013
-// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+// Mostly from/based off of IQ's code at: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
 
-// A list of usefull distance function to simple primitives, and an example on how to 
-// do some interesting boolean operations, repetition and displacement.
-//
-// More info here: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
-
-//#define DEBUG_DIST
+//#define DEBUG_ITER
 
 vec3 camPos = vec3(3.0,3.0,3.0);
 
-float sdWall( vec3 p){
-    return p.x;
+float sdCylinder( vec3 p, vec3 c )
+{
+  return length(p.xz-c.xy)-c.z;
+}
+
+float sdCone( vec3 p, vec2 c )
+{
+    // c must be normalized
+    float q = length(p.xy);
+    return dot(c,vec2(q,p.z));
+}
+
+float sdTorus( vec3 p, vec2 t )
+{
+  vec2 q = vec2(length(p.xz)-t.x,p.y);
+  return length(q)-t.y;
 }
 
 float sdPlane( vec3 p )
@@ -24,7 +32,51 @@ float sdSphere( vec3 p, float s )
     return length(p)-s;
 }
 
+float sdEllipsoid( in vec3 p, in vec3 r )
+{
+    return (length( p/r ) - 1.0) * min(min(r.x,r.y),r.z);
+}
+
+float sdBox( vec3 p, vec3 b )
+{
+  vec3 d = abs(p) - b;
+  return min(max(d.x,max(d.y,d.z)),0.0) +
+         length(max(d,0.0));
+}
+
 //----------------------------------------------------------------------
+
+// Code from: http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/
+mat4 rotation(vec3 axis, float angle)
+{
+    axis = normalize(axis);
+    float s = sin(angle);
+    float c = cos(angle);
+    float oc = 1.0 - c;
+    
+    return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+                0.0,                                0.0,                                0.0,                                1.0);
+}
+
+mat4 transpose(mat4 m){
+    mat4 mt;
+    for(int i = 0; i < 4; i++){
+        for (int j = 0; j < 4; j++){
+        	mt[i][j] = m[j][i];
+        }
+    }
+    return mt;
+}
+
+vec3 opTx(vec3 pos, vec3 axis, float angle, vec3 translation){
+    vec3 pos2;
+    mat4 rot = rotation(axis, angle);
+    pos2 = (transpose(rot)*vec4(pos,1.0)).xyz;
+    pos2 -= translation;
+    return pos2;
+}
 
 vec2 opU( vec2 d1, vec2 d2 )
 {
@@ -37,28 +89,20 @@ vec2 map( in vec3 pos )
 {
     
     vec2 res = opU(
-                	vec2( sdPlane(     pos), 1.0 ),
-	            	vec2( sdSphere(    pos-vec3( 0.0,0.25, 0.0), 0.25 ), 46.9)
+                	vec2( sdPlane(pos), 1.0 ),
+	            	vec2( sdSphere(pos-vec3( 0.0,0.25, 0.0), 0.25 ), 46.9)
                );
-    return res;
-}
-
-/*
-vec2 map( in vec3 pos )
-{
+    vec3 posEllipsoid = opTx(pos, vec3(0.0,0.0,1.0), 0.2, vec3(1.0,1.0,0.0));
     
-    vec2 res = opU(
-        		opU( 
-                	vec2( sdPlane(     pos), 1.0 ),
-	            	vec2( sdSphere(    pos-vec3( 0.0,0.25, 0.0), 0.25 ), 46.9)
-                ),
-                vec2(sdWall(pos),46.9)
-               );
+    res = opU(res, vec2(sdEllipsoid(posEllipsoid, vec3(0.2,0.4,0.2)),40.0));
+    
+    //res = opU(res, vec2(sdTorus(pos - vec3(1.5,0.5,0.0),vec2(0.4,0.2)),36.0));
+    //res = opU(res, vec2(sdCylinder(pos - vec3(-1.0,0.0,0.0), vec3(0.01,1.0,0.2)), 26.0));
+    //res = opU(res, vec2(sdEllipsoid(pos - vec3(2.0,0.2,0.1), vec3(0.1,0.8,0.4)),16.0));
     return res;
 }
-*/
 
-vec2 naiveCastRay(in vec3 ro, in vec3 rd){
+vec3 naiveCastRay(in vec3 ro, in vec3 rd){
     float tmax = 20.0;
     float tmin = 1.0;
     float dt = 0.002;
@@ -68,22 +112,22 @@ vec2 naiveCastRay(in vec3 ro, in vec3 rd){
     float m = -1.0;
     
     vec2 res = map(ro + rd*t);
-	
+	int iter;
     for (int i=0; i<max_iter; i++){
         res = map(ro + rd*t);
         if (t > tmax || res.x < 0.0) break;
         t += dt;
         m = res.y;
-
+		iter = i;
     }
 
     if (res.x > 0.0){
         m = -1.0;
     }
-    return vec2(t,m);
+    return vec3(t,m,iter);
 }
 
-vec2 castRay( in vec3 ro, in vec3 rd )
+vec3 castRay( in vec3 ro, in vec3 rd )
 {
     float tmin = 1.0;
     float tmax = 20.0;
@@ -91,16 +135,18 @@ vec2 castRay( in vec3 ro, in vec3 rd )
     float precis = 0.002;
     float t = tmin;
     float m = -1.0;
-    for( int i=0; i<50; i++ )
+    int iter;
+    for(int i=0; i<50; i++ )
     {
         vec2 res = map( ro+rd*t );
         if( res.x<precis || t>tmax ) break;
         t += res.x;
         m = res.y;
+        iter = i;
     }
 
     if( t>tmax ) m=-1.0;
-    return vec2( t, m );
+    return vec3( t, m, iter );
 }
 
 vec3 calcNormal( in vec3 pos )
@@ -131,7 +177,7 @@ float calcAO( in vec3 pos, in vec3 nor )
 vec3 render( in vec3 ro, in vec3 rd )
 { 
     vec3 col = vec3(0.8, 0.9, 1.0); // Sky color
-    vec2 res = naiveCastRay(ro,rd);
+    vec3 res = castRay(ro,rd);
     float t = res.x;
     float m = res.y;
     if( m>-0.5 )  // Ray intersects a surface
@@ -209,12 +255,20 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     // render
     #ifdef DEBUG_DIST
     vec3 col = vec3(1.0);
-    vec2 t = naiveCastRay( ro, rd );
+    vec3 t = naiveCastRay( ro, rd );
     col = col * (t.x/20.0);
     #endif
     
+    #ifdef DEBUG_ITER
+    vec3 col = vec3(1.0);
+    vec3 t = naiveCastRay( ro, rd );
+    col = col * (t.z/4000.0);
+    #endif
+    
     #ifndef DEBUG_DIST
+    #ifndef DEBUG_ITER
     vec3 col = render(ro, rd);
+    #endif
     #endif
 
 
