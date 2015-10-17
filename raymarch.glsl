@@ -3,11 +3,17 @@
 
 #define NAIVE_MARCHING 0
 #define OVER_RELAX 1
+#define SHADOW 1
+#define OCCLUSION 1
 
 #define RENDER_NORMAL 0
 #define RENDER_DISTANCE 0
 #define RENDER_ITER 0
 
+/**
+* Distance estimators
+* McGuire, Numerical Methods for Ray Tracing Implicitly Defined Surfaces
+**/
 float dSphere(vec3 X, vec3 C, float r){
     return length(X-C)-r;
 }
@@ -36,6 +42,10 @@ float dCylinder(vec3 X, vec3 C, float r, float e){
     return min(maxComp, 0.0)+length(max(d, vec2(0.0)));
 }
 
+/**
+* Distance operators
+* McGuire, Numerical Methods for Ray Tracing Implicitly Defined Surfaces
+**/
 vec2 oUnion(vec2 r1, vec2 r2){
     return r1.x < r2.x ? r1 : r2;
 }
@@ -49,6 +59,7 @@ vec2 oSubtract(vec2 r1, vec2 r2){
     }
 }
 
+// Transform operator helper
 mat3 transpose(mat3 mx){
     mat3 t_mx = mat3(
         mx[0].x, mx[1].x, mx[2].x,
@@ -76,30 +87,39 @@ mat4 inverseTransform(vec3 translate, vec3 scale, mat3 rotate){
     return inv_scalH*inv_rotH*inv_tranH;
 }
 
-// Distance estimator wrapper
+/**
+* Distance estimator wrapper
+**/
 vec2 g(float t, in vec3 ro, in vec3 rd){
-    // Union
+    // Sphere
     float sphereDist = dSphere(ro+rd*t, vec3(0.0, 0.25, 0.0), 0.25);
+    
+    // Plane
     float planeDist = dPlane(ro+rd*t, vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
     
     vec2 res = oUnion(vec2(sphereDist, 1.0), vec2(planeDist, 2.0));
     
+    // Box
     float boxDist = dBox(ro+rd*t, vec3(-1.0, 0.2, 0.0), vec3(0.1, 0.1, 0.1));
     
     res = oUnion(vec2(boxDist, 3.0), res);
     
+    // Rounded corner box
     float boxDist3 = dRoBox(ro+rd*t, vec3(0.0, 0.2, 1.0), vec3(0.1, 0.1, 0.1));
     
     res = oUnion(vec2(boxDist3, 3.0), res);
     
+    // Torus
     float torusDist = dTorus(ro+rd*t, vec3(0.7, 0.2, -0.7), 0.3, 0.15);
     
     res = oUnion(vec2(torusDist, 4.0), res);
     
+    // Cylinder
     float cyDist = dCylinder(ro+rd*t, vec3(-0.7, 0.3, -0.7), 0.3, 0.3);
     
     res = oUnion(vec2(cyDist, 4.0), res);
     
+    // Sphere subtract cylinder
     float x = 1.2, z = 1.2;
     float sphereDist2 = dSphere(ro+rd*t, vec3(x, 0.25, z), 0.25);
     
@@ -109,6 +129,7 @@ vec2 g(float t, in vec3 ro, in vec3 rd){
     
     res = oUnion(res2, res);
     
+    // Cube with transformation
     vec3 scale = vec3(1.0, 2.0, 1.0);
     vec3 translate = vec3(1.0,0.3,0.0);
     mat3 rotate = mat3(cos(QUARTER_PI), 0, -sin(QUARTER_PI), 0, 1, 0, sin(QUARTER_PI), 0, cos(QUARTER_PI));
@@ -124,7 +145,12 @@ vec2 g(float t, in vec3 ro, in vec3 rd){
     return res;
 }
 
+/**
+* Marching
+**/
+// Marching helper
 vec3 findNormal(float t, vec3 ro, vec3 rd){
+    // McGuire, Numerical Methods for Ray Tracing Implicitly Defined Surfaces
     vec3 eps = vec3(0.0001, 0.0, 0.0);
     vec3 norm = vec3(
         g(t, ro+eps.xyy, rd).x-g(t, ro-eps.xyy, rd).x,
@@ -134,7 +160,9 @@ vec3 findNormal(float t, vec3 ro, vec3 rd){
     return normalize(norm);
 }
 
+// Naive
 mat3 naiveMarch(in vec3 ro, in vec3 rd){
+    // McGuire, Numerical Methods for Ray Tracing Implicitly Defined Surfaces
     float maxDist = 21.0;
     float dt = 0.01;
     float t = 1.0;
@@ -145,12 +173,14 @@ mat3 naiveMarch(in vec3 ro, in vec3 rd){
         if (res.x < eps){
             return mat3(res, i, findNormal(t, ro, rd), t, vec2(0.0));
         }
-        t+= dt;
+        t+= dt; // March a fixed step
     }
     return mat3(t, m, 199, vec3(0.0), vec3(0.0));
 }
 
+// Sphere
 mat3 sphereMarch(in vec3 ro, in vec3 rd){
+    // McGuire, Numerical Methods for Ray Tracing Implicitly Defined Surfaces
     float t = 1.0;
     float m = -1.0;
     float eps = 0.000001;
@@ -164,16 +194,20 @@ mat3 sphereMarch(in vec3 ro, in vec3 rd){
 #if OVER_RELAX
         float resRelax = res.x*1.2;
         float rDist = g(t+resRelax, ro, rd).x;
-        if ((rDist+res.x) >= resRelax){
+        if ((rDist+res.x) >= resRelax){ // If the two march spheres intersect
             res.x = resRelax;
         }
 #endif
-        t+= res.x;
+        t+= res.x; // March a variable step
     }
     return mat3(t, m, 199, vec3(0.0), vec3(0.0));
 }
 
+/**
+* Shading
+**/
 float softShadow(vec3 ro, vec3 rd){
+    // http://www.iquilezles.org/www/articles/rmshadows/rmshadows.htm
     float t = 0.0001;
     float eps = 0.00001;
     vec2 res;
@@ -210,11 +244,7 @@ float ambientOcclusion(vec3 ro, vec3 rd){
 
 vec3 shade(mat3 res, vec3 ro, vec3 rd){
     vec3 lightPos = vec3(6.0,6.0,6.0);
-#if NAIVE_MARCHING
-    vec3 lightCol = vec3(1.0, 0.72, 0.482);
-#else
-    vec3 lightCol = vec3(0.91, 0.91, 1.0);
-#endif
+    vec3 lightCol = vec3(1.0, 0.7647, 0.5725);
 #if RENDER_NORMAL
     return abs(res[1]);
 #elif RENDER_DISTANCE
@@ -234,23 +264,36 @@ vec3 shade(mat3 res, vec3 ro, vec3 rd){
         m = vec3(1.0,1.0,0.0);
     }
     if (res[0].y == 4.0){
+        // Checker board material
+        // https://www.shadertoy.com/view/Xds3zN
         m = vec3(0.3, 0.8, 0.3) - vec3(0.3)*mod( floor(5.0*(ro+rd*res[2].x).z) + floor(5.0*(ro+rd*res[2].x).x), 2.0);
     }
     
     vec3 L = normalize(lightPos - (ro+rd*res[2].x));
-    vec3 L2 = normalize(-lightPos - (ro+rd*res[2].x));
-    
-    // Soft shadow
-    float shadow = softShadow(ro+rd*res[2].x, L);
-    
-    // Ambient occlusion
-    float occlusion = ambientOcclusion(ro+rd*res[2].x, res[1]);
-    
     // Lambert
     vec3 diffuse = dot(L, res[1])*lightCol*m;
-    vec3 ambient = dot(res[1], res[1])*vec3(0.8,0.8,1.0)*m;
+
+#if NAIVE_MARCHING
+    return diffuse;
+#else
     
-    return diffuse*shadow+0.5*ambient*occlusion;
+    float shadow = 1.0, occlusion = 0.0;
+    vec3 ambient = vec3(1.0);
+#if SHADOW
+    // Soft shadow
+    shadow = softShadow(ro+rd*res[2].x, L);
+#endif
+    
+#if OCCLUSION
+    // Ambient occlusion
+    occlusion = ambientOcclusion(ro+rd*res[2].x, res[1]);
+    ambient = dot(res[1], res[1])*vec3(0.8,0.8,1.0)*m;
+#endif
+    
+    return 0.6*diffuse*shadow+1.2*ambient*occlusion;
+    
+#endif
+    
 #endif
 }
 
@@ -259,7 +302,6 @@ vec3 render(in vec3 ro, in vec3 rd) {
     vec3 col = vec3(0.8,0.8,1.0)*(rd.y+1.0);
     
     // Ray marching
-    vec3 lightCol;
 #if NAIVE_MARCHING
     mat3 res = naiveMarch(ro, rd);
 #else
@@ -272,9 +314,7 @@ vec3 render(in vec3 ro, in vec3 rd) {
 }
 
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
-    // Starter code from iq's Raymarching Primitives
     // https://www.shadertoy.com/view/Xds3zN
-
     vec3 cw = normalize(ta - ro);
     vec3 cp = vec3(sin(cr), cos(cr), 0.0);
     vec3 cu = normalize(cross(cw, cp));
@@ -283,9 +323,7 @@ mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
 }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-    // Starter code from iq's Raymarching Primitives
     // https://www.shadertoy.com/view/Xds3zN
-
     vec2 q = fragCoord.xy / iResolution.xy;
     vec2 p = -1.0 + 2.0 * q;
     p.x *= iResolution.x / iResolution.y;
