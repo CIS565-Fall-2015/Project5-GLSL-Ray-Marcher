@@ -192,7 +192,7 @@ mat3 sphereMarch(in vec3 ro, in vec3 rd){
         
     // Over-relaxation
 #if OVER_RELAX
-        float resRelax = res.x*1.2;
+        float resRelax = res.x*1.7;
         float rDist = g(t+resRelax, ro, rd).x;
         if ((rDist+res.x) >= resRelax){ // If the two march spheres intersect
             res.x = resRelax;
