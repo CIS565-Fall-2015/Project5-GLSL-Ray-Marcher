@@ -56,9 +56,10 @@ float sdPlane(vec3 p)
 	return p.y;
 }
 
-float sdMergeSponge(float boundDist,vec3 pos)
+vec4 MergeSponge(float boundDist,vec3 pos)
 {  
     float s = 1.0;
+    vec3 col = vec3(1.0,0.2,0.5);
     for(int m=0;m<leve_MergeSponge;m++)
     {
         //vec3 a = abs(mod((pos)*s, 2.0)-1.0)-0.5;
@@ -74,10 +75,12 @@ float sdMergeSponge(float boundDist,vec3 pos)
 
         if(c>boundDist)
         {
+            col.r/=1.5;
+            col.g*=1.2;
             boundDist = c;
         }	        
     }
-    return boundDist;
+    return vec4(col,boundDist);
 }
 
 vec4 opU(vec4 d1, vec4 d2)
@@ -91,10 +94,11 @@ vec4 map(in vec3 pos)
     vec3 Ts = vec3(0,0.5,0);
     vec3 Rs = vec3(0,0.0,0.0);
     vec3 Ss = vec3(1,1,1);
-    vec4 cube = vec4(vec3(0.5,0.6,1),sdBox(TransP(pos,vec3(0.0,0.0,0),vec3(0),vec3(1)),vec3(1.0,1.0,1.0)));
-    vec4 MergeSponge = vec4(vec3(1.0,0.7,0.9),sdMergeSponge(cube.w,pos));
-
-    return MergeSponge;
+    vec4 bound = vec4(vec3(0.5,0.6,1),sdBox(TransP(pos,vec3(0.0,0.0,0),vec3(0),vec3(1)),vec3(1.0,1.0,1.0)));
+    //vec4 bound = vec4(vec3(0.5,0.6,1),sdSphere(TransP(pos,vec3(0.0,0.0,0),vec3(0),vec3(1)),2.0));
+    vec4 MS = MergeSponge(bound.w,pos);
+    
+    return MS;
 }
 
 vec3 calcNormal( in vec3 pos )
