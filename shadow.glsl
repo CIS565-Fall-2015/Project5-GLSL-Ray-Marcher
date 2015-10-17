@@ -2,8 +2,6 @@
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 // More info here: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
 
-//try later : http://www.johndcook.com/blog/2011/08/30/slice-a-menger-sponge/
-
 int itrNum = 0;
 float dist = 0.0;
 
@@ -63,39 +61,14 @@ vec4 opU(vec4 d1, vec4 d2)
 
 vec4 map(in vec3 pos)
 {
-    vec3 Ts = vec3(0,0.5,0);
+    vec3 Ts = vec3(0,0.35,0);
     vec3 Rs = vec3(0,0.0,0.0);
     vec3 Ss = vec3(1,1,1);
-    vec4 cube = vec4(vec3(0.5,0.6,1),sdBox(TransP(pos,vec3(0.0,0.0,0),vec3(0),vec3(1)),vec3(1.0,1.0,1.0)));
-    //vec4 res = opU(sphere,plane);
-    vec4 res = cube;
-    float s = 1.0;
-    for(int m=0;m<2;m++)
-    {
-        //vec3 a = abs(mod((pos)*s, 2.0)-1.0)-0.5;
-        //vec3 a = abs(mod((pos)*s, 2.0))-vec3(0.5);
-        vec3 a = abs(mod(pos*s,2.0)-1.0)-(1.0/3.0)*2.0;
-        float dx = min(a.x,a.y);
-        float dy = min(a.y,a.z);
-        float dz = min(a.z,a.x);
-        
-        s*=3.0;
-        
-        float c = max(dx,max(dy,dz))/s;
-        
-        res.rgb = vec3(a);
-        //vec3 col = vec3(pos.x>0.0?1.0:0.0,1.0,1.0);	
-        
-        res.rgb = vec3(1.0,0.0,0.0);
-        if(c>res.w)
-        {
-            res.rgb = vec3(0.0,1.0,1.0);
-            res.w = c;
-        }
-        //res.rgb = vec3(bool(a.x>0.0));
-		
-        
-    }
+    vec4 sphere = vec4(vec3(0.8, 0, 0), Ss.x*Ss.y*Ss.z*sdSphere(TransP(pos,Ts,Rs,Ss), 0.5));
+    vec4 plane = vec4(vec3(float(floor(mod(pos.x*2.0,2.0))==floor(mod(pos.z*2.0,2.0)))*0.4+0.5), sdPlane(pos));
+    vec4 cube = vec4(vec3(0.2,0.2,1),sdBox(TransP(pos,vec3(0.5,1,0),vec3(0),vec3(1)),vec3(0.1,0.2,0.1)));
+    vec4 res = opU(sphere,plane);
+	res = opU(res,cube);
     return res;
 }
 
@@ -179,6 +152,36 @@ vec4 castRay_ST(in vec3 ro, in vec3 rd)
 	return vec4(m, t);
 }
 
+float Shadow( vec3 ro, vec3 rd )
+{
+
+    float res = 1.0; 
+    float t = 0.02;
+    rd = normalize(rd);
+#if 1	//soft shadow
+    //rd = rd-ro;
+    for( int i=0; i<40; i++ )
+    {
+		float dist = map( ro + rd*t ).w;
+        res = min( res, 10.0*dist/t );
+        if(dist<0.0001||t>10.0) break;
+        t += dist;
+    }
+#else   //sharp shadow   
+    vec3 d = rd;//+vec3(0.0,0.0,0.0)-ro;
+    for( int i=0; i<40; i++ )
+    {
+        float dist = map(ro+d*t).w;
+        res = dist;
+        
+        t+=dist;
+        if(dist<0.002||t>10.0) break;
+    }
+#endif
+    return clamp( res, 0.0, 1.0 );
+
+}
+
 vec3 render(in vec3 ro, in vec3 rd) {
 	// TODO
 
@@ -189,23 +192,19 @@ vec3 render(in vec3 ro, in vec3 rd) {
     vec3 nor = calcNormal(ro + rd*t);
 	vec3 m = res.xyz;
 	if (t>-0.5)  // Ray intersects a surface
-	{
-		// material        
+	{ 
 		col = m;
-        //col = mix( col, vec3(0.8,0.9,1.0), 1.0-exp( -0.0005*t*t ) );
-        //col = nor;
-        //col = 0.45 + 0.3*sin(vec3(0.05, 0.08, 0.10)*(float(itrNum) - 6.0)); 
         vec3  lig = normalize( vec3(-0.6, 0.7, -0.5) );
-        float amb = clamp( 0.5+0.5*nor.y, 0.0, 1.0 );
-        float dif = clamp( dot( nor, lig ), 0.0, 1.0 );
+        //float amb = clamp( 0.5+0.5*nor.y, 0.0, 1.0 );
+        float shadow = Shadow(ro+t*rd,lig);
+        float diffuse = clamp( dot( nor, lig ), 0.0, 1.0 );
+        diffuse*=shadow;
         vec3 brdf = vec3(0.0);
-        brdf += 0.5*amb*vec3(1,1,1);
-        brdf += 0.5*dif*vec3(1.0,1,1);
+        brdf += 1.20*diffuse*vec3(1.0,1,1);
         col = col*brdf;
+        //col = nor;
         //col = vec3(1.0-dist/10.0);
     }
-    
-
 	return vec3(clamp(col, 0.0, 1.0));
 	//return rd;  // camera ray direction debug view
 }
