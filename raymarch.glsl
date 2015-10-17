@@ -4,6 +4,7 @@
 #define RENDER_NORMAL 0
 #define RENDER_DISTANCE 0
 #define RENDER_ITER 0
+#define OVER_RELAX 1
 
 float dSphere(vec3 X, vec3 C, float r){
     return length(X-C)-r;
@@ -19,7 +20,7 @@ float dBox(vec3 X, vec3 C, vec3 b){
     return min(maxComp, 0.0)+length(max(d, vec3(0.0)));
 }
 
-vec2 oUnion(vec2 r1, vec2 r2){
+vec3 oUnion(vec3 r1, vec3 r2){
     return r1.x < r2.x ? r1 : r2;
 }
 
@@ -56,15 +57,15 @@ vec2 g(float t, in vec3 ro, in vec3 rd){
     float sphereDist = dSphere(ro+rd*t, vec3(0.0, 0.25, 0.0), 0.25);
     float planeDist = dPlane(ro+rd*t, vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
     
-    vec2 res = oUnion(vec2(sphereDist, 1.0), vec2(planeDist, 2.0));
+    vec3 res = oUnion(vec3(sphereDist, 1.0, 1.0), vec3(planeDist, 2.0, 2.0));
     
     float boxDist = dBox(ro+rd*t, vec3(-1.0, 0.2, 0.0), vec3(0.1, 0.1, 0.1));
     
-    res = oUnion(vec2(boxDist, 3.0), res);
+    res = oUnion(vec3(boxDist, 3.0, 3.0), res);
     
     float boxDist3 = dBox(ro+rd*t, vec3(0.0, 0.1, 1.0), vec3(0.1, 0.1, 0.1));
     
-    res = oUnion(vec2(boxDist3, 3.0), res);
+    res = oUnion(vec3(boxDist3, 3.0, 4.0), res);
     
     vec3 scale = vec3(1.0, 2.0, 1.0);
     vec3 translate = vec3(1.0,0.3,0.0);
@@ -76,9 +77,9 @@ vec2 g(float t, in vec3 ro, in vec3 rd){
     
     float boxDist2 = dBox(X, vec3(0.0, 0.0, 0.0), vec3(0.1, 0.1, 0.1));
     
-    res = oUnion(vec2(boxDist2, 3.0), res);
+    res = oUnion(vec3(boxDist2, 3.0, 5.0), res);
     
-    return res;
+    return vec2(res.x, res.y);
 }
 
 vec3 findNormal(float t, vec3 ro, vec3 rd){
@@ -111,11 +112,20 @@ mat3 sphereMarch(in vec3 ro, in vec3 rd){
     float t = 1.0;
     float m = -1.0;
     float eps = 0.000001;
-    for (int i = 0; i < 500; i++){
+    for (int i = 0; i < 400; i++){
         vec2 res = g(t, ro, rd);
         if (res.x < eps){
             return mat3(res, i, findNormal(t, ro, rd), t, vec2(0.0));
         }
+        
+    // Over-relaxation
+#if OVER_RELAX
+        float resRelax = res.x*1.2;
+        float rDist = g(t+resRelax, ro, rd).x;
+        if ((rDist+res.x) >= resRelax){
+            res.x = resRelax;
+        }
+#endif
         t+= res.x;
     }
     return mat3(t, m, 199, vec3(0.0), vec3(0.0));
