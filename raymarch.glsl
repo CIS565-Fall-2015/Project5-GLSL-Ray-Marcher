@@ -2,6 +2,14 @@
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 // More info here: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
 
+#define Debug_Normal 0
+#define Debug_SurfDist 0
+#define Debug_iterNum 0
+#define NaiveMarch 1
+#define HeightMap 0
+
+int MaxIter = 100;
+
 int itrNum = 0;
 float dist = 0.0;
 
@@ -37,6 +45,11 @@ vec3 TransP(vec3 pos, vec3 T, vec3 R, vec3 S)
     return localPos.xyz;
 }
 
+float sdPlane_height(vec3 p,float s,float repeat)
+{
+	return p.y - s*length(texture2D( iChannel0, repeat*p.xz, 0.0 ).xyz);
+}
+
 float sdBox(vec3 x,vec3 b)
 {
     vec3 d = abs(x)-b;
@@ -51,12 +64,6 @@ float sdSphere(vec3 p, float s)
 float sdPlane(vec3 p)
 {
 	return p.y;
-    
-}
-
-float sdPlane_height(vec3 p,float s,float repeat)
-{
-	return p.y - s*length(texture2D( iChannel0, repeat*p.xz, 0.0 ).xyz);
 }
 
 vec4 opU(vec4 d1, vec4 d2)
@@ -67,14 +74,17 @@ vec4 opU(vec4 d1, vec4 d2)
 
 vec4 map(in vec3 pos)
 {
-    vec3 Ts = vec3(0,0.5,0);
+    vec3 Ts = vec3(0,0.35,0);
     vec3 Rs = vec3(0,0.0,0.0);
     vec3 Ss = vec3(1,1,1);
-    vec4 plane_height = vec4(vec3(0.6,0.6,0.6),sdPlane_height(pos,0.2,0.1));
     vec4 sphere = vec4(vec3(0.8, 0, 0), Ss.x*Ss.y*Ss.z*sdSphere(TransP(pos,Ts,Rs,Ss), 0.5));
-    vec4 plane = vec4(vec3(1, 1, 0.5), sdPlane(pos));
+#if HeightMap
+    vec4 plane = vec4(vec3(0.6,0.6,0.6),sdPlane_height(pos,0.2,0.1));
+#else
+    vec4 plane = vec4(vec3(float(floor(mod(pos.x*2.0,2.0))==floor(mod(pos.z*2.0,2.0)))*0.4+0.5), sdPlane(pos));
+#endif
     vec4 cube = vec4(vec3(0.2,0.2,1),sdBox(TransP(pos,vec3(0.5,1,0),vec3(0),vec3(1)),vec3(0.1,0.2,0.1)));
-    vec4 res = opU(sphere,plane_height);
+    vec4 res = opU(sphere,plane);
 	res = opU(res,cube);
     return res;
 }
@@ -101,11 +111,10 @@ vec4 castRay_Naive(in vec3 ro, in vec3 rd)
 	{
 		vec4 res = map(ro + rd*t);
         dist = length(rd*t);
-        
+        m = res.xyz;
 		if (res.w<precis)
 		{
 			//m = calcNormal(ro + rd*t);//res.xyz;
-            m = res.rgb;
             itrNum = i;
 			break;
 		}
@@ -160,31 +169,81 @@ vec4 castRay_ST(in vec3 ro, in vec3 rd)
 	return vec4(m, t);
 }
 
+float Shadow( vec3 ro, vec3 rd )
+{
+
+    float res = 1.0; 
+    float t = 0.02;
+    rd = normalize(rd);
+#if 1	//soft shadow
+    //rd = rd-ro;
+    bool ifBreak = false;
+    for( int i=0; i<40; i++ )
+    {
+		float dist = map( ro + rd*t ).w;
+        res = min( res, 10.0*dist/t );
+        if(dist<0.0001||t>10.0)
+        {
+            ifBreak = true;
+            itrNum += i;
+            break;
+        }        
+        t += dist;
+    }
+    if(!ifBreak) itrNum+=40;
+#else   //sharp shadow   
+    vec3 d = rd;//+vec3(0.0,0.0,0.0)-ro;
+    for( int i=0; i<40; i++ )
+    {
+        float dist = map(ro+d*t).w;
+        res = dist;
+        
+        t+=dist;//clamp( dist, 0.0002, 0.005 );
+        if(dist<0.002||t>10.0) break;
+    }
+#endif
+    return clamp( res, 0.0, 1.0 );
+
+}
+
 vec3 render(in vec3 ro, in vec3 rd) {
 	// TODO
-
-    vec4 res = castRay_Naive(ro, rd);
+#if NaiveMarch
+    MaxIter = 1000;
+    vec4 res = castRay_Naive(ro,rd);
+#elif HeightMap
+    MaxIter = 1000;
+    vec4 res = castRay_Naive(ro,rd);
+#else
+    MaxIter = 100;
+    vec4 res = castRay_ST(ro, rd);
+#endif
 	float t = res.w;
     vec3 col = vec3(0.8, 0.9, 1.0);
     vec3 nor = calcNormal(ro + rd*t);
 	vec3 m = res.xyz;
 	if (t>-0.5)  // Ray intersects a surface
-	{
-		// material        
+	{ 
 		col = m;
-        //col = mix( col, vec3(0.8,0.9,1.0), 1.0-exp( -0.0005*t*t ) );
-        //col = nor;
-        //col = 0.45 + 0.3*sin(vec3(0.05, 0.08, 0.10)*(float(itrNum) - 6.0)); 
         vec3  lig = normalize( vec3(-0.6, 0.7, -0.5) );
         //float amb = clamp( 0.5+0.5*nor.y, 0.0, 1.0 );
-        float dif = clamp( dot( nor, lig ), 0.0, 1.0 );
+        float shadow = Shadow(ro+t*rd,lig);
+        float diffuse = clamp( dot( nor, lig ), 0.0, 1.0 );
+        diffuse*=shadow;
         vec3 brdf = vec3(0.0);
-        brdf += 1.20*dif*vec3(1.0,1,1);
+        brdf += 1.20*diffuse*vec3(1.0,1,1);
         col = col*brdf;
-        //col = vec3(1.0-dist/10.0);
+#if Debug_Normal
+        col = nor;
+#elif Debug_SurfDist
+        col = col = vec3(1.0-dist/5.0);
+#elif Debug_iterNum
+        col = vec3(1.0-float(itrNum)/40.0);
+        col = vec3(1.2-float(itrNum)/float(MaxIter),abs(0.2-float(itrNum)/float(MaxIter)),1.0);
+    //#endif
+#endif
+        
     }
-    
-
 	return vec3(clamp(col, 0.0, 1.0));
 	//return rd;  // camera ray direction debug view
 }
