@@ -119,13 +119,13 @@ mat3 sphereMarch(in vec3 ro, in vec3 rd){
 float softShadow(vec3 ro, vec3 rd){
     float t = 0.1;
     float eps = 0.00001;
-    float maxDist = 2.0;
     vec2 res;
     float distAway = 1.0;
-    for (int i = 0; i < 9; i++){
+    float scatterConstraint = 6.0;
+    for (int i = 0; i < 22; i++){
         res = g(t, ro, rd);
-        distAway = min(distAway, 6.0*res.x/(res.x+t));
-        if (res.x < eps || t > maxDist) break;
+        distAway = min(distAway, scatterConstraint*res.x/(res.x+t));
+        if (res.x < eps) break;
         t+= clamp(res.x, 0.01, 0.05);
     }
     return 0.2+clamp(distAway, 0.0, 0.8);
