@@ -1,10 +1,12 @@
 #define QUARTER_PI 0.7853981634
 #define PI 3.1415926535879
+
 #define NAIVE_MARCHING 0
+#define OVER_RELAX 1
+
 #define RENDER_NORMAL 0
 #define RENDER_DISTANCE 0
 #define RENDER_ITER 0
-#define OVER_RELAX 1
 
 float dSphere(vec3 X, vec3 C, float r){
     return length(X-C)-r;
@@ -26,6 +28,12 @@ float dRoBox(vec3 X, vec3 C, vec3 b){
 
 float dTorus(vec3 X, vec3 C, float r, float R){
     return length(vec2(length(X.xz-C.xz)-r, X.y-C.y))-R;
+}
+
+float dCylinder(vec3 X, vec3 C, float r, float e){
+    vec2 d = abs(vec2(length(X.xz-C.xz), X.y-C.y))-vec2(r, e);
+    float maxComp = max(d.x, d.y);
+    return min(maxComp, 0.0)+length(max(d, vec2(0.0)));
 }
 
 vec2 oUnion(vec2 r1, vec2 r2){
@@ -78,6 +86,10 @@ vec2 g(float t, in vec3 ro, in vec3 rd){
     float torusDist = dTorus(ro+rd*t, vec3(0.7, 0.2, -0.7), 0.3, 0.15);
     
     res = oUnion(vec2(torusDist, 4.0), res);
+    
+    float cyDist = dCylinder(ro+rd*t, vec3(-0.7, 0.3, -0.7), 0.3, 0.3);
+    
+    res = oUnion(vec2(cyDist, 4.0), res);
     
     vec3 scale = vec3(1.0, 2.0, 1.0);
     vec3 translate = vec3(1.0,0.3,0.0);
