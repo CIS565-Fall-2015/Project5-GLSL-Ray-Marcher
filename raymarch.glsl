@@ -9,22 +9,26 @@
 
 //MACRO
 
-//#define DEBUG_DISTANCE_TO_SURFACE
-//#define DEBUG_NUM_RAY_MARCH_ITERATIONS
+#define DEBUG_DISTANCE_TO_SURFACE 0
+#define DEBUG_NUM_RAY_MARCH_ITERATIONS 0
 
-#define NAIVE_TRACE
+#define NAIVE_TRACE_INTERPOLATE 0
+#define NAIVE_TRACE 0
+//#define SPHERE_OVER_RELAXATION 1
 
+#define K_OVERRELAX (1.2)
 
 #define MAX_ITERATIONS_NAIVE 2000
 #define MAX_ITERATIONS_SPHERE 50
 
-#define MAX_ITERATION_TIMES_DIVIDER 200
+#define MAX_ITERATION_TIMES_DIVIDER 40
 //--------
 
 
 
-#ifdef DEBUG_NUM_RAY_MARCH_ITERATIONS
+#if DEBUG_NUM_RAY_MARCH_ITERATIONS
 	int num_ray_march_interations=0;
+	//int num_reverse=0;
 #endif
 
 //Distance Functions
@@ -141,6 +145,8 @@ vec3 opTwist( vec3 p )
 }
 
 
+
+
 //MY
 
 float opIntersect(float d1, float d2)
@@ -164,6 +170,17 @@ mat3 rotationMatrix(vec3 axis, float angle)
 }
 
 
+vec3 float2Color(float v,float vmin,float vmax)
+{
+	float t = 2.0 * (v-vmin)/(vmax-vmin);
+	
+	return vec3( 1.0 - min(1.0,max(0.0,t))
+				, t>1.0 ? max(0.0,2.0-t) : t
+				, min(1.0,max(0.0,t-1.0)) );
+
+}
+
+
 //----------------------------------------------------------------------
 
 float terrain(vec3 pos)
@@ -176,17 +193,19 @@ vec2 map( in vec3 pos )
 {
     vec2 res = opU( vec2( sdPlane(     pos), 1.0 ),
 	            vec2( sdSphere(    pos-vec3( 0.0,0.25, 0.0), 0.25 ), 46.9 ) );
+    //vec2 res= vec2(terrain(pos),1.0);
     return res;
 }
 
 
+//const overRelaxK = 1.5;
 
 
 vec2 castRay( in vec3 ro, in vec3 rd )
 {
 
 //interpolate and dynamic delta
-#ifdef NAIVE_TRACE
+#if NAIVE_TRACE_INTERPOLATE
 
 
 	float tmin = 1.0;
@@ -201,6 +220,9 @@ vec2 castRay( in vec3 ro, in vec3 rd )
 	//while loop is not allowed in shader toy
 	for( int i=0; i<MAX_ITERATIONS_NAIVE; i++ )
     {
+#if DEBUG_NUM_RAY_MARCH_ITERATIONS
+		num_ray_march_interations = num_ray_march_interations + 1;
+#endif
         vec3 p = ro+rd*t;
         res = map(p);
 		if(t >= tmax)
@@ -222,54 +244,76 @@ vec2 castRay( in vec3 ro, in vec3 rd )
         dt = 0.01*t;
         lh = p.y - res.x;
         ly = p.y;
-#ifdef DEBUG_NUM_RAY_MARCH_ITERATIONS
-		num_ray_march_interations = num_ray_march_interations + 1;
-#endif
-	}
 
+	}
+	if( t>tmax ) res.y=-1.0;
+	return vec2(t,res.y);
 
 	//naive way
-//#ifdef NAIVE_TRACE
+#elif NAIVE_TRACE
 
 
-//	float tmin = 1.0;
-//    float tmax = 20.0;
-//	float dt = 0.01;
+	float tmin = 1.0;
+    float tmax = 20.0;
+	float dt = 0.01;
 
-//	float t = tmin;
-//	vec2 res = map(ro+rd*t);
+	float t = tmin;
+	vec2 res = map(ro+rd*t);
 
-//	//while loop is not allowed in shader toy
-//	for( int i=0; i<MAX_ITERATIONS_NAIVE; i++ )
-//    {
-//		if(t >= tmax || res.x <= 0.0) break;
+	//while loop is not allowed in shader toy
+	for( int i=0; i<MAX_ITERATIONS_NAIVE; i++ )
+    {
+#if DEBUG_NUM_RAY_MARCH_ITERATIONS
+		num_ray_march_interations = num_ray_march_interations + 1;
+#endif
+		if(t >= tmax || res.x <= 0.0) break;
 
-//		t = t + dt;
-//		res = map(ro+rd*t);
-
-//#ifdef DEBUG_NUM_RAY_MARCH_ITERATIONS
-//		num_ray_march_interations = num_ray_march_interations + 1;
-//#endif
-//	}
+		t = t + dt;
+		res = map(ro+rd*t);
+		
+	}
 
     if( t>tmax ) res.y=-1.0;
 	return vec2(t,res.y);
 #else
+	//Sphere Trace
+
     float tmin = 1.0;
     float tmax = 20.0;
     
     float precis = 0.002;
     float t = tmin;
     float m = -1.0;
+
+	float this_dt = 0.0;
+    float K = K_OVERRELAX;
+    float last_r=0.0;
     for( int i=0; i<MAX_ITERATIONS_SPHERE; i++ )
     {
-        vec2 res = map( ro+rd*t );
-        if( res.x<precis || t>tmax ) break;
-        t += res.x;
-        m = res.y;
-#ifdef DEBUG_NUM_RAY_MARCH_ITERATIONS
+#if DEBUG_NUM_RAY_MARCH_ITERATIONS
 		num_ray_march_interations = num_ray_march_interations + 1;
 #endif
+        vec2 res = map( ro+rd*t );
+		if(K>1.01 && last_r + abs(res.x) < this_dt)
+		{
+			//fail
+#if DEBUG_NUM_RAY_MARCH_ITERATIONS
+            //num_reverse += 1;
+			num_ray_march_interations = num_ray_march_interations + 1;
+#endif
+
+			t += (1.0-K) * this_dt;
+			res = map( ro + rd * t);
+            K=1.0;
+		}
+		
+		if( res.x<precis || t>tmax ) break;
+		
+        last_r = abs(res.x);
+		this_dt = K * last_r;
+        t += this_dt;
+        m = res.y;
+
     }
     if( t>tmax ) m=-1.0;
     return vec2( t, m );
@@ -325,16 +369,18 @@ float calcAO( in vec3 pos, in vec3 nor )
 vec3 render( in vec3 ro, in vec3 rd )
 {
 
-#ifdef DEBUG_DISTANCE_TO_SURFACE
+#if DEBUG_DISTANCE_TO_SURFACE
 	vec2 res = castRay(ro,rd);
 	float tmp = res.x/20.0;
 	vec3 col = vec3(tmp);
 	return clamp(col,0.0,1.0);
-#endif
-#ifdef DEBUG_NUM_RAY_MARCH_ITERATIONS
+	
+#elif DEBUG_NUM_RAY_MARCH_ITERATIONS
 	vec2 res = castRay(ro,rd);
-	vec3 col = vec3(float(num_ray_march_interations)/float(MAX_ITERATION_TIMES_DIVIDER),0.0,0.0);
-	return clamp(col,0.0,1.0);
+	//vec3 col = vec3(float(num_ray_march_interations)/float(MAX_ITERATION_TIMES_DIVIDER),0.0,0.0);
+	//return clamp(col,0.0,1.0);
+	return float2Color(float(num_ray_march_interations),0.0,float(MAX_ITERATION_TIMES_DIVIDER));
+    //return float2Color(float(num_reverse),0.0,10.0);
 #else 
     vec3 col = vec3(0.8, 0.9, 1.0); // Sky color
     vec2 res = castRay(ro,rd);
