@@ -139,20 +139,19 @@ float softShadow(vec3 ro, vec3 rd){
 }
 
 float ambientOcclusion(vec3 ro, vec3 rd){
-    float t = 0.1;
+    // GPU Ray Marching of Distance Fields - Lukasz Jaroslaw Tomczak
+    // http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf
     float dt = 0.01;
     vec2 res;
     float f = 1.0;
-    for (int i = 1; i < 30; i++){
-        res = g(t, ro, rd);
-        if (res.x < dt){
-            float r = dt*float(i);
-            f = acos((r-res.x)/r)/PI;
-            break;
-        }
-        t+= dt;
+    float diff_sum = 0.0;
+    float contrast = 6.0;
+    for (int i = 0; i < 6; i++){
+        res = g(float(i)*dt, ro, rd);
+        diff_sum += (dt-res.x);
     }
-    return clamp(f, 0.0, 1.0);
+    f = exp(contrast*diff_sum);
+    return 1.0-f;
 }
 
 vec3 shade(mat3 res, vec3 ro, vec3 rd){
