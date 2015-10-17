@@ -1,17 +1,35 @@
 #define NAIVE_MARCHING 0
+#define RENDER_NORMAL 0
+#define RENDER_DISTANCE 0
+#define RENDER_ITER 0
 
-vec3 shade(mat3 res, vec3 lightCol){
+vec3 shade(mat3 res, vec3 ro, vec3 rd){
+    vec3 lightPos = vec3(6.0,6.0,6.0);
+#if NAIVE_MARCHING
+    vec3 lightCol = vec3(1.0, 0.72, 0.482);
+#else
+    vec3 lightCol = vec3(0.91, 0.91, 1.0);
+#endif
+#if RENDER_NORMAL
+    return res[1];
+#elif RENDER_DISTANCE
+    return vec3(res[2].x/21.0);
+#elif RENDER_ITER
+    return vec3(res[0].z/199.0);
+#else
+    vec3 m;
     if (res[0].y == 1.0){
-        return res[1];
-        //return lightCol;
+        m = vec3(0.8,0.8,0.8);
     }
     if (res[0].y == 2.0){
-        return vec3(0.5, 0.5, 0.5);
+        m = vec3(0.1,0.1,0.1) + vec3(0.6)*mod(floor(length(ro+rd*res[2].x)), 3.0);
     }
     if (res[0].y == 3.0){
-        return vec3(1.0,1.0,1.0);
+        m = vec3(1.0,1.0,0.0);
     }
-    return vec3(1.0,1.0,1.0);
+    vec3 L = normalize(lightPos - (ro+rd*res[2].x));
+    return dot(L, res[1])*lightCol*m;
+#endif
 }
 
 float dSphere(vec3 X, vec3 C, float r){
@@ -70,7 +88,7 @@ mat3 naiveMarch(in vec3 ro, in vec3 rd){
     for (int i = 0; i < 2000; i++){
         vec2 res = g(t, ro, rd);
         if (res.x < eps){
-            return mat3(res, i, findNormal(t, ro, rd), vec3(0.0));
+            return mat3(res, i, findNormal(t, ro, rd), t, vec2(0.0));
         }
         t+= dt;
     }
@@ -85,7 +103,7 @@ mat3 sphereMarch(in vec3 ro, in vec3 rd){
     for (int i = 0; i < 200; i++){
         vec2 res = g(t, ro, rd);
         if (res.x < eps){
-            return mat3(res, i, findNormal(t, ro, rd), vec3(0.0));
+            return mat3(res, i, findNormal(t, ro, rd), t, vec2(0.0));
         }
         t+= res.x;
     }
@@ -100,13 +118,11 @@ vec3 render(in vec3 ro, in vec3 rd) {
     vec3 lightCol;
 #if NAIVE_MARCHING
     mat3 res = naiveMarch(ro, rd);
-    lightCol = vec3(1.0,0.0,0.0);
 #else
     mat3 res = sphereMarch(ro, rd);
-    lightCol = vec3(0.0,0.0,1.0);
 #endif
     
-    if (res[0].y > 0.0) col = shade(res, lightCol);
+    if (res[0].y > 0.0) col = shade(res, ro, rd);
     
     return clamp(col, 0.0, 1.0);
 }
