@@ -21,7 +21,7 @@ Analysis
 
 #### Naive Ray Marching vs. Sphere Tracing
 
-**Test Scene
+**Test Scene**
 
 ![](img/debug_IterNum_TestScene.PNG =50x)
 
@@ -36,18 +36,20 @@ Analysis
 
 * Naive Ray Marching
 
-|Max Iteration Numver|				80000			   |
-|--------------------|------|--------|--------|--------|
-|		Precision	 |  1e-6|  9.5e-7|  9.0e-7|  6.0e-7|
-|		`FPS		 |    60|    12.5|       7|     6.8|
+|Max Iteration Numver| 1000| 1300| 2000| 4000|19000|
+|--------------------|-----|-----|-----|-----|-----|
+|		Precision	 |0.02 |0.015| 0.01|0.005|0.001|
+|   FPS				 |   60|   52|   38|   20|  4.3|
 
 !!!!Analysis here ... ...
 
 * Sphere Tracing
 
-|--------------------|-----|-----|-----|-----|-----|
-|		Precision	 |0.02 |0.015| 0.01|0.005|0.001|
-|   FPS				 |   60|   52|   38|   20|  4.3|
+|Max Iteration Numver|>4 80000
+|--------------------|------|--------|--------|--------|
+|		Precision	 |  1e-6|  9.5e-7|  9.0e-7|  6.0e-7|
+|   FPS				 |    60|    12.5|       7|     6.8|
+
 
 !!!!Analysis here ... ...
 
