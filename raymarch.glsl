@@ -1,6 +1,6 @@
 // Reference : https://www.shadertoy.com/view/Xds3zN
 
-#define MAX_DIS 5.2
+#define MAX_DIS 100.0
 #define MAX_STEPS 50
 
 //--------Color Modes----------
@@ -11,12 +11,17 @@
 
 
 //--------Ray Casting Modes
-#define NAIVE_RAY_CAST
-//#define SPHERICAL_RAY_CAST
+//#define NAIVE_RAY_CAST
+#define SPHERICAL_RAY_CAST
 
 //-------------------------------------------------------
 //					Distance Estimators
 //-------------------------------------------------------
+
+float sdPlane (vec3 p, float y)
+{
+	return p.y - y;
+}
 
 float sdSphere( vec3 p, float s )
 {
@@ -38,8 +43,7 @@ float disEstimator(vec3 pt)
 {
     float dis = min(sdTorus(pt-vec3(0.0), vec2(1.0, 0.1)), 
                sdSphere(pt-vec3(0.0), 0.5));
-//	dis = min(sdTorus(pt-vec3(0.0), vec2(1.0, 0.1)), 
-  //             sdSphere(pt-vec3(0.0), 0.5));
+		  dis = min(dis, sdPlane(pt, -2.0));
     
     return dis;
 }
