@@ -63,6 +63,7 @@ Basic scene setup using {iq-prim}
     * *Branch divergence*
 
 ###### Lighting effects
+![](img/lightings.png)
 
 * Over-relaxation for sphere tracing {McGuire}
   * Implementation wise ineffective
@@ -100,8 +101,8 @@ Basic scene setup using {iq-prim}
 * {McGuire} Morgan McGuire, Williams College.*Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014)
   * http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
 * {iq-prim} Iñigo Quílez.*Raymarching Primitives* (2013)
-  https://www.shadertoy.com/view/Xds3zN
+  * https://www.shadertoy.com/view/Xds3zN
 * {iq-shadow} Iñigo Quílez.
   * http://www.iquilezles.org/www/articles/rmshadows/rmshadows.htm
 * {ljt-ao} Lukasz Jaroslaw Tomczak. *GPU Ray Marching of Distance Fields*
-  *http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf
+  * http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf
