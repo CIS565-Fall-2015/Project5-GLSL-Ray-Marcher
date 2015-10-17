@@ -29,7 +29,7 @@ Analysis
 
 |Naive Ray Marching					|Sphere Tracing
 |:---------------------------------:|:---------------------------------------:
-|![](img/debug_IterNum_ST.PNG =50x)	|![](img/debug_IterNum_Naive.PNG =50x)
+|![](img/debug_IterNum_ST.PNG =50x50)	|![](img/debug_IterNum_Naive.PNG =50x50)
 | !!!!Analysis here ... ...
 
 **Precision and FPS**
@@ -45,11 +45,10 @@ Analysis
 
 * Sphere Tracing
 
-|Max Iteration Numver|>4 80000
+|Max Iteration Numver|80000 |        |        |        |
 |--------------------|------|--------|--------|--------|
 |		Precision	 |  1e-6|  9.5e-7|  9.0e-7|  6.0e-7|
 |   FPS				 |    60|    12.5|       7|     6.8|
-
 
 !!!!Analysis here ... ...
 

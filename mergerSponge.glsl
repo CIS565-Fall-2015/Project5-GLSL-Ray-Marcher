@@ -6,6 +6,7 @@
 
 int itrNum = 0;
 float dist = 0.0;
+const int leve_MergeSponge = 3;
 
 vec3 TransP(vec3 pos, vec3 T, vec3 R, vec3 S)
 {
@@ -55,6 +56,30 @@ float sdPlane(vec3 p)
 	return p.y;
 }
 
+float sdMergeSponge(float boundDist,vec3 pos)
+{  
+    float s = 1.0;
+    for(int m=0;m<leve_MergeSponge;m++)
+    {
+        //vec3 a = abs(mod((pos)*s, 2.0)-1.0)-0.5;
+        //vec3 a = abs(mod((pos)*s, 2.0))-vec3(0.5);
+        vec3 a = abs(mod(pos*s,2.0)-1.0)-(1.0/3.0)*2.0;
+        float dx = min(a.x,a.y);
+        float dy = min(a.y,a.z);
+        float dz = min(a.z,a.x);
+        
+        s*=3.0;
+        
+        float c = max(dx,max(dy,dz))/s;
+
+        if(c>boundDist)
+        {
+            boundDist = c;
+        }	        
+    }
+    return boundDist;
+}
+
 vec4 opU(vec4 d1, vec4 d2)
 {
 	return (d1.w<d2.w) ? d1 : d2;
@@ -67,36 +92,9 @@ vec4 map(in vec3 pos)
     vec3 Rs = vec3(0,0.0,0.0);
     vec3 Ss = vec3(1,1,1);
     vec4 cube = vec4(vec3(0.5,0.6,1),sdBox(TransP(pos,vec3(0.0,0.0,0),vec3(0),vec3(1)),vec3(1.0,1.0,1.0)));
-    //vec4 res = opU(sphere,plane);
-    vec4 res = cube;
-    float s = 1.0;
-    for(int m=0;m<2;m++)
-    {
-        //vec3 a = abs(mod((pos)*s, 2.0)-1.0)-0.5;
-        //vec3 a = abs(mod((pos)*s, 2.0))-vec3(0.5);
-        vec3 a = abs(mod(pos*s,2.0)-1.0)-(1.0/3.0)*2.0;
-        float dx = min(a.x,a.y);
-        float dy = min(a.y,a.z);
-        float dz = min(a.z,a.x);
-        
-        s*=3.0;
-        
-        float c = max(dx,max(dy,dz))/s;
-        
-        res.rgb = vec3(a);
-        //vec3 col = vec3(pos.x>0.0?1.0:0.0,1.0,1.0);	
-        
-        res.rgb = vec3(1.0,0.0,0.0);
-        if(c>res.w)
-        {
-            res.rgb = vec3(0.0,1.0,1.0);
-            res.w = c;
-        }
-        //res.rgb = vec3(bool(a.x>0.0));
-		
-        
-    }
-    return res;
+    vec4 MergeSponge = vec4(vec3(1.0,0.7,0.9),sdMergeSponge(cube.w,pos));
+
+    return MergeSponge;
 }
 
 vec3 calcNormal( in vec3 pos )
