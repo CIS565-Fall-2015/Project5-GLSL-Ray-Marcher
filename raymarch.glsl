@@ -4,35 +4,6 @@
 #define RENDER_DISTANCE 0
 #define RENDER_ITER 0
 
-vec3 shade(mat3 res, vec3 ro, vec3 rd){
-    vec3 lightPos = vec3(6.0,6.0,6.0);
-#if NAIVE_MARCHING
-    vec3 lightCol = vec3(1.0, 0.72, 0.482);
-#else
-    vec3 lightCol = vec3(0.91, 0.91, 1.0);
-#endif
-#if RENDER_NORMAL
-    return res[1];
-#elif RENDER_DISTANCE
-    return vec3(res[2].x/21.0);
-#elif RENDER_ITER
-    return vec3(res[0].z/199.0);
-#else
-    vec3 m;
-    if (res[0].y == 1.0){
-        m = vec3(0.8,0.8,0.8);
-    }
-    if (res[0].y == 2.0){
-        m = vec3(0.1,0.1,0.1) + vec3(0.6)*mod(floor(length(ro+rd*res[2].x)), 3.0);
-    }
-    if (res[0].y == 3.0){
-        m = vec3(1.0,1.0,0.0);
-    }
-    vec3 L = normalize(lightPos - (ro+rd*res[2].x));
-    return dot(L, res[1])*lightCol*m;
-#endif
-}
-
 float dSphere(vec3 X, vec3 C, float r){
     return length(X-C)-r;
 }
@@ -86,20 +57,19 @@ vec2 g(float t, in vec3 ro, in vec3 rd){
     
     vec2 res = oUnion(vec2(sphereDist, 1.0), vec2(planeDist, 2.0));
     
-    float boxDist = dBox(ro+rd*t, vec3(-1.0, 0.1, 0.0), vec3(0.1, 0.1, 0.1));
+    float boxDist = dBox(ro+rd*t, vec3(-1.0, 0.2, 0.0), vec3(0.1, 0.1, 0.1));
     
     res = oUnion(vec2(boxDist, 3.0), res);
     
-    vec3 scale = vec3(1.0, 1.0, 2.0);
-    vec3 translate = vec3(1.0,0.1,0.1);
+    vec3 scale = vec3(1.0, 2.0, 1.0);
+    vec3 translate = vec3(1.0,0.3,0.0);
     mat3 rotate = mat3(cos(QUARTER_PI), 0, -sin(QUARTER_PI), 0, 1, 0, sin(QUARTER_PI), 0, cos(QUARTER_PI));
     
     mat4 M = inverseTransform(translate, scale, rotate);
     vec4 tX = M*vec4((ro+rd*t), 1.0);
     vec3 X = vec3(tX.x/tX.w, tX.y/tX.w, tX.z/tX.w);
     
-    float boxDist2 = dBox(X, vec3(0.0, 0.0, 0.0), vec3(0.1, 0.1, 0.1))
-        *1.0/(scale.x*scale.y*scale.z);
+    float boxDist2 = dBox(X, vec3(0.0, 0.0, 0.0), vec3(0.1, 0.1, 0.1));
     
     res = oUnion(vec2(boxDist2, 3.0), res);
     
@@ -107,7 +77,7 @@ vec2 g(float t, in vec3 ro, in vec3 rd){
 }
 
 vec3 findNormal(float t, vec3 ro, vec3 rd){
-    vec3 eps = vec3(0.000001, 0.0, 0.0);
+    vec3 eps = vec3(0.0001, 0.0, 0.0);
     vec3 norm = vec3(
         g(t, ro+eps.xyy, rd).x-g(t, ro-eps.xyy, rd).x,
         g(t, ro+eps.yxy, rd).x-g(t, ro-eps.yxy, rd).x,
@@ -133,11 +103,10 @@ mat3 naiveMarch(in vec3 ro, in vec3 rd){
 }
 
 mat3 sphereMarch(in vec3 ro, in vec3 rd){
-    float maxDist = 21.0;
     float t = 1.0;
     float m = -1.0;
     float eps = 0.000001;
-    for (int i = 0; i < 200; i++){
+    for (int i = 0; i < 2000; i++){
         vec2 res = g(t, ro, rd);
         if (res.x < eps){
             return mat3(res, i, findNormal(t, ro, rd), t, vec2(0.0));
@@ -145,6 +114,57 @@ mat3 sphereMarch(in vec3 ro, in vec3 rd){
         t+= res.x;
     }
     return mat3(t, m, 199, vec3(0.0), vec3(0.0));
+}
+
+float softShadow(vec3 ro, vec3 rd){
+    float t = 0.1;
+    float eps = 0.00001;
+    float maxDist = 2.0;
+    vec2 res;
+    float distAway = 1.0;
+    for (int i = 0; i < 9; i++){
+        res = g(t, ro, rd);
+        distAway = min(distAway, 6.0*res.x/(res.x+t));
+        if (res.x < eps || t > maxDist) break;
+        t+= clamp(res.x, 0.01, 0.05);
+    }
+    return 0.2+clamp(distAway, 0.0, 0.8);
+}
+
+vec3 shade(mat3 res, vec3 ro, vec3 rd){
+    vec3 lightPos = vec3(6.0,6.0,6.0);
+#if NAIVE_MARCHING
+    vec3 lightCol = vec3(1.0, 0.72, 0.482);
+#else
+    vec3 lightCol = vec3(0.91, 0.91, 1.0);
+#endif
+#if RENDER_NORMAL
+    return res[1];
+#elif RENDER_DISTANCE
+    return vec3(res[2].x/21.0);
+#elif RENDER_ITER
+    return vec3(res[0].z/199.0);
+#else
+    // Color render
+    vec3 m;
+    if (res[0].y == 1.0){
+        m = vec3(0.8,0.8,0.8);
+    }
+    if (res[0].y == 2.0){
+        m = vec3(1.0) - vec3(0.3)*mod(floor(length(ro+rd*res[2].x)), 3.0);
+    }
+    if (res[0].y == 3.0){
+        m = vec3(1.0,1.0,0.0);
+    }
+    // Lambert
+    vec3 L = normalize(lightPos - (ro+rd*res[2].x));
+    vec3 diffuse = dot(L, res[1])*lightCol*m;
+    
+    // Soft shadow
+    float shadow = softShadow(ro+rd*res[2].x, L);
+    
+    return diffuse*shadow;
+#endif
 }
 
 vec3 render(in vec3 ro, in vec3 rd) {
