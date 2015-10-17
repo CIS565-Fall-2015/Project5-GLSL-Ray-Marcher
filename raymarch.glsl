@@ -3,23 +3,34 @@
 #define MAX_DIS 100.0
 #define MAX_STEPS 100
 #define EPSILON 0.001
+
+//Comment SHADOW_SCALE to remove shadow
 #define SHADOW_SCALE 30.0
 
-//--------Color Modes----------
+//----------------------Color Modes----------------------
+//Uncomment the coloring mode you want to view and comment the rest
+
 //#define DEPTH_COLOR
 //#define STEP_COUNT_COLOR
 //#define NORMAL_COLOR
 #define LAMBERT_COLOR
+//-------------------------------------------------------
 
 
-//--------Ray Casting Modes
+
+//------------------Ray Casting Modes--------------------
 //#define NAIVE_RAY_CAST
 #define SPHERICAL_RAY_CAST
+//-------------------------------------------------------
+
+
 
 //-------------------------------------------------------
 //					Distance Estimators
 //-------------------------------------------------------
 
+
+//--------Distance functions for various objects---------
 float sdPlane (vec3 p, float y)
 {
 	return p.y - y;
@@ -40,15 +51,37 @@ float sdEllipsoid( in vec3 p, in vec3 r )
     return (length( p/r ) - 1.0) * min(min(r.x,r.y),r.z);
 }
 
+//--------------------CSG Operations---------------------
+float opDifference( float d1, float d2 )
+{
+    return max(-d2,d1);
+}
+
+float opUnion( float d1, float d2 )
+{
+	return (d1<d2) ? d1 : d2;
+}
+
+float opIntersect( float d1, float d2 )
+{
+    return max(d2,d1);
+}
+
+float opBlend(float a, float b, float blendRadius) {
+    float c = 1.0 * (0.5 + (b - a) * (0.5 / blendRadius));
+    return ((c) * a + (1.0-c) * b) - blendRadius * c * (1.0 - c);
+}
+
 //Function to create the actual scene
 float disEstimator(vec3 pt)
 {
-    float dis = min(sdTorus(pt-vec3(0.0), vec2(1.0, 0.1)), 
-               sdSphere(pt-vec3(0.0), 0.5));
-		  dis = min(dis, sdPlane(pt, -2.0));
+    float dis = opBlend(sdTorus(pt-vec3(0.0), vec2(1.0, 0.1)), sdSphere(pt-vec3(1.0, 0.0, 0.0), 0.5), 0.8);
+		  dis = opUnion(dis, min(dis, sdPlane(pt, -2.0)));
     
     return dis;
 }
+
+
 
 //-------------------------------------------------------
 //				Color calculation functions
