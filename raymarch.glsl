@@ -145,6 +145,62 @@ vec3 opTwist( vec3 p )
 }
 
 
+vec3 opTranslate(vec3 p, vec3 trans)
+{
+	return p - trans;
+}
+
+vec3 opRotate(vec3 p, vec3 axis, float angle)
+{
+	axis = normalize(axis);
+    float s = sin(-angle);
+    float c = cos(-angle);
+    float oc = 1.0 - c;
+	mat3 R = mat3(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,
+                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,
+                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c);
+	
+	
+	return R*p;
+}
+
+vec3 opScale(vec3 p, vec3 scale)
+{
+	return p/scale;
+}
+
+vec3 opTransform(vec3 p, vec3 trans, vec3 axis,float angle, vec3 scale)
+{
+	//transform T*R*S
+	//inv order S*R*T
+
+	mat4 T = mat4(1.0,0.0,0.0,0.0
+					,0.0,1.0,0.0,0.0
+					,0.0,0.0,1.0,0.0
+					,-trans.x,-trans.y,-trans.z,1.0);
+	
+	axis = normalize(axis);
+    float s = sin(-angle);
+    float c = cos(-angle);
+    float oc = 1.0 - c;
+	mat4 R = mat4(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s, 0.0,
+                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,0.0,
+                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,0.0,
+				0.0,0.0,0.0,1.0);
+
+	
+	mat4 S = mat4(1.0/scale.x,0.0,0.0,0.0,
+					0.0,1.0/scale.y,0.0,0.0,
+					0.0,0.0,1.0/scale.z,0.0,
+					0.0,0.0,0.0,1.0);
+
+	vec4 hp = p.xyzz;
+	hp.w = 1.0;
+	hp = S*R*T*hp;
+
+	return hp.xyz;
+}
+
 
 
 //MY
@@ -156,18 +212,6 @@ float opIntersect(float d1, float d2)
 
 //vec3 opScale(vec3 
 
-mat3 rotationMatrix(vec3 axis, float angle)
-{
-    axis = normalize(axis);
-    float s = sin(angle);
-    float c = cos(angle);
-    float oc = 1.0 - c;
-    
-    return mat3(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,
-                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,
-                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c);
-                
-}
 
 
 vec3 float2Color(float v,float vmin,float vmax)
@@ -191,9 +235,17 @@ float terrain(vec3 pos)
 
 vec2 map( in vec3 pos )
 {
-    vec2 res = opU( vec2( sdPlane(     pos), 1.0 ),
-	            vec2( sdSphere(    pos-vec3( 0.0,0.25, 0.0), 0.25 ), 46.9 ) );
-    //vec2 res= vec2(terrain(pos),1.0);
+    //vec2 res = opU( vec2( sdPlane(     pos), 1.0 ),
+	 //           vec2( sdSphere(    pos-vec3( 0.0,0.25, 0.0), 0.25 ), 46.9 ) );
+    
+	//terrain
+	//vec2 res= vec2(terrain(pos),1.0);
+
+	vec2 res = vec2( sdPlane(pos), 1.0 );
+	res = opU( res, vec2( sdSphere( opTranslate(pos,vec3(0.0,0.25,0.0)),0.25) , 48.0) );
+
+
+
     return res;
 }
 
