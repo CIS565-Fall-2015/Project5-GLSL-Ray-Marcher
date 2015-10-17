@@ -40,6 +40,15 @@ vec2 oUnion(vec2 r1, vec2 r2){
     return r1.x < r2.x ? r1 : r2;
 }
 
+vec2 oSubtract(vec2 r1, vec2 r2){
+    if (r1.x < -r2.x){
+        r2.x = -r2.x;
+        return r2;
+    } else {
+        return r1;
+    }
+}
+
 mat3 transpose(mat3 mx){
     mat3 t_mx = mat3(
         mx[0].x, mx[1].x, mx[2].x,
@@ -90,6 +99,15 @@ vec2 g(float t, in vec3 ro, in vec3 rd){
     float cyDist = dCylinder(ro+rd*t, vec3(-0.7, 0.3, -0.7), 0.3, 0.3);
     
     res = oUnion(vec2(cyDist, 4.0), res);
+    
+    float x = 1.2, z = 1.2;
+    float sphereDist2 = dSphere(ro+rd*t, vec3(x, 0.25, z), 0.25);
+    
+    float cyDist2 = dCylinder(ro+rd*t, vec3(x, 0.3, z), 0.1, 0.3);
+    
+    vec2 res2 = oSubtract(vec2(sphereDist2, 4.0), vec2(cyDist2, 4.0));
+    
+    res = oUnion(res2, res);
     
     vec3 scale = vec3(1.0, 2.0, 1.0);
     vec3 translate = vec3(1.0,0.3,0.0);
