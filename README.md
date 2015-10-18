@@ -109,12 +109,15 @@ The geometries are described by distance estimator functions. By returning a dis
 This concept is like the functions in a functional language. We apply some transform to the point as we apply some changes to the distance function, i.e. the geometries. 
 
 * Reptition
+
 ![](img/Rep.png)
 
 * Transform
+
 ![](img/transform.png)
 
 * Displacement
+
 ![](img/displacement.png)
 
 etc. 
