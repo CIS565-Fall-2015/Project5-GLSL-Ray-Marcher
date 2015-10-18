@@ -136,7 +136,7 @@ vec4 sceneGraphDistanceFunction(in vec3 point)
     returnMe = unionDistance(returnMe, sphere2);
 
     vec4 cube0 = vec4(0.0, 1.0, 1.0, -1.0);
-    cube0[3] = cube(point, vec3(0.8, 1.5, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 0.2, 2.0));
+    cube0[3] = cube(point, vec3(0.8, 1.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 0.2, 2.0));
     returnMe = unionDistance(returnMe, cube0);
 
     vec4 plane0 = vec4(0.0, 0.0, 1.0, -1.0);
@@ -183,16 +183,40 @@ vec4 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
 
 // returns a t along the ray that hits the first intersection
 // uses spherical stepping [McGuire 6]
-float castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
+vec4 castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
 {
-    return -1.0;
+    float tmin = 0.0;
+    float epsilon = 0.002;
+    float maxDistance = 20.0;
+
+    float t = tmin;
+    float distance = 1000.0;
+    vec3 color = vec3(-1.0, -1.0, -1.0);
+    for (int i = 0; i < 2000; i++) {
+        vec4 colorAndDistance = sceneGraphDistanceFunction(rayPosition + rayDirection * t);
+        distance = colorAndDistance[3];
+        t += distance;
+        if (t > maxDistance) {
+            break;
+        }
+        if (distance < epsilon) {
+            color = colorAndDistance.rgb;
+            break;
+        }
+    }
+    return vec4(color, t);}
+
+vec3 lambertShade(in vec3 norm, in vec3 position, in vec3 color, in vec3 sunPosition, in vec3 sunColor) {
+    return dot(norm, sunPosition - position) * color * sunColor;
 }
 
-vec3 render(in vec3 ro, in vec3 rd) {
+// takes in ray origin, ray direction, and sun position
+vec3 render(in vec3 ro, in vec3 rd, in vec3 sunPosition, in vec3 sunColor) {
     vec4 materialDistance = castRayNaive(ro, rd);
+    //vec4 materialDistance = castRaySphere(ro, rd);
     vec3 position = ro + rd * materialDistance.a;
     vec3 norm = computeNormal(position);
-    return norm;// * (materialDistance.a / 22.0); 
+    return lambertShade(norm, position, materialDistance.rgb, sunPosition, sunColor);
 }
 
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
@@ -220,9 +244,9 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     // camera
     vec3 ro = vec3(
             -0.5 + 3.5 * cos(0.1 * time + 6.0 * mo.x),
-            1.0 + 2.0 * mo.y,
+            2.0 * mo.y,
             0.5 + 3.5 * sin(0.1 * time + 6.0 * mo.x)); // camera position
-    vec3 ta = vec3(-0.5, -0.4, 0.5); // camera aim
+    vec3 ta = vec3(0.0, 0.0, 0.0); // camera aim
 
     // camera-to-world transformation
     mat3 ca = setCamera(ro, ta, 0.0);
@@ -231,7 +255,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec3 rd = ca * normalize(vec3(p.xy, 2.0));
 
     // render
-    vec3 col = render(ro, rd);
+    vec3 col = render(ro, rd, vec3(0.0, 10.0, 0.0), vec3(1.0, 1.0, 1.0));
 
     col = pow(col, vec3(0.4545));
 

@@ -5,7 +5,7 @@ TODO:
 -add union op [done]
 -add plane check [done]
 -add cube check [done]
--add normal
+-add normal [done]
 -add light
 -add sphere tracing
 
