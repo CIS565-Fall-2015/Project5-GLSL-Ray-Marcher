@@ -76,21 +76,44 @@ float sphere(in vec3 point, in vec3 translation, in vec3 scale, in vec3 rotation
     return length(localDist);
 }
 
+// unit plane is at 0, 0, 0 and has y up normal
+float plane(in vec3 point, in vec3 translation, in vec3 rotation) {
+    // plane is easier to deal with since there's no scale. yay!
+    vec3 up = vec3(0.0, 1.0, 0.0);
+    up = rotation * up;
+    return dot(point - translation, up);
+}
+
+/*Boolean operations**********************************************************/
+
+// for getting the union of two objects
+vec4 unionDistance(vec4 d1, vec4 d2) {
+    float minDistance = min(d1[0], d2[0]);
+    vec3 color;
+    if (minDistance != d2[0]) {
+        color = d1.rgb;
+    } else {
+        color = d2.rgb;
+    }
+    return vec4(color, minDistance);
+}
 
 
-/*****************************************************************************/
+/*Code************************************************************************/
 
 // returns the conservative distance to the nearest scene object.
 // declare all scene objects in here.
-float sceneGraphCheck(in vec3 point)
+// returns (r, g, b, distance)
+vec4 sceneGraphCheck(in vec3 point)
 {
     float sphere1 = sphere(point, vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0), vec3(0.0, 0.0, 0.0));
-    return sphere1;
+    return vec4(1.0, 0.0, 0.0, sphere1);
 }
 
 // returns a t along the ray that hits the first intersection.
 // uses naive stepping [McGuire 4]
-vec2 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
+// returns (r, g, b, distance), but if distance was maxed out, color is all -1
+vec4 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
 {
     float tmin = 1.0;
     float stepSize = 0.01; // 2000 * 0.01 gives us a max distance of 20
@@ -98,17 +121,18 @@ vec2 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
 
     float t = tmin;
     float distance = 1000.0;
-    float maxedOut = 1.0; // toggle for whether the ray maxed out or not
-    vec3 point = rayPosition;
+    bool maxedOut = true; // toggle for whether the ray maxed out or not
+    vec3 color = vec3(-1.0, -1.0, -1.0);
     for (int i = 0; i < 2000; i++) {
-        point = rayPosition + rayDirection * t;
-        distance = sceneGraphCheck(point);
+        vec4 colorAndDistance = sceneGraphCheck(rayPosition + rayDirection * t);
+        distance = colorAndDistance[3];
         t += stepSize;
         if (distance < epsilon) {
-            maxedOut = -1.0;
+            maxedOut = false;
+            color = colorAndDistance.rgb;
         }
     }
-    return vec2(t, maxedOut);
+    return vec4(color, t);
 }
 
 // returns a t along the ray that hits the first intersection
@@ -119,11 +143,8 @@ float castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
 }
 
 vec3 render(in vec3 ro, in vec3 rd) {
-    vec2 distanceMaterial = castRayNaive(ro, rd);
-    if (distanceMaterial[1] < 0.0) {
-        return vec3(1.0, 1.0, 1.0);
-    }
-    return vec3(0.0, 0.0, 0.0);  // camera ray direction debug view
+    vec4 materialDistance = castRayNaive(ro, rd);
+    return materialDistance.rgb; 
 }
 
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
