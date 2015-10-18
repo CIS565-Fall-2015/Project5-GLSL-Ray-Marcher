@@ -5,7 +5,7 @@
 #define EPSILON 0.001
 
 //Comment SHADOW_SCALE to remove shadow
-#define SHADOW_SCALE 30.0
+//#define SHADOW_SCALE 30.0
 
 //----------------------Color Modes----------------------
 //Uncomment the coloring mode you want to view and comment the rest
@@ -16,10 +16,10 @@
 #define LAMBERT_COLOR
 //-------------------------------------------------------
 
-#define DISPLACEMENT 5.0
+
 
 //------------------Ray Casting Modes--------------------
-#define NAIVE_RAY_CAST
+//#define NAIVE_RAY_CAST
 #define SPHERICAL_RAY_CAST
 //-------------------------------------------------------
 
@@ -41,6 +41,13 @@ float sdSphere( vec3 p, float s )
     return length(p)-s;
 }
 
+float sdBox( vec3 p, vec3 b )
+{
+	vec3 d = abs(p) - b;
+  	return min(max(d.x,max(d.y,d.z)),0.0) +
+         length(max(d,0.0));
+}
+
 float sdTorus( vec3 p, vec2 t )
 {
   return length( vec2(length(p.xz)-t.x,p.y) )-t.y;
@@ -49,6 +56,16 @@ float sdTorus( vec3 p, vec2 t )
 float sdEllipsoid( in vec3 p, in vec3 r )
 {
     return (length( p/r ) - 1.0) * min(min(r.x,r.y),r.z);
+}
+
+//for fractals
+float sdCross( in vec3 p)
+{
+    float v = 1.5;
+	float da = sdBox(p.xyz,vec3(1000.0, v, v));
+  	float db = sdBox(p.yzx,vec3(v, 1000.0, v));
+	float dc = sdBox(p.zxy,vec3(v, v, 1000.0));
+  	return min(da,min(db,dc));
 }
 
 //--------------------CSG Operations---------------------
@@ -72,25 +89,21 @@ float opBlend(float a, float b, float blendRadius) {
     return ((c) * a + (1.0-c) * b) - blendRadius * c * (1.0 - c);
 }
 
-float opDisplacement(vec3 pt)
-{
-    float factor = DISPLACEMENT;
-    return sin(factor * pt.x) * sin(factor * pt.y) * sin(factor * pt.z);
-}
-
 //Function to create the actual scene
 float disEstimator(vec3 pt)
 {
-    float dis = sdSphere(pt-vec3(1.0, 0.0, 0.0), 0.5);//opBlend(sdTorus(pt-vec3(0.0), vec2(1.0, 0.1)), sdSphere(pt-vec3(1.0, 0.0, 0.0), 0.5), 0.8);
-    	
-    	//#ifdef NAIVE_RAY_CAST
-    		//#ifdef DISPLACEMENT
-		    	dis += opDisplacement(pt);
-    		//#endif
-   		//#endif
+    float dis = sdBox(pt, vec3(1.0));
+   	float s = 0.5;
     
-		  dis = opUnion(dis, min(dis, sdPlane(pt, -2.0)));
-    
+    for( int m=0; m<3; m++ )
+   	{
+        vec3 a = mod( pt*s, 2.0 )-1.0;
+      	s *= 5.0;
+		vec3 r = 5.0 - 5.0*abs(a);
+        float c = sdCross(r)/s;
+      	dis = max(dis,-c);
+   	}
+
     return dis;
 }
 
