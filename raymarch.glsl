@@ -1,28 +1,41 @@
-// Created by inigo quilez - iq/2013
-// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
-// A list of usefull distance function to simple primitives, and an example on how to 
-// do some interesting boolean operations, repetition and displacement.
-//
-// More info here: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
+//MACRO-------------------------------------
 
+//Scene
+#define MENGER 0
+#define TERRAIN 0
 
-//MACRO
-
+//Debug Render Type
 #define DEBUG_DISTANCE_TO_SURFACE 0
 #define DEBUG_NUM_RAY_MARCH_ITERATIONS 0
 
+
+
+//Ray March Mode
 #define NAIVE_TRACE_INTERPOLATE 0
 #define NAIVE_TRACE 0
 //#define SPHERE_OVER_RELAXATION 1
 
-#define K_OVERRELAX (1.2)
 
+
+//Trace Parameter
 #define MAX_ITERATIONS_NAIVE 2000
+#define DT 0.01
+#define RATIO_T 0.005
+
 #define MAX_ITERATIONS_SPHERE 50
 
+
 #define MAX_ITERATION_TIMES_DIVIDER 40
-//--------
+
+
+//Optimize
+
+#define K_OVERRELAX (1.2)
+#define BOUNDING_SPHERE 1
+
+
+//------------------------------------------
 
 
 
@@ -117,6 +130,81 @@ float sdConeSection( in vec3 p, in float h, in float r1, in float r2 )
     float d2 = max( sqrt( dot(p.xz,p.xz)*(1.0-si*si)) + q*si - r2, q );
     return length(max(vec2(d1,d2),0.0)) + min(max(d1,d2), 0.);
 }
+float length2( vec2 p )
+{
+	return sqrt( p.x*p.x + p.y*p.y );
+}
+
+float length6( vec2 p )
+{
+	p = p*p*p; p = p*p;
+	return pow( p.x + p.y, 1.0/6.0 );
+}
+
+float length8( vec2 p )
+{
+	p = p*p; p = p*p; p = p*p;
+	return pow( p.x + p.y, 1.0/8.0 );
+}
+
+float sdTorus82( vec3 p, vec2 t )
+{
+  vec2 q = vec2(length2(p.xz)-t.x,p.y);
+  return length8(q)-t.y;
+}
+
+float sdTorus88( vec3 p, vec2 t )
+{
+  vec2 q = vec2(length8(p.xz)-t.x,p.y);
+  return length8(q)-t.y;
+}
+
+float sdCylinder6( vec3 p, vec2 h )
+{
+  return max( length6(p.xz)-h.x, abs(p.y)-h.y );
+}
+
+
+
+
+float maxcomp(in vec2 p ) { return max(p.x,p.y);}
+float sdCross( in vec3 p )
+{
+  float da = maxcomp(abs(p.xy));
+  float db = maxcomp(abs(p.yz));
+  float dc = maxcomp(abs(p.zx));
+  return min(da,min(db,dc))-1.0;
+}
+
+float sdMengerSponge(vec3 p)
+{
+
+	//bounding Sphere
+#if BOUNDING_SPHERE
+	float tSquared = dot(p,p) - 3.0;
+	if(tSquared > 0.0)
+	{
+		return sqrt(tSquared);
+	}
+#endif
+
+	float d = sdBox(p,vec3(1.0));
+
+	float s = 1.0;
+	for( int m=0; m<3; m++ )
+	{
+		vec3 a = mod( p*s, 2.0 )-1.0;
+		s *= 3.0;
+		vec3 r = 1.0 - 3.0*abs(a);
+		float c = sdCross(r)/s;
+		d = max(d,c);
+	}
+    
+    
+   return d;
+}
+
+
 
 //----------------------------------------------------------------------
 
@@ -153,8 +241,8 @@ vec3 opTranslate(vec3 p, vec3 trans)
 vec3 opRotate(vec3 p, vec3 axis, float angle)
 {
 	axis = normalize(axis);
-    float s = sin(-angle);
-    float c = cos(-angle);
+    float s = sin(radians(-angle));
+    float c = cos(radians(-angle));
     float oc = 1.0 - c;
 	mat3 R = mat3(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,
                 oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,
@@ -180,8 +268,8 @@ vec3 opTransform(vec3 p, vec3 trans, vec3 axis,float angle, vec3 scale)
 					,-trans.x,-trans.y,-trans.z,1.0);
 	
 	axis = normalize(axis);
-    float s = sin(-angle);
-    float c = cos(-angle);
+    float s = sin(radians(-angle));
+    float c = cos(radians(-angle));
     float oc = 1.0 - c;
 	mat4 R = mat4(oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s, 0.0,
                 oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,0.0,
@@ -201,9 +289,6 @@ vec3 opTransform(vec3 p, vec3 trans, vec3 axis,float angle, vec3 scale)
 	return hp.xyz;
 }
 
-
-
-//MY
 
 float opIntersect(float d1, float d2)
 {
@@ -225,6 +310,11 @@ vec3 float2Color(float v,float vmin,float vmax)
 }
 
 
+float opBump(float r,vec3 p, float h)
+{
+	return  r+h*sin(50.0*p.x)*sin(50.0*p.y)*sin(50.0*p.z);
+}
+
 //----------------------------------------------------------------------
 
 float terrain(vec3 pos)
@@ -240,11 +330,35 @@ vec2 map( in vec3 pos )
     
 	//terrain
 	//vec2 res= vec2(terrain(pos),1.0);
+#if MENGER==0
 
+#if TERRAIN
+	vec2 res= vec2(terrain(pos),1.0);
+#else
 	vec2 res = vec2( sdPlane(pos), 1.0 );
-	res = opU( res, vec2( sdSphere( opTranslate(pos,vec3(0.0,0.25,0.0)),0.25) , 48.0) );
+#endif
+	res = opU( res, vec2( sdSphere( opTranslate(pos,vec3(0.0,0.25,0.0)),0.25) , 58.0) );
+	res = opU( res, vec2( sdSphere( opTransform(pos,vec3(0.0,0.85,0.0),vec3(1.0,1.0,1.0),45.0,vec3(2.0,1.0,1.0)  ) ,0.25) , 58.0) );
+    
+	res = opU( res, vec2( sdBox(     opTransform(pos,vec3(1.0,0.75,0.0),vec3(1.0,1.0,1.0),45.0,vec3(1.0,1.0,1.0)  ), vec3(0.25) ), 3.0 ) );
+    res = opU( res, vec2( udRoundBox(  opTransform(pos,vec3(1.0,0.25,1.0),vec3(0.0,1.0,0.0),60.0,vec3(1.0,1.0,1.0)), vec3(0.15), 0.1 ), 41.0 ) );
 
 
+	//simple bump
+	res = opU( res, vec2( opBump(sdSphere(pos-vec3(-2.0,0.25,-1.0), 0.2 ),pos,0.01) , 
+                                       65.0 ) );
+
+
+	res = opU( res, vec2( opS(
+		             udRoundBox(  pos-vec3(-2.0,0.2, 1.0), vec3(0.15),0.05),
+	                 sdSphere(    pos-vec3(-2.0,0.2, 1.0), 0.25)), 13.0 ) );
+#endif
+
+#if MENGER
+	//fractal
+	vec2 res = vec2( sdPlane(pos-vec3(0.0,-1.0,0.0)), 1.0 );
+	res = opU( res, vec2( sdMengerSponge(opTransform(pos,vec3(0.0,0.2,0.0),vec3(0.0,1.0,0.0),0.0,vec3(1.0,1.0,1.0)) ),46.0 ) );
+#endif
 
     return res;
 }
@@ -261,8 +375,8 @@ vec2 castRay( in vec3 ro, in vec3 rd )
 
 
 	float tmin = 1.0;
-    float tmax = 20.0;
-	float dt = 0.01;
+    float tmax = DT * float(MAX_ITERATIONS_NAIVE);
+	float dt = DT;
 
 	float t = tmin;
 	vec2 res = map(ro+rd*t);
@@ -293,7 +407,7 @@ vec2 castRay( in vec3 ro, in vec3 rd )
 		
         
         //changing dt and interpolate
-        dt = 0.01*t;
+        dt = RATIO_T*t;
         lh = p.y - res.x;
         ly = p.y;
 
