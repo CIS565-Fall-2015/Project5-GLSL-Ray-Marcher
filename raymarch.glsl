@@ -72,6 +72,7 @@ float sphere(in vec3 point, in vec3 translation, in vec3 scale, in vec3 rotation
     localDist.x *= scale.x;
     localDist.y *= scale.y;
     localDist.z *= scale.z;
+    if (length(localPoint) < 1.0) return -length(localDist);
     return length(localDist);
 }
 
