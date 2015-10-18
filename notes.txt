@@ -1,0 +1,15 @@
+TODO:
+-get a circle working [done]
+-add material color return in scenegraph check
+	-and use it in render
+-add union op
+-add plane check
+-add cube check
+-add noirmal
+-add light
+-add sphere tracing
+
+-add height-mapped terrain
+-add fractal
+-add soft shadows
+-add ambient occlusion
