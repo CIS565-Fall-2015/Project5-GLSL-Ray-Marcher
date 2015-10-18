@@ -3,7 +3,7 @@ TODO:
 -add material color return in scenegraph check [done]
 	-and use it in render [done]
 -add union op [done]
--add plane check
+-add plane check [done]
 -add cube check
 -add normal
 -add light

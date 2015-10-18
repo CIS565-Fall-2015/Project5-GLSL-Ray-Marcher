@@ -55,7 +55,7 @@ mat3 eulerZYXRotationMatrix(in vec3 rotation) {
 // primitive in world space.
 
 // unit sphere has radius of 1
-float sphere(in vec3 point, in vec3 translation, in vec3 scale, in vec3 rotation) {
+float sphere(in vec3 point, in vec3 translation, in vec3 rotation, in vec3 scale) {
     // transform the point into local coordinates
     vec3 localPoint = point;
     localPoint -= translation; // untranslate
@@ -85,6 +85,18 @@ float plane(in vec3 point, in vec3 translation, in vec3 rotation) {
     return dot(point - translation, up);
 }
 
+float cube(in vec3 point, in vec3 translation, in vec3 rotation, in vec3 scale) {
+     // transform the point into local coordinates
+    vec3 localPoint = point;
+    localPoint -= translation; // untranslate
+    localPoint = eulerZYXRotationMatrix(-1.0 * rotation) * localPoint; // unrotate
+    // no unscale: we can use the scale to determine the sidelengths of the box
+
+    vec3 firstQuadrantCorner = vec3(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5);
+    vec3 d = abs(localPoint) - firstQuadrantCorner;
+    return min(max(max(d.x, d.y), d.z), 0.0) + length(max(d, vec3(0.0, 0.0, 0.0)));
+}
+
 /*Boolean operations**********************************************************/
 
 // for getting the union of two objects. the one with the smaller distance.
@@ -112,16 +124,20 @@ vec4 sceneGraphCheck(in vec3 point)
     vec4 returnMe = vec4(0.0, 0.0, 0.0, 22.0);
 
     vec4 sphere0 = vec4(1.0, 0.0, 0.0, -1.0);
-    sphere0[3] = sphere(point, vec3(0.0, 0.6, 0.0), vec3(0.5, 0.5, 0.5), vec3(0.0, 0.0, 0.0));
+    sphere0[3] = sphere(point, vec3(0.0, 0.6, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.5, 0.5, 0.5));
     returnMe = unionDistance(returnMe, sphere0);
 
     vec4 sphere1 = vec4(0.0, 1.0, 0.0, -1.0);
-    sphere1[3] = sphere(point, vec3(0.0, 0.0, 0.0), vec3(1.0, 0.1, 1.0), vec3(0.0, 0.0, 0.0));
+    sphere1[3] = sphere(point, vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 0.1, 1.0));
     returnMe = unionDistance(returnMe, sphere1);
 
     vec4 sphere2 = vec4(1.0, 0.0, 1.0, -1.0);
-    sphere2[3] = sphere(point, vec3(0.6, 0.6, 0.0), vec3(0.5, 0.5, 0.5), vec3(0.0, 0.0, 0.0));
+    sphere2[3] = sphere(point, vec3(0.6, 0.6, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.5, 0.5, 0.5));
     returnMe = unionDistance(returnMe, sphere2);
+
+    vec4 cube0 = vec4(0.0, 1.0, 1.0, -1.0);
+    cube0[3] = cube(point, vec3(0.8, 1.5, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 0.2, 2.0));
+    returnMe = unionDistance(returnMe, cube0);
 
     vec4 plane0 = vec4(0.0, 0.0, 1.0, -1.0);
     plane0[3] = plane(point, vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, 0.0));
