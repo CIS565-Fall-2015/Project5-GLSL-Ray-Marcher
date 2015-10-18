@@ -2,8 +2,8 @@
 //MACRO-------------------------------------
 
 //Scene
-#define MENGER 0
-#define TERRAIN 0
+#define MENGER 1
+#define TERRAIN 1
 
 //Debug Render Type
 #define DEBUG_DISTANCE_TO_SURFACE 0
@@ -12,16 +12,16 @@
 
 
 //Ray March Mode
-#define NAIVE_TRACE_INTERPOLATE 0
+//Enable the first to see correct fractal and terrain
+#define NAIVE_TRACE_INTERPOLATE 1
 #define NAIVE_TRACE 0
-//#define SPHERE_OVER_RELAXATION 1
 
 
 
 //Trace Parameter
 #define MAX_ITERATIONS_NAIVE 2000
 #define DT 0.01
-#define RATIO_T 0.005
+#define RATIO_T 0.006
 
 #define MAX_ITERATIONS_SPHERE 50
 
@@ -33,6 +33,12 @@
 
 #define K_OVERRELAX (1.2)
 #define BOUNDING_SPHERE 1
+
+
+//Time measurement
+#define SHADE 1
+#define SOFTSHADOW 1
+#define AO 1
 
 
 //------------------------------------------
@@ -330,34 +336,36 @@ vec2 map( in vec3 pos )
     
 	//terrain
 	//vec2 res= vec2(terrain(pos),1.0);
-#if MENGER==0
+
 
 #if TERRAIN
-	vec2 res= vec2(terrain(pos),1.0);
+	vec2 res= vec2(terrain(opTranslate(pos,vec3(0.0,-1.0,0.0))),1.0);
 #else
 	vec2 res = vec2( sdPlane(pos), 1.0 );
 #endif
 	res = opU( res, vec2( sdSphere( opTranslate(pos,vec3(0.0,0.25,0.0)),0.25) , 58.0) );
-	res = opU( res, vec2( sdSphere( opTransform(pos,vec3(0.0,0.85,0.0),vec3(1.0,1.0,1.0),45.0,vec3(2.0,1.0,1.0)  ) ,0.25) , 58.0) );
+	res = opU( res, vec2( sdSphere( opTransform(pos,vec3(-1.0,0.85,0.0),vec3(1.0,1.0,1.0),45.0,vec3(2.0,1.0,1.0)  ) ,0.25) , 58.0) );
     
 	res = opU( res, vec2( sdBox(     opTransform(pos,vec3(1.0,0.75,0.0),vec3(1.0,1.0,1.0),45.0,vec3(1.0,1.0,1.0)  ), vec3(0.25) ), 3.0 ) );
     res = opU( res, vec2( udRoundBox(  opTransform(pos,vec3(1.0,0.25,1.0),vec3(0.0,1.0,0.0),60.0,vec3(1.0,1.0,1.0)), vec3(0.15), 0.1 ), 41.0 ) );
 
-
+	res = opU( res, vec2( sdCylinder(  pos-vec3( 1.0,0.30,-1.0), vec2(0.1,0.2) ), 99.0 ) );
+    res = opU( res, vec2( sdTorus82(   pos-vec3( 1.0,0.25, 2.0), vec2(0.20,0.05) ),50.0 ) );
 	//simple bump
 	res = opU( res, vec2( opBump(sdSphere(pos-vec3(-2.0,0.25,-1.0), 0.2 ),pos,0.01) , 
-                                       65.0 ) );
+                                       365.0 ) );
 
 
 	res = opU( res, vec2( opS(
 		             udRoundBox(  pos-vec3(-2.0,0.2, 1.0), vec3(0.15),0.05),
-	                 sdSphere(    pos-vec3(-2.0,0.2, 1.0), 0.25)), 13.0 ) );
-#endif
+	                 sdSphere(    pos-vec3(-2.0,0.2, 1.0), 0.25)), 213.0 ) );
+    
+    
+
 
 #if MENGER
 	//fractal
-	vec2 res = vec2( sdPlane(pos-vec3(0.0,-1.0,0.0)), 1.0 );
-	res = opU( res, vec2( sdMengerSponge(opTransform(pos,vec3(0.0,0.2,0.0),vec3(0.0,1.0,0.0),0.0,vec3(1.0,1.0,1.0)) ),46.0 ) );
+	res = opU( res, vec2( sdMengerSponge(opTransform(pos,vec3(-0.8,0.35,1.9),vec3(0.0,1.0,0.0),0.0,vec3(0.3,0.3,0.3)) ),107.0 ) );
 #endif
 
     return res;
@@ -489,6 +497,7 @@ vec2 castRay( in vec3 ro, in vec3 rd )
 
 float softshadow( in vec3 ro, in vec3 rd, in float mint, in float tmax )
 {
+#if SOFTSHADOW
     float res = 1.0;
     float t = mint;
     for( int i=0; i<16; i++ )
@@ -499,7 +508,9 @@ float softshadow( in vec3 ro, in vec3 rd, in float mint, in float tmax )
         if( h<0.001 || t>tmax ) break;
     }
     return clamp( res, 0.0, 1.0 );
-
+#else
+	return 1.0;
+#endif
 }
 
 vec3 calcNormal( in vec3 pos )
@@ -515,6 +526,7 @@ vec3 calcNormal( in vec3 pos )
 
 float calcAO( in vec3 pos, in vec3 nor )
 {
+#if AO
     float occ = 0.0;
     float sca = 1.0;
     for( int i=0; i<5; i++ )
@@ -526,6 +538,9 @@ float calcAO( in vec3 pos, in vec3 nor )
         sca *= 0.95;
     }
     return clamp( 1.0 - 3.0*occ, 0.0, 1.0 );    
+#else
+	return 1.0;
+#endif
 }
 
 
@@ -552,6 +567,8 @@ vec3 render( in vec3 ro, in vec3 rd )
     vec2 res = castRay(ro,rd);
     float t = res.x;
     float m = res.y;
+
+#if SHADE
     if( m>-0.5 )  // Ray intersects a surface
     {
         vec3 pos = ro + t*rd;
@@ -592,8 +609,11 @@ vec3 render( in vec3 ro, in vec3 rd )
 
         col = mix( col, vec3(0.8,0.9,1.0), 1.0-exp( -0.0005*t*t ) );
     }
-
     return vec3( clamp(col,0.0,1.0) );
+#else
+	return vec3( res.x,res.y,res.x);
+#endif
+    
 #endif
 }
 

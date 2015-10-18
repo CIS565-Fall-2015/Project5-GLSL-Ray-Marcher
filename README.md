@@ -8,126 +8,21 @@
 * Tested on: **Google Chrome 46.0.2490.71 m** on
   Windows 10, i7-4710HQ @ 2.50GHz 16GB, GeForce GTX 970M (Personal)
 
-### Live on Shadertoy (TODO)
 
-[![](img/thumb.png)](https://www.shadertoy.com/view/TODO)
+
+
+### Live in Shadow Toy : All features in Image (A Nonsense Image ... -_-!!! I do want to make somthing meaningful at first...)
+[![link](img/overalltext.png)](https://www.shadertoy.com/view/lt2SRV)
+
+
+### TODO: NonTrivial Image (write something good-looking and meaningful)
+[![link](img/thumb.png)](https://www.shadertoy.com/view/lt2SRV)
+
+
 
 ### Acknowledgements
 
 This Shadertoy uses material from the following resources:
-
-* TODO
-
-### (TODO: Your README)
-
-
-Instructions (delete me)
-========================
-
-This is due at midnight on the evening of Monday, October 19.
-
-**Summary:** In this project, you'll see yet another way in which GPU
-parallelism and compute-efficiency can be used to render scenes.
-You'll write a program in the popular online shader editor
-[Shadertoy](http://www.shadertoy.com/).
-Your goal will be to implement and show off different features in a cool and
-interesting demo. See Shadertoy for inspiration - and get creative!
-
-Ray marching is an iterative ray casting method in which objects are
-represented as implicit surfaces defined by signed distance functions (SDFs). This
-method is widely used in the Shadertoy community to render complex scenes which
-are defined in the fragment shader code executed for each pixel.
-
-**Important Notes:**
-* Even though you will be coding in Shadertoy, it is important as always to
-  save versions of your code so that you do not lose progress! Commit often!
-* A significant portion of this project will be in write-up and performance
-  analysis - don't save it for later.
-
-**Provided Code:**
-The provided code in `raymarch.glsl` is straight from iq's Raymarching
-Primitives; see {iq-prim}. It just sets up a simple starter camera.
-
-### Features
-
-All features must be visible in your final demo for full credit.
-
-**Required Features:**
-
-* Two ray marching methods (comparative analysis required)
-  * Naive ray marching (fixed step size) {McGuire 4}
-  * Sphere tracing (step size varies based on signed distance field) {McGuire 6}
-* 3 different distance estimators {McGuire 7} {iq-prim}
-  * With normal computation {McGuire 8}
-* One simple lighting computation (e.g. Lambert or Blinn-Phong).
-* Union operator {McGuire 11.1}
-  * Necessary for rendering multiple objects
-* Transformation operator {McGuire 11.5}
-* Debug views (preferably easily toggleable, e.g. with `#define`/`#if`)
-  * Distance to surface for each pixel
-  * Number of ray march iterations used for each pixel
-
-**Extra Features:**
-
-You must do at least 10 points worth of extra features.
-
-* (0.25pt each, up to 1pt) Other basic distance estimators/operations {McGuire 7/11}
-* Advanced distance estimators
-  * (3pts) Height-mapped terrain rendering {iq-terr}
-  * (3pts) Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
-  * **Note** that these require naive ray marching, if there is no definable
-    SDF. They may be optimized using bounding spheres (see below).
-* Lighting effects
-  * (3pts) Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
-  * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
-* Optimizations (comparative analysis required!)
-  * (3pts) Over-relaxation method of sphere tracing {McGuire 12.1}
-  * (2pts) Analytical bounding spheres on objects in the scene {McGuire 12.2/12.3}
-  * (1pts) Analytical infinite planes {McGuire 12.3}
-
-This extra feature list is not comprehensive. If you have a particular idea
-that you would like to implement, please **contact us first** (preferably on
-the mailing list).
-
-## Write-up
-
-For each feature (required or extra), include a screenshot which clearly
-shows that feature in action. Briefly describe the feature and mention which
-reference(s) you used.
-
-### Analysis
-
-* Provide an analysis comparing naive ray marching with sphere tracing
-  * In addition to FPS, implement a debug view which shows the "most expensive"
-    fragments by number of iterations required for each pixel. Compare these.
-* Compare time spent ray marching vs. time spent shading/lighting
-  * This can be done by taking measurements with different parts of your code
-    enabled (e.g. raymarching, raymarching+shadow, raymarching+shadow+AO).
-  * Plot this analysis using pie charts or a 100% stacked bar chart.
-* For each feature (required or extra), estimate whether branch divergence
-  plays a role in its performance characteristics, and, if so, point out the
-  branch in question.
-  (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
-* For each optimization feature, compare performance with and without the
-  optimization. Describe and demo the types of scenes which benefit from the
-  optimization.
-
-**Tips:**
-
-* To avoid computing frame times given FPS, you can use the
-  [stats.js bookmarklet](https://github.com/mrdoob/stats.js/#bookmarklet)
-  to measure frame times in ms.
-
-### Resources
-
-You **must** acknowledge any resources you use, including, but not limited to,
-the links below. **Do not copy non-trivial code verbatim.** Instead, use the
-references to understand the methods.
-
-For any code/material in the 565
-[slides](http://cis565-fall-2015.github.io/lectures/12-Ray-Marching.pptx),
-please reference the source found at the bottom of the slide.
-
 * {McGuire}
   Morgan McGuire, Williams College.
   *Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014).
@@ -146,44 +41,116 @@ please reference the source found at the bottom of the slide.
   Iñigo Quílez.
   *Rendering Worlds with Two Triangles with raytracing on the GPU* (2008).
   [Slides](http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
-* {Ashima}
-  Ashima Arts, Ian McEwan, Stefan Gustavson.
-  *webgl-noise*.
-  [GitHub](https://github.com/ashima/webgl-noise)
-  * You may use this code under the MIT-expat license.
+* Iñigo Quílez. menger fractal. http://www.iquilezles.org/www/articles/menger/menger.htm
 
 
-## Submit
+## Implementation and Analysis
 
-### Post on Shadertoy
+### Naive Ray March and its improvement
 
-Post your shader on Shadertoy (preferably *public*; *draft* will not work).
-For your title, come up with your own demo title and use the format
-`[CIS565 2015F] YOUR TITLE HERE` (also add this to the top of your README).
+Naive Ray marching is taking a fixed delta step every iteration, which is very inefficient. However, for terrain and fractal primitives, we still need naive way to do the ray marching since they are not convex. Sphere Marching can hit a point inside the primitive yet the point happens to be empty, which will lead to incorrect result. 
 
-In the Shadertoy description, include the following:
+According to IQ *Terrain Raymarching*, there's way to improve the this naive marching. We can make the delta step proportional to `t` because when t is large, the object is far from which means we don't need many details. 
 
-* A link to your GitHub repository with the Shadertoy code.
-* **IMPORTANT:** A copy of the *Acknowledgements* section from above.
-  * Remember, this is public - strangers will want to know where you got your
-    material.
+However we this can lead to obvious artifacts due to large gap. One solution is add interpolation when the distance estimator returns a hit is detected. 
 
-Add a screenshot of your result to `img/thumb.png`
-(right click rendering -> Save Image As), and put the link to your
-Shadertoy at the top of your README.
+* Dynamic Naive marching with and without interpolation (sdt = 0.01 vs ddt = 0.01*t)
 
-### Pull Request
+|really naive| naive dynamic without interp | naive dynamic with interp|
+|--------------------------| --------------------|------|
+|![](img/simpleTerrain_naive.png) |![](img/simpleTerrain_no_interp.png) | ![](img/simpleTerrain.png)|
 
-**Even though your code is on Shadertoy, make sure it is also on GitHub!**
+|really naive| naive dynamic witho interp | 
+|--------------------------| --------------------|
+|![](img/naive_artifact.png) |![](img/naive_improved.png) |
 
-1. Open a GitHub pull request so that we can see that you have finished.
-   The title should be "Submission: YOUR NAME".
-   * **ADDITIONALLY:**
-     In the body of the pull request, include a link to your repository.
-2. Send an email to the TA (gmail: kainino1+cis565@) with:
-   * **Subject**: in the form of `[CIS565] Project N: PENNKEY`.
-   * Direct link to your pull request on GitHub.
-   * Estimate the amount of time you spent on the project.
-   * If there were any outstanding problems, or if you did any extra
-     work, *briefly* explain.
-   * Feedback on the project itself, if any.
+We can see that the improved naive march has a perfect image quality than the really naive one. And with a faster speed. For the  sphere scene, the dynamic naive interp incread FPS from 38 to 50. 
+![](img/naive_fps.png)
+
+With the debug view mode, we can see that the dynamic naive method decrease the number of iterations. Yet still can't compare to sphere marching method. 
+
+* Num of iterations ( red: small, blue: big)
+|really naive| naive dynamic and interp | sphere marching|
+|--------------------------| --------------------|------|
+|![](img/it_naive.png) |![](img/it_naive_interp.png) | ![](img/it_sphere.png)|
+
+
+### Sphere Marching and Over Relaxation optimization
+
+For Most scenes without those unconvex object, we still prefer sphere marching method which is much more efficient than the naive approach. The sphere marching method is using the nearest interacting distance returned by distance estimator as the marching step. It can dramatically decrease the number of iterations. 
+
+Even if sphere marching is so efficient, there's still space for optimization. According to {McGuire}, for those scenes with a long plane that is parallel with the ray, we can further increase the length of step by multiply a parameter `k` to `h(X)`,  to make less intersecting part of the intersecting sphere at two steps. If these two intersecting don't overlap, we then go back to basic sphere marching. 
+
+|basic k = 1.0| k = 1.2 | k = 1.5|
+|--------------------------| --------------------|------|
+|![](img/over_relax_1.0.png) |![](img/over_relax_1.2.png) | ![](img/over_relax_1.5.png)|
+
+We can see we get a slight drop of num of iterations at the plane, yet some trade off at the near object. The improvement for this simple scene isn't reflected in a change of FPS. I believe this method only shows power when most of the objects is at the end of a long parallel road. And as the article says, even if the scene is perfect for such an optimization, the bonus is only 25%. 
+
+
+### Shading, Soft Shadow and Ambient Occlusion
+For this part, what I did is just copy the code from IQ's demo, and read through the materials to understand how it works. No need to try to make this wheel again. : )
+
+When it comes to shading, what we need most is the normal. Since our geometry are given by functions, we can get normal by trying to find the numerical differentiation. We can do this by change the hitting point a little bit and see what changes is made to the distance estimator. 
+
+Ambient Occlusion is something that uses the normal direction to start a new march, and get the unbounding sphere radius as an estimator of how much is occluded. 
+
+Soft shadow casts shadow ray to the lightsource and  uses distance of unbounding sphere as a factor of shadow. The process is runned for a set of times, each time move the ray a little bit.  
+
+
+### distance estimators
+
+The geometries are described by distance estimator functions. By returning a distance value, we can judge whether the current point is in or out the geometry. 
+
+
+###  Operators
+
+This concept is like the functions in a functional language. We apply some transform to the point as we apply some changes to the distance function, i.e. the geometries. 
+
+* Reptition
+![](img/Rep.png)
+
+* Transform
+![](img/transform.png)
+
+* Displacement
+![](img/displacement.png)
+
+etc. 
+
+### Terrain
+
+Terrain is actually one type of distance functions. Yet it usually only goes a way like `h'(x,z)-y` and it doesn't have convex hull property. This made it must use naive march to render. 
+
+For this assignment, I just use a simple sin(x)*sin(z) function to make a simple repeating terrain. There are ways to generate a more reasonable  terrain: use a texture as input, or some advanced noise function. 
+
+### Fractal 
+![](img/fractal.png)
+
+Fractal is a geometry with recursive structure. We can do recursive calls in glsl, so we use iterations to simulate. 
+
+One problem of fractal is that the distance function is usually more expensive than common objects. As a result, we need someways to optimize. 
+
+### Bounding Sphere
+Bounding Sphere is a cheaper distance function to use, when the ray is far from the surface. Which can make a huge performance impact. 
+Using the single menger fractal scene to test,  here is result. 
+![](img/bs.png)
+This impact is not trivial. 
+
+### PipeLine Time
+
+![](img/pipeline.png)
+
+The ray marching part is the most expensive step, which is quite obvious. Only that part calls castRays to iterate through the rays. Other steps just call map function to find distance. 
+
+### Debug view
+
+* Distance
+![](img/distance.png)
+
+* num_it
+![](img/num_it.png)
+
+* num_it_sphere
+![](img/num_it_sphere.png)
+
