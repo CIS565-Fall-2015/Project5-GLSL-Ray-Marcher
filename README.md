@@ -70,6 +70,7 @@ We can see that the improved naive march has a perfect image quality than the re
 With the debug view mode, we can see that the dynamic naive method decrease the number of iterations. Yet still can't compare to sphere marching method. 
 
 * Num of iterations ( red: small, blue: big)
+
 |really naive| naive dynamic and interp | sphere marching|
 |--------------------------| --------------------|------|
 |![](img/it_naive.png) |![](img/it_naive_interp.png) | ![](img/it_sphere.png)|
