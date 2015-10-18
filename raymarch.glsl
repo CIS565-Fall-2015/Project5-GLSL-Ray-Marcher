@@ -207,7 +207,11 @@ vec4 castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
     return vec4(color, t);}
 
 vec3 lambertShade(in vec3 norm, in vec3 position, in vec3 color, in vec3 sunPosition, in vec3 sunColor) {
-    return dot(norm, sunPosition - position) * color * sunColor;
+    vec3 shade = dot(norm, sunPosition - position) * color * sunColor;
+    if (shade.x <= 0.0 && shade.y <= 0.0 && shade.z <= 0.0) {
+        shade = color * sunColor * 0.02; // ambient term
+    }
+    return shade;
 }
 
 // takes in ray origin, ray direction, and sun position
@@ -216,6 +220,9 @@ vec3 render(in vec3 ro, in vec3 rd, in vec3 sunPosition, in vec3 sunColor) {
     //vec4 materialDistance = castRaySphere(ro, rd);
     vec3 position = ro + rd * materialDistance.a;
     vec3 norm = computeNormal(position);
+    if (materialDistance.r < 0.0 && materialDistance.g < 0.0 && materialDistance.b < 0.0) {
+        return vec3(0.9, 1.0, 0.9);
+    }
     return lambertShade(norm, position, materialDistance.rgb, sunPosition, sunColor);
 }
 
