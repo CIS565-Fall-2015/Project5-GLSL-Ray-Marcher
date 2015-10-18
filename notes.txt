@@ -4,7 +4,7 @@ TODO:
 	-and use it in render [done]
 -add union op [done]
 -add plane check [done]
--add cube check
+-add cube check [done]
 -add normal
 -add light
 -add sphere tracing

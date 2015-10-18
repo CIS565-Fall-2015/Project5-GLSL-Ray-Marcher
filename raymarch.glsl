@@ -119,7 +119,7 @@ vec4 unionDistance(vec4 d1, vec4 d2) {
 // returns the conservative distance to the nearest scene object.
 // declare all scene objects in here.
 // returns (r, g, b, distance)
-vec4 sceneGraphCheck(in vec3 point)
+vec4 sceneGraphDistanceFunction(in vec3 point)
 {
     vec4 returnMe = vec4(0.0, 0.0, 0.0, 22.0);
 
@@ -146,6 +146,17 @@ vec4 sceneGraphCheck(in vec3 point)
     return returnMe;
 }
 
+vec3 computeNormal(in vec3 point) {
+    // McGuire 8: you can totally use the gradient of the scenegraph distance function.
+    vec3 epsilon = vec3(0.001, 0.0, 0.0);
+    vec3 returnMe;
+    returnMe.x = sceneGraphDistanceFunction(point + epsilon.xyz).a - sceneGraphDistanceFunction(point - epsilon.xyz).a;
+    returnMe.y = sceneGraphDistanceFunction(point + epsilon.yxz).a - sceneGraphDistanceFunction(point - epsilon.yxz).a;
+    returnMe.z = sceneGraphDistanceFunction(point + epsilon.yzx).a - sceneGraphDistanceFunction(point - epsilon.yzx).a;
+    return normalize(returnMe);
+}
+
+
 // returns a t along the ray that hits the first intersection.
 // uses naive stepping [McGuire 4]
 // returns (r, g, b, distance), but if distance was maxed out, color is all -1
@@ -159,7 +170,7 @@ vec4 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
     float distance = 1000.0;
     vec3 color = vec3(-1.0, -1.0, -1.0);
     for (int i = 0; i < 2000; i++) {
-        vec4 colorAndDistance = sceneGraphCheck(rayPosition + rayDirection * t);
+        vec4 colorAndDistance = sceneGraphDistanceFunction(rayPosition + rayDirection * t);
         distance = colorAndDistance[3];
         t += stepSize;
         if (distance < epsilon) {
@@ -179,7 +190,9 @@ float castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
 
 vec3 render(in vec3 ro, in vec3 rd) {
     vec4 materialDistance = castRayNaive(ro, rd);
-    return materialDistance.rgb;// * (materialDistance.a / 22.0); 
+    vec3 position = ro + rd * materialDistance.a;
+    vec3 norm = computeNormal(position);
+    return norm;// * (materialDistance.a / 22.0); 
 }
 
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
