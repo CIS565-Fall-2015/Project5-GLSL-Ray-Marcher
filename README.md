@@ -14,6 +14,8 @@
 ### Live in Shadow Toy : All features in Image (A Nonsense Image ... -_-!!! I do want to make somthing meaningful at first...)
 [![link](img/overalltext.png)](https://www.shadertoy.com/view/lt2SRV)
 
+### A simple procedual terrain 
+[![link](img/overall_t.png)](https://www.shadertoy.com/view/lt2SRV)
 
 ### TODO: NonTrivial Image (write something good-looking and meaningful)
 [![link](img/thumb.png)](https://www.shadertoy.com/view/lt2SRV)
@@ -42,7 +44,9 @@ This Shadertoy uses material from the following resources:
   *Rendering Worlds with Two Triangles with raytracing on the GPU* (2008).
   [Slides](http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
 * Iñigo Quílez. menger fractal. http://www.iquilezles.org/www/articles/menger/menger.htm
-
+* {Ashima}  Ashima Arts, Ian McEwan, Stefan Gustavson.
+  *webgl-noise*.
+  [GitHub](https://github.com/ashima/webgl-noise)
 
 ## Implementation and Analysis
 
