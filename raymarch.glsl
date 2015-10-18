@@ -88,12 +88,12 @@ float plane(in vec3 point, in vec3 translation, in vec3 rotation) {
 
 // for getting the union of two objects
 vec4 unionDistance(vec4 d1, vec4 d2) {
-    float minDistance = min(d1[0], d2[0]);
-    vec3 color;
-    if (minDistance != d2[0]) {
-        color = d1.rgb;
-    } else {
+    float minDistance = min(d1[3], d2[3]);
+    vec3 color = vec3(0.0, 0.0, 0.0);
+    if (minDistance == d2[3]) {
         color = d2.rgb;
+    } else {
+        color = d1.rgb;
     }
     return vec4(color, minDistance);
 }
@@ -106,8 +106,13 @@ vec4 unionDistance(vec4 d1, vec4 d2) {
 // returns (r, g, b, distance)
 vec4 sceneGraphCheck(in vec3 point)
 {
-    float sphere1 = sphere(point, vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0), vec3(0.0, 0.0, 0.0));
-    return vec4(1.0, 0.0, 0.0, sphere1);
+    vec4 sphere0 = vec4(1.0, 0.0, 0.0, -1.0);
+    sphere0[3] = sphere(point, vec3(0.0, 0.0, 0.0), vec3(0.5, 0.5, 0.5), vec3(0.0, 0.0, 0.0));
+
+    vec4 sphere1 = vec4(1.0, 1.0, 0.0, -1.0);
+    sphere1[3] = sphere(point, vec3(-0.8, 0.2, 0.0), vec3(1.0, 0.5, 1.0), vec3(0.0, 0.0, 0.0));
+
+    return unionDistance(sphere1, sphere0);
 }
 
 // returns a t along the ray that hits the first intersection.
