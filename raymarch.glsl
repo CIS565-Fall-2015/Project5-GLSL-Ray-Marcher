@@ -52,7 +52,7 @@ mat3 eulerZYXRotationMatrix(in vec3 rotation) {
 
 /*primitive distance estimators***********************************************/
 // each takes in transformations and outputs the distance from the point to the
-// ray in world space.
+// primitive in world space.
 
 // unit sphere has radius of 1
 float sphere(in vec3 point, in vec3 translation, in vec3 scale, in vec3 rotation) {
@@ -72,7 +72,7 @@ float sphere(in vec3 point, in vec3 translation, in vec3 scale, in vec3 rotation
     localDist.x *= scale.x;
     localDist.y *= scale.y;
     localDist.z *= scale.z;
-    if (length(localPoint) < 1.0) return -length(localDist);
+    if (length(localPoint) < 1.0) return -1.0 * length(localDist);
     return length(localDist);
 }
 
@@ -86,14 +86,16 @@ float plane(in vec3 point, in vec3 translation, in vec3 rotation) {
 
 /*Boolean operations**********************************************************/
 
-// for getting the union of two objects
+// for getting the union of two objects. the one with the smaller distance.
 vec4 unionDistance(vec4 d1, vec4 d2) {
-    float minDistance = min(d1[3], d2[3]);
+    float minDistance;
     vec3 color = vec3(0.0, 0.0, 0.0);
-    if (minDistance == d2[3]) {
-        color = d2.rgb;
-    } else {
+    if (d1[3] < d2[3]) {
         color = d1.rgb;
+        minDistance = d1[3];
+    } else {
+        color = d2.rgb;
+        minDistance = d2[3];
     }
     return vec4(color, minDistance);
 }
@@ -106,13 +108,25 @@ vec4 unionDistance(vec4 d1, vec4 d2) {
 // returns (r, g, b, distance)
 vec4 sceneGraphCheck(in vec3 point)
 {
+    vec4 returnMe = vec4(0.0, 0.0, 0.0, 22.0);
+
     vec4 sphere0 = vec4(1.0, 0.0, 0.0, -1.0);
-    sphere0[3] = sphere(point, vec3(0.0, 0.0, 0.0), vec3(0.5, 0.5, 0.5), vec3(0.0, 0.0, 0.0));
+    sphere0[3] = sphere(point, vec3(0.0, 0.6, 0.0), vec3(0.5, 0.5, 0.5), vec3(0.0, 0.0, 0.0));
+    returnMe = unionDistance(returnMe, sphere0);
 
-    vec4 sphere1 = vec4(1.0, 1.0, 0.0, -1.0);
-    sphere1[3] = sphere(point, vec3(-0.8, 0.2, 0.0), vec3(1.0, 0.5, 1.0), vec3(0.0, 0.0, 0.0));
+    vec4 sphere1 = vec4(0.0, 1.0, 0.0, -1.0);
+    sphere1[3] = sphere(point, vec3(0.0, 0.0, 0.0), vec3(1.0, 0.1, 1.0), vec3(0.0, 0.0, 0.0));
+    returnMe = unionDistance(returnMe, sphere1);
 
-    return unionDistance(sphere1, sphere0);
+    vec4 sphere2 = vec4(1.0, 0.0, 1.0, -1.0);
+    sphere2[3] = sphere(point, vec3(0.6, 0.6, 0.0), vec3(0.5, 0.5, 0.5), vec3(0.0, 0.0, 0.0));
+    returnMe = unionDistance(returnMe, sphere2);
+
+    vec4 plane0 = vec4(0.0, 0.0, 1.0, -1.0);
+    plane0[3] = plane(point, vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, 0.0));
+    //returnMe = unionDistance(returnMe, plane0);
+
+    return returnMe;
 }
 
 // returns a t along the ray that hits the first intersection.
@@ -121,19 +135,17 @@ vec4 sceneGraphCheck(in vec3 point)
 vec4 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
 {
     float tmin = 1.0;
-    float stepSize = 0.01; // 2000 * 0.01 gives us a max distance of 20
+    float stepSize = 0.01; // 2000 * 0.01 + 1.0 gives us a max distance of 1.0
     float epsilon = 0.002;
 
     float t = tmin;
     float distance = 1000.0;
-    bool maxedOut = true; // toggle for whether the ray maxed out or not
     vec3 color = vec3(-1.0, -1.0, -1.0);
     for (int i = 0; i < 2000; i++) {
         vec4 colorAndDistance = sceneGraphCheck(rayPosition + rayDirection * t);
         distance = colorAndDistance[3];
         t += stepSize;
         if (distance < epsilon) {
-            maxedOut = false;
             color = colorAndDistance.rgb;
         }
     }
@@ -149,7 +161,7 @@ float castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
 
 vec3 render(in vec3 ro, in vec3 rd) {
     vec4 materialDistance = castRayNaive(ro, rd);
-    return materialDistance.rgb; 
+    return materialDistance.rgb * (materialDistance.a / 22.0); 
 }
 
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {

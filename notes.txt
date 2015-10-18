@@ -1,11 +1,11 @@
 TODO:
--get a circle working [done]
--add material color return in scenegraph check
-	-and use it in render
--add union op
+-get a sphere working [done]
+-add material color return in scenegraph check [done]
+	-and use it in render [done]
+-add union op [done]
 -add plane check
 -add cube check
--add noirmal
+-add normal
 -add light
 -add sphere tracing
 
