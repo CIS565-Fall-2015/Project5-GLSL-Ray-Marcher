@@ -1,4 +1,4 @@
-# [CIS565 2015F] YOUR TITLE HERE
+# [CIS565 2015F] Shrek Shao
 
 **GLSL Ray Marching**
 
