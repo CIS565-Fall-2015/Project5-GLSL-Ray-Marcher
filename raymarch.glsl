@@ -147,6 +147,7 @@ vec4 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
         t += stepSize;
         if (distance < epsilon) {
             color = colorAndDistance.rgb;
+            break;
         }
     }
     return vec4(color, t);
@@ -161,7 +162,7 @@ float castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
 
 vec3 render(in vec3 ro, in vec3 rd) {
     vec4 materialDistance = castRayNaive(ro, rd);
-    return materialDistance.rgb * (materialDistance.a / 22.0); 
+    return materialDistance.rgb;// * (materialDistance.a / 22.0); 
 }
 
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
