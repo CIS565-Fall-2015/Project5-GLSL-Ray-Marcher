@@ -80,7 +80,8 @@ float sphere(in vec3 point, in vec3 translation, in vec3 scale, in vec3 rotation
 float plane(in vec3 point, in vec3 translation, in vec3 rotation) {
     // plane is easier to deal with since there's no scale. yay!
     vec3 up = vec3(0.0, 1.0, 0.0);
-    up = rotation * up;
+    mat3 rotationMat = eulerZYXRotationMatrix(rotation);
+    up = rotationMat * up;
     return dot(point - translation, up);
 }
 
@@ -124,7 +125,7 @@ vec4 sceneGraphCheck(in vec3 point)
 
     vec4 plane0 = vec4(0.0, 0.0, 1.0, -1.0);
     plane0[3] = plane(point, vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, 0.0));
-    //returnMe = unionDistance(returnMe, plane0);
+    returnMe = unionDistance(returnMe, plane0);
 
     return returnMe;
 }
