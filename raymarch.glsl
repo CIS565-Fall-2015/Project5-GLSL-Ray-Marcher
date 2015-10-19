@@ -129,6 +129,30 @@ float heightFunction(in vec3 point, in vec3 translation, in vec3 rotation, in ve
     return length(localDist) * localDist.y / abs(localDist.y);
 }
 
+// computes the distance from point to the axis aligned cube defined by min and max.
+// helper for menger sponge.
+float distInCube(in vec3 point, in vec3 minCorner, in vec3 maxCorner) {
+    vec3 center = (maxCorner + minCorner) / 2.0;
+    vec3 d = abs(point - center) - maxCorner;
+    return min(max(max(d.x, d.y), d.z), 0.0) + length(max(d, vec3(0.0, 0.0, 0.0)));
+}
+
+// menger sponge cube of dimensions in scale of iteration depth at most maxIter
+float fractalMenger(in vec3 point, in int maxIter, in vec3 translation, in vec3 rotation, in vec3 scale) {
+    // transform the point into local coordinates
+    vec3 localPoint = point;
+    localPoint -= translation; // untranslate
+    localPoint = eulerZYXRotationMatrix(-1.0 * rotation) * localPoint; // unrotate
+
+    vec3 firstQuadrantCorner = vec3(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5);
+    // at each iteration, compute if the point is in any of the 20 subcubes
+    // if at any point it is not in a subcube, the point is not "inside" the sponge, so break.
+    for (int i = 0; i < maxIter; i++) {
+
+    }
+    return 0.0;
+}
+
 /*Operations******************************************************************/
 
 // for getting the union of two objects. the one with the smaller distance.
@@ -175,6 +199,9 @@ vec4 sceneGraphDistanceFunction(in vec3 point)
     vec4 heightMap0 = vec4(0.6, 0.6, 0.6, -1.0);
     heightMap0[3] = heightFunction(point, vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 0.2, 2.0));
     returnMe = unionDistance(returnMe, heightMap0);
+
+    returnMe.rgb = vec3(1.0, 1.0, 0.0);
+    returnMe[3] = distInCube(point, vec3(-1.0, 0.0, -1.0), vec3(1.0, 0.1, 1.0));
 
     return returnMe;
 }

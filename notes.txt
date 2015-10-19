@@ -13,9 +13,10 @@ TODO:
 	-no good. can't generalize transformation op when scale is nonuniform
 	-besides, it's only a problem with nonuniform scaled spheres
 
--add height-mapped terrain
+-add height-mapped terrain [done. kinda.]
 	-add a function that, given an xz coordinate, computes pseudorandom noise [done?]
-	-add a primitive that takes all 3 transforms and does the height mapped thing
+		-just using sin functions for now. perlin noise later?
+	-add a primitive that takes all 3 transforms and does the height mapped thing [done]
 
 -add fractal menger sponge
 	-primitive that should take in transforms and an iteration depth
