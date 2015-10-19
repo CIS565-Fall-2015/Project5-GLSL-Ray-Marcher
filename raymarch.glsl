@@ -49,6 +49,15 @@ mat3 eulerZYXRotationMatrix(in vec3 rotation) {
     return eulerZYX;
 }
 
+// for generating a pseudorandom color given a point.
+// from http://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
+float pseudoRand(vec2 xz) {
+    return fract(sin(dot(xz.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+float sinSin(vec2 xz) {
+    return sin(xz[0]) * sin(xz[1]);
+}
 
 /*primitive distance estimators***********************************************/
 // each takes in transformations and outputs the distance from the point to the
@@ -97,6 +106,29 @@ float cube(in vec3 point, in vec3 translation, in vec3 rotation, in vec3 scale) 
     return min(max(max(d.x, d.y), d.z), 0.0) + length(max(d, vec3(0.0, 0.0, 0.0)));
 }
 
+float heightFunction(in vec3 point, in vec3 translation, in vec3 rotation, in vec3 scale) {
+    // transform the point into local coordinates
+    vec3 localPoint = point;
+    localPoint -= translation; // untranslate
+    localPoint = eulerZYXRotationMatrix(-1.0 * rotation) * localPoint; // unrotate
+    localPoint.x /= scale.x; // unscale
+    localPoint.y /= scale.y;
+    localPoint.z /= scale.z;
+
+    // compute a height value
+    vec3 nearPt = localPoint;
+    nearPt.y = sinSin(localPoint.xz);
+    
+    // get distance vector
+    vec3 localDist = localPoint - nearPt;
+
+    // scale back
+    localDist.x *= scale.x;
+    localDist.y *= scale.y;
+    localDist.z *= scale.z;
+    return length(localDist) * localDist.y / abs(localDist.y);
+}
+
 /*Operations******************************************************************/
 
 // for getting the union of two objects. the one with the smaller distance.
@@ -106,6 +138,7 @@ vec4 unionDistance(vec4 d1, vec4 d2) {
     if (d1[3] < d2[3]) {
         color = d1.rgb;
         minDistance = d1[3];
+    }
     return vec4(color, minDistance);
 }
 
@@ -136,8 +169,12 @@ vec4 sceneGraphDistanceFunction(in vec3 point)
     returnMe = unionDistance(returnMe, cube0);
 
     vec4 plane0 = vec4(0.0, 0.0, 1.0, -1.0);
-    plane0[3] = plane(point, vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, 0.0));
+    plane0[3] = plane(point, vec3(0.0, 4.0, 0.0), vec3(3.14159, 0.0, 0.0));
     returnMe = unionDistance(returnMe, plane0);
+
+    vec4 heightMap0 = vec4(0.6, 0.6, 0.6, -1.0);
+    heightMap0[3] = heightFunction(point, vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 0.2, 2.0));
+    returnMe = unionDistance(returnMe, heightMap0);
 
     return returnMe;
 }
@@ -213,7 +250,7 @@ vec3 lambertShade(in vec3 norm, in vec3 position, in vec3 color, in vec3 sunPosi
 
 // takes in ray origin, ray direction, and sun position
 vec3 render(in vec3 ro, in vec3 rd, in vec3 sunPosition, in vec3 sunColor) {
-    vec4 materialDistance = castRaySphere(ro, rd);//castRayNaive(ro, rd);
+    vec4 materialDistance = castRayNaive(ro, rd);//castRaySphere(ro, rd);
     //vec4 materialDistance = castRaySphere(ro, rd);
     vec3 position = ro + rd * materialDistance.a;
     vec3 norm = computeNormal(position);

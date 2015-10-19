@@ -10,11 +10,11 @@ TODO:
 -add sphere tracing [buggy]
 
 -extract and generalize transformation operator. see if it fixes the sphere tracing problem?
-	-no good. can't generalize transformation op
-	-besides, it's only a problem with scaled spheres
+	-no good. can't generalize transformation op when scale is nonuniform
+	-besides, it's only a problem with nonuniform scaled spheres
 
 -add height-mapped terrain
-	-add a function that, given an xz coordinate, computes pseudorandom noise
+	-add a function that, given an xz coordinate, computes pseudorandom noise [done?]
 	-add a primitive that takes all 3 transforms and does the height mapped thing
 
 -add fractal menger sponge
