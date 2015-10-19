@@ -72,13 +72,13 @@ The main features implemented include :
 <img src="renders/depthNaive.png" height="288" width="512">
 
 * Normal View : The color goes from white to black (white being closer to the camera)
-<img src="renders/normalComputation.png" height="288" width="512">
+<img src="renders/normalComputations.png" height="288" width="512">
 
 ##### Comparison between Naive and Spherical Ray March
 
 * Steps View : The color goes from green to red to yellow (green being the minimum number of steps)
-<img src="renders/stepsNaive.png" height="144" width="256">
-<img src="renders/stepsSpherical.png" height="144" width="256">
+<img src="renders/stepsNaive.png" height="192" width="341.333333333">
+<img src="renders/stepsSpherical.png" height="192" width="341.333333333">
 
 
 
