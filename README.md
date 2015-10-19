@@ -10,94 +10,46 @@
 * 
 ### Live on Shadertoy
 
-[![](img/thumb.png)](https://www.shadertoy.com/view/ll2SzG)
+[![](img/all_shapes.PNG)](https://www.shadertoy.com/view/ll2SzG)
 
 ### Acknowledgements
 
 This Shadertoy uses material from the following resources:
 
-* http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm
+* http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm for height map methodology
 * http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf
-* 
-
-### (TODO: Your README)
-
-
-Instructions (delete me)
-========================
-
-This is due at midnight on the evening of Monday, October 19.
-
-**Summary:** In this project, you'll see yet another way in which GPU
-parallelism and compute-efficiency can be used to render scenes.
-You'll write a program in the popular online shader editor
-[Shadertoy](http://www.shadertoy.com/).
-Your goal will be to implement and show off different features in a cool and
-interesting demo. See Shadertoy for inspiration - and get creative!
-
-Ray marching is an iterative ray casting method in which objects are
-represented as implicit surfaces defined by signed distance functions (SDFs). This
-method is widely used in the Shadertoy community to render complex scenes which
-are defined in the fragment shader code executed for each pixel.
-
-**Important Notes:**
-* Even though you will be coding in Shadertoy, it is important as always to
-  save versions of your code so that you do not lose progress! Commit often!
-* A significant portion of this project will be in write-up and performance
-  analysis - don't save it for later.
-
-**Provided Code:**
-The provided code in `raymarch.glsl` is straight from iq's Raymarching
-Primitives; see {iq-prim}. It just sets up a simple starter camera.
+* http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm for SDFs and Transformations
+* https://www.shadertoy.com/view/Xds3zN for ambient occlusion and soft shadows
+* http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/ for axis/angle to matrix rotations
 
 ### Features
 
-**Required Features:**
-
-* Two ray marching methods (comparative analysis required)
-  * Naive ray marching (fixed step size) {McGuire 4}
-  * Sphere tracing (step size varies based on signed distance field) {McGuire 6}
-* 3 different distance estimators {McGuire 7} {iq-prim}
-  * With normal computation {McGuire 8}
-* One simple lighting computation (e.g. Lambert or Blinn-Phong).
-* Union operator {McGuire 11.1}
-  * Necessary for rendering multiple objects
-* Transformation operator {McGuire 11.5}
-* Debug views (preferably easily toggleable, e.g. with `#define`/`#if`)
-  * Distance to surface for each pixel
-  * Number of ray march iterations used for each pixel
-
-**Extra Features:**
-
-You must do at least 10 points worth of extra features.
-
-**INSTRUCTOR TODO: review point values**
-
-* (0.25pt each, up to 1pt) Other basic distance estimators/operations {McGuire 7/11}
-* Advanced distance estimators
-  * (3pts) Height-mapped terrain rendering {iq-terr}
-  * (3pts) Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
-  * **Note** that these require naive ray marching, if there is no definable
-    SDF. They may be optimized using bounding spheres (see below).
-* Lighting effects
-  * (3pts) Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
-  * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
-* Optimizations (comparative analysis required!)
-  * (3pts) Over-relaxation method of sphere tracing {McGuire 12.1}
-  * (2pts) Analytical bounding spheres on objects in the scene {McGuire 12.2/12.3}
-  * (1pts) Analytical infinite planes {McGuire 12.3}
-
-This extra feature list is not comprehensive. If you have a particular idea
-that you would like to implement, please **contact us first** (preferably on
-the mailing list).
-
-## Write-up
-
-For each feature (required or extra), include a screenshot which clearly
-shows that feature in action. Briefly describe the feature and mention which
-reference(s) you used.
+* Naive Ray Marching
+* Sphere Tracing
+* 7 SDFs: Plane, sphere, ellipsoid, torus, torus88, box, cylinder
+* Arbitrary transformations of objects
+* Debug views for number of ray march iterations and distances to surfaces
+* Simple lambert lighting scheme
+* Height Maps
+* Over-relaxation for sphere tracing optimization
+* Soft shadowing (both heavily influenced by IQ's shadertoy example...)
+* Ambient Occlusion
 
 ### Analysis
+
+## Naive Marching vs. Sphere Tracing
+
+Black is 0, white is max number of steps.
+
+![](img/naive_cast_ray_iter.PNG)
+
+Runs at 20FPS. Goes faster when objects are closer because they terminate much faster. Same with increasing stepsize and resoluton. However, regardless, sphere tracing removes this necessity all together.
+
+![](img/cast_ray_iter.PNG)
+
+Runs at 60FPS. Here we can see some of the downsides of sphere tracing around the edges of objects. Objects themselves are much faster to compute, but around the edges, because sphere tracing computes distances to nearest object (not necessarily in its path), it will take much smaller step sizes near edges of objects, hence why the edges are very white and look like they distort the background around them.
+
+
 
 * Provide an analysis comparing naive ray marching with sphere tracing
   * In addition to FPS, implement a debug view which shows the "most expensive"
