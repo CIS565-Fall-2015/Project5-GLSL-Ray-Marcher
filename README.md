@@ -10,7 +10,7 @@
 
 ### Live on Shadertoy
 
-<img src="renders/terrainMapping.png" height="130.909090909" width="232.727272727"> <img src="renders/fractal.png" height="130.909090909" width="232.727272727"> <img src="renders/pacman.png" height="130.909090909" width="232.727272727">
+<img src="renders/terrainMapping.png" height="144" width="256"> <img src="renders/eveything.png" height="144" width="256"> <img src="renders/fractal.png" height="144" width="256"> <img src="renders/pacman.png" height="144" width="256"> 
 
 ### Acknowledgements
 
@@ -18,22 +18,18 @@
   Morgan McGuire, Williams College.
   *Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014).
   [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
-
 * {iq-prim}
   Iñigo Quílez.
   *Raymarching Primitives* (2013).
   [Shadertoy](https://www.shadertoy.com/view/Xds3zN)
-
 * {iq-terr}
   Iñigo Quílez.
   *Terrain Raymarching* (2007).
   [Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
-
 * {iq-rwwtt}
   Iñigo Quílez.
   *Rendering Worlds with Two Triangles with raytracing on the GPU* (2008).
   [Slides](http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
-
 * {Ashima}
   Ashima Arts, Ian McEwan, Stefan Gustavson.
   *webgl-noise*.
@@ -41,35 +37,10 @@
 
   
 
-### (TODO: Your README)
+### What is a Ray Marcher
 
+Ray marching is an image based volume rendering technique. With ray marching, you can compute 2D images from 3D volumetric data. For the data, I used implicit surface definitions using signes distance functions as explained in [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf).
 
-Instructions (delete me)
-========================
-
-This is due at midnight on the evening of Monday, October 19.
-
-**Summary:** In this project, you'll see yet another way in which GPU
-parallelism and compute-efficiency can be used to render scenes.
-You'll write a program in the popular online shader editor
-[Shadertoy](http://www.shadertoy.com/).
-Your goal will be to implement and show off different features in a cool and
-interesting demo. See Shadertoy for inspiration - and get creative!
-
-Ray marching is an iterative ray casting method in which objects are
-represented as implicit surfaces defined by signed distance functions (SDFs). This
-method is widely used in the Shadertoy community to render complex scenes which
-are defined in the fragment shader code executed for each pixel.
-
-**Important Notes:**
-* Even though you will be coding in Shadertoy, it is important as always to
-  save versions of your code so that you do not lose progress! Commit often!
-* A significant portion of this project will be in write-up and performance
-  analysis - don't save it for later.
-
-**Provided Code:**
-The provided code in `raymarch.glsl` is straight from iq's Raymarching
-Primitives; see {iq-prim}. It just sets up a simple starter camera.
 
 ### Features
 
