@@ -1,4 +1,4 @@
-# [CIS565 2015F] WebGL Shader
+# [CIS565 2015F] WebGL Ray Marhcer
 
 **GLSL Ray Marching**
 
