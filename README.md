@@ -61,16 +61,23 @@ are defined in the fragment shader code executed for each pixel.
 
 * Two ray marching methods (comparative analysis required)
   * Naive ray marching (fixed step size) {McGuire 4}
+    * The naive ray marching method requires a ray to be shot from the camera to each different pixel in the image.  Then, given a step size, we march down the ray step by step and determine what the minimum distance is from that point to all of the "objects" in the scene.  When this distance drops below an epsilon, you can stop the ray march and print the color of the object that ray has hit.  If the total distance you have stepped along the ray surpasses your max distance, you stop marching and assume that ray does not hit anything.  As you can imagine, this technique can be very slow, since there is no optimization, and the step size is very small.  This is why the sphere tracing was implemented to help speed up the frame rate.
   * Sphere tracing (step size varies based on signed distance field) {McGuire 6}
+    * The difference between sphere tracing and ray marching is the step size.  Instead of marching down the ray with a constant step size, we find the largest possible step we can take without hitting any objects.  In order to do this, the beginning method is the same as the ray march, we find the distant from the point to each object in the scene.  But then, even if the distance is not less than our epsilon, we take a step in the direction of the ray that is a length equal to the minimum distance the point is away from the objects.  This allows you to take the largest possible next step without stepping over any objects.  This helps make the run time much faster you are taking less steps with each ray.  
 * 3 different distance estimators {McGuire 7} {iq-prim}
   * With normal computation {McGuire 8}
+  * I ended up using many different distance estimators throughout each of my scenes.  I implemented the sphere, plane, cube, rounded cube, capsule, torus, cross, and cylinder.   Distance estimators are the reason that the scene can be rendered with just two triangles, instead of multiple objects.  The rays are not actually intersecting with objects that are in the scene.  When the distance is being calculated, you use a distance estimator to find how far the point is from the object, if it were to be there.  This helps to allow complicated scenes render very quickly, because there are not actual objects being rendered, but the correct color is being calculated.  
 * One simple lighting computation (e.g. Lambert or Blinn-Phong).
+  *  
 * Union operator {McGuire 11.1}
   * Necessary for rendering multiple objects
 * Transformation operator {McGuire 11.5}
+  * The transformation operator was implemented by creating a transformation matrix.  The inputs into the function were the translation, rotation, and scale vector.  Each coordinate in the rotation matrix represents the rotation about the x, y, or z axis. The inverse of this matrix is multiplied by the center of the object, and the product of this gives the correct new position.   The image below shows a cube being rotated about the y axis, with the cube scaled by 2 in the y axis.  
+ ![](img/rotated_box.gif)
+  
 * Debug views (preferably easily toggleable, e.g. with `#define`/`#if`)
-  * Distance to surface for each pixel
-  * Number of ray march iterations used for each pixel
+  * There are three differenct debug views that can be used in my scene.  The first is the normals, which will color each point on an object the color of the calculated normal at the point on the suface.  The second is the number of steps along the ray that are taken before it hits an object.  In the view, the less steps taken along a ray print black, while the larger amount of steps taken along a ray print a red color.  The last debug view is the distance to the surface for each pixel.  This will print a black color for objects that are close and white for objects that are further away.  These veiws can easily be toggled between at the top of the script. 
+
 
 **Extra Features:**
 
