@@ -3,6 +3,7 @@
 #define MAX_DIS 100.0
 #define MAX_STEPS 100
 #define EPSILON 0.001
+#define SCENE_Y -3.0
 
 //Comment SHADOW_SCALE to remove shadow
 #define SHADOW_SCALE 30.0
@@ -16,7 +17,7 @@
 #define LAMBERT_COLOR
 //-------------------------------------------------------
 
-//#define DISPLACEMENT 5.0
+#define DISPLACEMENT 5.0
 
 //------------------Ray Casting Modes--------------------
 //#define NAIVE_RAY_CAST
@@ -39,10 +40,8 @@ struct transformationMat {
     mat4 scaleMat;
 };
 
-transformationMat m1;
-transformationMat m2;
-transformationMat m3;
-transformationMat m4;
+transformationMat m1, m2, m3, m4, m5;
+mat4 matrix1, matrix2, matrix3, matrix4, matrix5;
 
 mat4 transpose(mat4 m)
 {
@@ -108,9 +107,30 @@ mat4 buildTransformationMatrix(transformationMat m)
 
 void setMatrices()
 {
- 	m1.translate = vec3(-1.0, 0.0, -1.0);
-    m1.rotate = radians(vec3(45.0, 45.0, 45.0));
-    m1.scale = vec3(0.5, 1.0, 1.0);
+ 	m1.translate = vec3(-0.5, 1.5 + SCENE_Y, 4.5);
+    m1.rotate = radians(vec3(0.0));
+    m1.scale = vec3(1.0);
+    matrix1 = buildTransformationMatrix(m1);
+    
+	m2.translate = vec3(2.0, -0.5+ SCENE_Y, 7.0);
+    m2.rotate = radians(vec3(0.0));
+    m2.scale = vec3(1.0);
+    matrix2 = buildTransformationMatrix(m2);
+    
+   	m3.translate = vec3(-3.0, -0.5+ SCENE_Y, 7.0);
+    m3.rotate = radians(vec3(0.0));
+    m3.scale = vec3(1.0);
+    matrix3 = buildTransformationMatrix(m3);
+    
+    m4.translate = vec3(-3.0, -0.5+ SCENE_Y, 2.0);
+    m4.rotate = radians(vec3(0.0));
+    m4.scale = vec3(1.0);
+    matrix4 = buildTransformationMatrix(m4);
+    
+	m5.translate = vec3(2.0, -0.5+ SCENE_Y, 2.0);
+    m5.rotate = radians(vec3(0.0));
+    m5.scale = vec3(1.0);
+	matrix5 = buildTransformationMatrix(m5);
 }
 
 //-------------------------------------------------------
@@ -137,6 +157,13 @@ float sdTorus( vec3 p, vec2 t )
 float sdEllipsoid( in vec3 p, in vec3 r )
 {
     return (length( p/r ) - 1.0) * min(min(r.x,r.y),r.z);
+}
+
+float sdBox( vec3 p, vec3 b )
+{
+	vec3 d = abs(p) - b;
+  	return min(max(d.x,max(d.y,d.z)),0.0) +
+         length(max(d,0.0));
 }
 
 //--------------------CSG Operations---------------------
@@ -168,23 +195,76 @@ float opDisplacement(vec3 pt)
 }
 #endif
 
+vec3 opTx( vec3 p, mat4 m )
+{
+	return vec3(m * vec4(p, 1.0));
+}
+
 vec3 opTx( vec3 p, transformationMat m )
 {
 	return vec3(buildTransformationMatrix(m) * vec4(p, 1.0));
 }
 
+
 //Function to create the actual scene
 float disEstimator(vec3 pt)
 {
-    float dis = sdSphere(opTx(pt, m1), 1.0);//opBlend(sdTorus(pt-vec3(0.0), vec2(1.0, 0.1)), sdSphere(pt-vec3(1.0, 0.0, 0.0), 0.5), 0.8);
-    	
-    	#ifdef NAIVE_RAY_CAST
-    		#ifdef DISPLACEMENT
-		    	dis += opDisplacement(pt);
-    		#endif
-   		#endif
+    float dis = sdPlane(pt, -2.0 + + SCENE_Y);
     
-		  dis = opUnion(dis, min(dis, sdPlane(pt, -2.0)));
+    //Difference
+    	  dis = opUnion(dis, opDifference(sdBox(opTx(pt, matrix2), vec3(0.5)),
+                                          sdSphere(opTx(pt, matrix2), 0.6)));
+		
+    //Intersection
+    	//Dice
+		  dis = opUnion(dis, opIntersect(sdBox(opTx(pt, matrix3), vec3(0.5)),
+                                          sdSphere(opTx(pt, matrix3), 0.7)));
+    	//one
+	      dis = opDifference(dis, sdSphere(opTx(pt-vec3(0.0,-0.5,0.0), matrix3), 0.1));
+        //two
+    	dis = opDifference(dis, sdSphere(opTx(pt-vec3(-0.2,0.5,-0.2), matrix3), 0.1));
+    	  dis = opDifference(dis, sdSphere(opTx(pt-vec3(0.2,0.5,0.2), matrix3), 0.1));
+    	//three
+    	dis = opDifference(dis, sdSphere(opTx(pt-vec3(0.5,0.0,0.0), matrix3), 0.1));
+    	  dis = opDifference(dis, sdSphere(opTx(pt-vec3(0.5,0.25,0.25), matrix3), 0.1));
+	      dis = opDifference(dis, sdSphere(opTx(pt-vec3(0.5,-0.25,-0.25), matrix3), 0.1));
+	    //four
+    	  dis = opDifference(dis, sdSphere(opTx(pt-vec3(0.2, 0.2, 0.5), matrix3), 0.1));
+    	  dis = opDifference(dis, sdSphere(opTx(pt-vec3(0.2, -0.2, 0.5), matrix3), 0.1));
+		  dis = opDifference(dis, sdSphere(opTx(pt-vec3(-0.2, 0.2, 0.5), matrix3), 0.1));
+    	  dis = opDifference(dis, sdSphere(opTx(pt-vec3(-0.2, -0.2, 0.5), matrix3), 0.1));
+    //five
+    	dis = opDifference(dis, sdSphere(opTx(pt-vec3(-0.5,0.0,0.0), matrix3), 0.1));
+    	  dis = opDifference(dis, sdSphere(opTx(pt-vec3(-0.5,0.25,0.25), matrix3), 0.1));
+	      dis = opDifference(dis, sdSphere(opTx(pt-vec3(-0.5,-0.25,-0.25), matrix3), 0.1));
+			dis = opDifference(dis, sdSphere(opTx(pt-vec3(-0.5,0.25,-0.25), matrix3), 0.1));
+	      dis = opDifference(dis, sdSphere(opTx(pt-vec3(-0.5,-0.25,0.25), matrix3), 0.1));
+    //six
+		dis = opDifference(dis, sdSphere(opTx(pt-vec3(0.2, 0.25, -0.5), matrix3), 0.1));
+    	  dis = opDifference(dis, sdSphere(opTx(pt-vec3(0.2, 0.0, -0.5), matrix3), 0.1));
+		  dis = opDifference(dis, sdSphere(opTx(pt-vec3(0.2, -0.25, -0.5), matrix3), 0.1));
+		dis = opDifference(dis, sdSphere(opTx(pt-vec3(-0.2, 0.25, -0.5), matrix3), 0.1));
+    	  dis = opDifference(dis, sdSphere(opTx(pt-vec3(-0.2, 0.0, -0.5), matrix3), 0.1));
+		  dis = opDifference(dis, sdSphere(opTx(pt-vec3(-0.2, -0.25, -0.5), matrix3), 0.1));
+    
+    //Blend
+    	dis = opUnion(dis, opBlend(
+                      sdSphere(opTx(pt-vec3(0.0,0.0,0.5), matrix4), 0.5),
+		  	          sdSphere(opTx(pt+vec3(0.0,0.0,0.5), matrix4), 0.5),
+            			0.5)
+                      );
+   
+//    #ifdef NAIVE_RAY_CAST
+    #ifdef DISPLACEMENT
+    //Displacement
+	    dis = opUnion(dis, (opDisplacement(opTx(pt, matrix5))+
+							sdSphere(opTx(pt, matrix5), 0.5)));
+    #endif
+ //   #endif
+    
+    //Infinite plane
+   		//dis = opUnion(dis, min(dis, ));
+    
     
     return dis;
 }
