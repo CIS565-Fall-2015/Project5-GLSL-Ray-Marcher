@@ -10,7 +10,7 @@
 * 
 ### Live on Shadertoy
 
-[![](img/labelled_shapes.PNG)](https://www.shadertoy.com/view/ll2SzG)
+[![](img/labelled_shapes.png)](https://www.shadertoy.com/view/ll2SzG)
 
 ### Acknowledgements
 
@@ -21,6 +21,7 @@ This Shadertoy uses material from the following resources:
 * http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm for SDFs and Transformations
 * https://www.shadertoy.com/view/Xds3zN for ambient occlusion and soft shadows
 * http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/ for axis/angle to matrix rotations
+* Morgan McGuire, Williams College. Numerical Methods for Ray Tracing Implicitly Defined Surfaces (2014) for over-relaxation
 
 ### Features
 
@@ -34,97 +35,50 @@ This Shadertoy uses material from the following resources:
 * Over-relaxation for sphere tracing optimization
 * Soft shadowing (both heavily influenced by IQ's shadertoy example...)
 * Ambient Occlusion
+* Naive coloring (lots of branch divergence!)
 
-### Analysis
+### Features and Analysis
+
+## Height Mapping
+
+![](img/height_map.PNG)
 
 ## Naive Marching vs. Sphere Tracing
 
 Black is 0, white is max number of steps.
 
+Naive:
+
 ![](img/naive_cast_ray_iter.PNG)
 
 Runs at 20FPS. Goes faster when objects are closer because they terminate much faster. Same with increasing stepsize and resoluton. However, regardless, sphere tracing removes this necessity all together.
+
+Sphere:
 
 ![](img/cast_ray_iter.PNG)
 
 Runs at 60FPS. Here we can see some of the downsides of sphere tracing around the edges of objects. Objects themselves are much faster to compute, but around the edges, because sphere tracing computes distances to nearest object (not necessarily in its path), it will take much smaller step sizes near edges of objects, hence why the edges are very white and look like they distort the background around them.
 
+## Over-Relaxation Optimization for Sphere Tracing
 
+Black is 0, white is max number of steps.
 
-* Provide an analysis comparing naive ray marching with sphere tracing
-  * In addition to FPS, implement a debug view which shows the "most expensive"
-    fragments by number of iterations required for each pixel. Compare these.
-* Compare time spent ray marching vs. time spent shading/lighting
-  * This can be done by taking measurements with different parts of your code
-    enabled (e.g. raymarching, raymarching+shadow, raymarching+shadow+AO).
-  * Plot this analysis using pie charts or a 100% stacked bar chart.
-* For each feature (required or extra), estimate whether branch divergence
-  plays a role in its performance characteristics, and, if so, point out the
-  branch in question.
-  (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
-* For each optimization feature, compare performance with and without the
-  optimization. Describe and demo the types of scenes which benefit from the
-  optimization.
+Normal sphere:
 
-**Tips:**
+![](img/cast_ray_iter_vs_relaxed.PNG)
 
-* To avoid computing frame times given FPS, you can use the
-  [stats.js bookmarklet](https://github.com/mrdoob/stats.js/#bookmarklet)
-  to measure frame times in ms.
+Over-relaxed sphere:
 
-### Resources
+![](img/over_relaxation_iter.PNG)
 
-You **must** acknowledge any resources you use, including, but not limited to,
-the links below. **Do not copy non-trivial code verbatim.** Instead, use the
-references to understand the methods.
+It is clear from the images that the over relaxed method takes less steps in most fragements when compared with the normal sphere stepping. However, due to my implementation, it seems that in certain scenarios it is actually slower when there are many objects nearby the camera frame. I believe this might be because of the additional distance computation I do. It might make sense to somehow only do 1 distance computation per iteration and re-use the previous computation (I do 2 per iteration) which might be the cause of this.
 
-For any code/material in the 565
-[slides](http://cis565-fall-2015.github.io/lectures/12-Ray-Marching.pptx),
-please reference the source found at the bottom of the slide.
+## Branch Divergence
 
-* {McGuire}
-  Morgan McGuire, Williams College.
-  *Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014).
-  [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
-  * You may credit and use code from this reference.
-* {iq-prim}
-  Iñigo Quílez.
-  *Raymarching Primitives* (2013).
-  [Shadertoy](https://www.shadertoy.com/view/Xds3zN)
-* {iq-terr}
-  Iñigo Quílez.
-  *Terrain Raymarching* (2007).
-  [Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
-  * You may credit and use code from this reference.
-* {iq-rwwtt}
-  Iñigo Quílez.
-  *Rendering Worlds with Two Triangles with raytracing on the GPU* (2008).
-  [Slides](http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
-* {Ashima}
-  Ashima Arts, Ian McEwan, Stefan Gustavson.
-  *webgl-noise*.
-  [GitHub](https://github.com/ashima/webgl-noise)
-  * You may use this code under the MIT-expat license.
+The largest branch divergence hit is my super naive implementation of color, in the getColor function, which does 4-condition branch to determine what color to use given a material. A faster way to implement this is just to apply the color directly directly in the map function, but I think this illustrates the issue with branches quickly, and was quick to implement. Adding this feature drops my runtime from 60FPS to 45FPS.
 
+Other branch divergences occur in all of the sphere/ray marching methods when fragments are finished computing while others are not. The closer the ratio is to half and half, the worse the performance I believe.
 
-## Submit
-
-### Post on Shadertoy
-
-Post your shader on Shadertoy (preferably *public*; *draft* will not work).
-For your title, come up with your own demo title and use the format
-`[CIS565 2015F] YOUR TITLE HERE` (also add this to the top of your README).
-
-In the Shadertoy description, include the following:
-
-* A link to your GitHub repository with the Shadertoy code.
-* **IMPORTANT:** A copy of the *Acknowledgements* section from above.
-  * Remember, this is public - strangers will want to know where you got your
-    material.
-
-Add a screenshot of your result to `img/thumb.png`
-(right click rendering -> Save Image As), and put the link to your
-Shadertoy at the top of your README.
 
 ### Pull Request
 
