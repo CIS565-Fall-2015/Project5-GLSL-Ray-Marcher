@@ -6,7 +6,7 @@
 #define MaxDis 120.0
 #define R 0.25
 #define cpt vec3(0.0,R,0.0)
-#define disi 0.8
+#define disi 1.2
 //#define debugView1
 //#define debugView2
 //#define naive
@@ -194,19 +194,21 @@ vec2 naive_rayMarching(vec3 dir, vec3 ori)
     return vec2(t_temp,m);
 }
 
-float softshadow( in vec3 ro, in vec3 rd, in float mint, in float tmax )
+float softshadow( in vec3 ro, in vec3 rd, in float mint, in float maxt,in float k )
 {
-	float res = 1.0;
-    float t = mint;
-    for( int i=0; i<16; i++ )
-    {
-		float h = setGeo( ro + rd*t ).x;
-        res = min( res, 8.0*h/t );
-        t += clamp( h, 0.02, 0.10 );
-        if( h<0.001 || t>tmax ) break;
-    }
-    return clamp( res, 0.0, 1.0 );
 
+    float t = mint;
+	float res = 1.0;
+    for ( float i = 0.0; i < MaxDis; i++ )
+    {
+        float h = setGeo( ro + rd * t ).x;
+        if ( h < EPSILON ){return 0.0;break;}	
+		res = min( res, k * h / t );
+        t += h;
+		if ( t > maxt )
+			break;
+    }
+    return res;
 }
 
 vec3 diffNormal( in vec3 pos )
@@ -227,33 +229,41 @@ float calcAO( in vec3 pos, in vec3 nor )
     {
         float hr = 0.01 + 0.12*float(i)/4.0;
         vec3 aopos =  nor * hr + pos;
-        float dd = setGeo( aopos ).x;
+        float dd = setGeo(aopos).x;
         occ += -(dd-hr)*sca;
         sca *= 0.95;
     }
     return clamp( 1.0 - 3.0*occ, 0.0, 1.0 );    
 }
 
-vec3 phong(in vec3 ro,in vec3 hitpos,in vec3 base_color )
+vec3 phong(in vec3 ro,in vec3 rd, in vec3 hitpos,in vec3 base_color )
 {
     vec3 spec;
     vec3 color;
     vec3 normal=diffNormal(hitpos);
+    vec3 lightdir=normalize(vec3(0.8, 1.8, -0.5)-hitpos);
     
-    vec3 lightdir=normalize(vec3(0.8, 0.8, -0.5)-hitpos);
+    float light_len=length(lightdir);
     vec3 H=normalize(lightdir+normalize(ro-hitpos));
     float hdot=dot(H,normal);
     spec = float(max(pow(hdot,100.0),0.0))*vec3(0.7,0.7,0.7);
     vec3 Lambert=base_color;
     vec3 Ambient = vec3(0.02,0.02,0.02);
-
+    float occ = calcAO( hitpos, normal );
     float diffuse=clamp(dot(normal,lightdir),0.0,1.0);
     Lambert *= diffuse;
     
+    float shw;
+    shw = softshadow( hitpos, lightdir, 0.0625,light_len, 8.0 );
     color= 0.5*spec+0.5*Lambert+0.01*Ambient;
+    color+=0.3*vec3(0.80,0.70,1.00);
     float attn = 1.0 - pow( min( 1.0, length(lightdir) / 100.0 ), 2.0 );
+    if(shw>0.0){
     color = clamp(color,0.0,1.0)*attn;
-    return color;
+    color*=shw;
+        color=clamp(color,0.0,1.0);
+    }
+        return color;
 
 }
 vec3 render( in vec3 ro, in vec3 rd )
@@ -283,16 +293,45 @@ vec3 render( in vec3 ro, in vec3 rd )
 #endif
     float t = res.x;
 	float m = res.y;
+    
     if( m>-0.5 )
     {
+      
         vec3 point = ro + t*rd;
         vec3 normal = diffNormal( point );
         vec3 ref = reflect( rd, normal );
-        
-        // material        
+        vec3 lightpos=vec3(0.8, 0.6, -0.5);
+        vec3 lightdir=lightpos-point;        
 		col = 0.45 + 0.3*sin( vec3(0.05,0.08,0.20)*(m-1.0) );
-		col=2.0*phong(ro,point,col);
+        if( m<2.0 )
+        {
+            
+            float f = mod( floor(5.0*point.z) + floor(5.0*point.x), 2.0);
+            col = 0.4 + 0.1*f*vec3(1.0);
+        }
+           // material  
+        float occ = calcAO( point, normal );
+		float amb = clamp( 0.5+0.5*normal.y, 0.0, 1.0 );
+        float dif = clamp( dot( normal, lightdir ), 0.0, 1.0 );
+        float dom = smoothstep( -0.1, 0.1, ref.y );
+        
+        float light_len=length(lightdir);
+        vec3 H=normalize(lightdir+normalize(ro-point));
+        float hdot=dot(H,normal);
+        float spec = float(max(pow(hdot,10.0),0.0));
+        float fre = pow( clamp(1.0+dot(normal,rd),0.0,1.0), 2.0 );
+        float attn = 1.0 - pow( min( 1.0, length(lightdir) / 10.0 ), 2.0 );
+        dif *= softshadow( point, lightpos, 0.02, 2.5,8.0 );
+        dom *= softshadow( point, ref, 0.02, 2.5,8.0 );
+  
+		float phong_color =0.0;
+        phong_color= 1.5*dif+1.3*spec+0.1*amb*occ;
+        phong_color += 0.40*dom*occ;
+        phong_color += 0.40*fre*occ;
+		col = col*phong_color*attn;
 
+    	//col = mix( col, vec3(0.8,0.9,1.0), 1.0-exp( -0.0005*t*t ) );
+        //col=col*brdf;
     }
 
 	return vec3( clamp(col,0.0,1.0) );
