@@ -16,14 +16,102 @@
 #define LAMBERT_COLOR
 //-------------------------------------------------------
 
-#define DISPLACEMENT 5.0
+//#define DISPLACEMENT 5.0
 
 //------------------Ray Casting Modes--------------------
-#define NAIVE_RAY_CAST
+//#define NAIVE_RAY_CAST
 #define SPHERICAL_RAY_CAST
 //-------------------------------------------------------
 
 
+//-------------------------------------------------------
+//					Transformation Matrices
+//-------------------------------------------------------
+
+
+struct transformationMat {
+	vec3 translate;
+    vec3 rotate;
+    vec3 scale;
+ 
+    mat4 translateMat;
+	mat4 rotateMat;
+    mat4 scaleMat;
+};
+
+transformationMat m1;
+transformationMat m2;
+transformationMat m3;
+transformationMat m4;
+
+mat4 transpose(mat4 m)
+{
+	mat4 retM;
+    
+    for(int i=0; i<4; i++)
+    {
+		for(int j=0; j<4; j++)
+        {
+            retM[i][j] = m[j][i];
+        }
+    }
+    
+    return retM;
+}
+
+mat3 transpose(mat3 m)
+{
+	mat3 retM;
+    
+    for(int i=0; i<3; i++)
+    {
+		for(int j=0; j<3; j++)
+        {
+            retM[i][j] = m[j][i];
+        }
+    }
+    
+    return retM;
+}
+
+mat4 buildTransformationMatrix(transformationMat m)
+{
+    m.translateMat = (mat4(1.0, 0.0, 0.0, 0.0,
+                        0.0, 1.0, 0.0, 0.0,
+                        0.0, 0.0, 1.0, 0.0,
+                        -m.translate.x, -m.translate.y, -m.translate.z, 1.0));
+    
+	mat4 rotateX = (mat4(1.0, 0.0, 0.0, 0.0,
+                        0.0, cos(m.rotate.x), sin(m.rotate.x), 0.0,
+						0.0, -sin(m.rotate.x), cos(m.rotate.x), 0.0,
+                        0.0, 0.0, 0.0, 1.0));
+    
+	mat4 rotateY = (mat4(cos(m.rotate.y), 0.0, -sin(m.rotate.y), 0.0,
+                        0.0, 1.0, 0.0, 0.0,
+						sin(m.rotate.y), 0.0, cos(m.rotate.y), 0.0,
+                        0.0, 0.0, 0.0, 1.0));
+    
+    mat4 rotateZ = (mat4(cos(m.rotate.z), sin(m.rotate.z), 0.0, 0.0,
+                        -sin(m.rotate.z), cos(m.rotate.z), 0.0, 0.0,
+						0.0, 0.0, 1.0, 0.0,
+                     	0.0, 0.0, 0.0, 1.0));
+   
+    m.rotateMat = transpose(rotateX * rotateY * rotateX);
+    
+    m.scaleMat = mat4(1.0/m.scale.x, 0.0, 0.0, 0.0,
+                      0.0, 1.0/m.scale.y, 0.0, 0.0,
+                      0.0, 0.0, 1.0/m.scale.z, 0.0,
+                      0.0, 0.0, 0.0, 1.0);
+    
+    return (m.scaleMat * m.rotateMat * m.translateMat);
+}
+
+void setMatrices()
+{
+ 	m1.translate = vec3(-1.0, 0.0, -1.0);
+    m1.rotate = radians(vec3(45.0, 45.0, 45.0));
+    m1.scale = vec3(0.5, 1.0, 1.0);
+}
 
 //-------------------------------------------------------
 //					Distance Estimators
@@ -72,22 +160,29 @@ float opBlend(float a, float b, float blendRadius) {
     return ((c) * a + (1.0-c) * b) - blendRadius * c * (1.0 - c);
 }
 
+#ifdef DISPLACEMENT
 float opDisplacement(vec3 pt)
 {
     float factor = DISPLACEMENT;
     return sin(factor * pt.x) * sin(factor * pt.y) * sin(factor * pt.z);
 }
+#endif
+
+vec3 opTx( vec3 p, transformationMat m )
+{
+	return vec3(buildTransformationMatrix(m) * vec4(p, 1.0));
+}
 
 //Function to create the actual scene
 float disEstimator(vec3 pt)
 {
-    float dis = sdSphere(pt-vec3(1.0, 0.0, 0.0), 0.5);//opBlend(sdTorus(pt-vec3(0.0), vec2(1.0, 0.1)), sdSphere(pt-vec3(1.0, 0.0, 0.0), 0.5), 0.8);
+    float dis = sdSphere(opTx(pt, m1), 1.0);//opBlend(sdTorus(pt-vec3(0.0), vec2(1.0, 0.1)), sdSphere(pt-vec3(1.0, 0.0, 0.0), 0.5), 0.8);
     	
-    	//#ifdef NAIVE_RAY_CAST
-    		//#ifdef DISPLACEMENT
+    	#ifdef NAIVE_RAY_CAST
+    		#ifdef DISPLACEMENT
 		    	dis += opDisplacement(pt);
-    		//#endif
-   		//#endif
+    		#endif
+   		#endif
     
 		  dis = opUnion(dis, min(dis, sdPlane(pt, -2.0)));
     
@@ -282,6 +377,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 
     float time = 15.0 + iGlobalTime;
 
+    setMatrices();
+    
     // camera
     vec3 ro = vec3(
             -0.5 + 3.5 * cos(0.1 * time + 6.0 * mo.x),
