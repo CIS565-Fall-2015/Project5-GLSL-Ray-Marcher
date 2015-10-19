@@ -16,9 +16,9 @@
 
 This Shadertoy uses material from the following resources:
 
-* TODO
+![](images/toBoldlyGo.gif)
 
-### (TODO: Your README)
+
 
 
 Instructions (delete me)
