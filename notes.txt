@@ -42,8 +42,29 @@ TODO:
 	-overall intuition:
 		-use distance function to estimate if other things are close to the point to be shaded
 
--add debugging and do some profiling
+-add debugging [done] and do some profiling
 
--distance to surface (depth basically?)
+-distance to surface (depth basically?) [done]
 
--ray march iterations
+-ray march iterations [done]
+
+DATA
+
+javascript:(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();stats.setMode( 1);stats.domElement.style.cssText='position:fixed;left:0;top:0;z-index:10000';document.body.appendChild(stats.domElement);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);})()
+
+-oddly, the menger sponge works with sphere mode and it's FAST
+
+NAIVE RAY MARCHING VS SPHERE TRACING
+-naive: around 170 ms per frame in a full circle pass
+-sphere: around 60 ms per frame in a full circle pass
+
+TIME SPENT RAY MARCHING VS SHADING/LIGHTING
+-pure lambert: around 120 ms per frame in a full circle pass
+
+-shadow: about 150 ms per frame in a full circle pass 
+
+-AO: about 130 ms per frame in a full circle pass
+
+-shadow + AO: about 170 ms per frame in a full circle pass
+
+BRANCH DIVERGENCE
