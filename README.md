@@ -12,8 +12,6 @@
 
 [![](img/labelled_shapes.png)](https://www.shadertoy.com/view/ll2SzG)
 
-![](img/height_map.PNG)
-
 ### Acknowledgements
 
 This Shadertoy uses material from the following resources:
@@ -37,25 +35,34 @@ This Shadertoy uses material from the following resources:
 * Soft shadowing (both heavily influenced by IQ's shadertoy example...)
 * Ambient Occlusion
 
-### Analysis
+### Features and Analysis
+
+## Height Mapping
+
+![](img/height_map.PNG)
 
 ## Naive Marching vs. Sphere Tracing
 
 Black is 0, white is max number of steps.
 
+Naive:
+
 ![](img/naive_cast_ray_iter.PNG)
 
 Runs at 20FPS. Goes faster when objects are closer because they terminate much faster. Same with increasing stepsize and resoluton. However, regardless, sphere tracing removes this necessity all together.
+
+Sphere:
 
 ![](img/cast_ray_iter.PNG)
 
 Runs at 60FPS. Here we can see some of the downsides of sphere tracing around the edges of objects. Objects themselves are much faster to compute, but around the edges, because sphere tracing computes distances to nearest object (not necessarily in its path), it will take much smaller step sizes near edges of objects, hence why the edges are very white and look like they distort the background around them.
 
+## Over-Relaxation Optimization for Sphere Tracing
 
+![](img/cast_ray_iter_vs_relaxation.PNG)
 
-* Provide an analysis comparing naive ray marching with sphere tracing
-  * In addition to FPS, implement a debug view which shows the "most expensive"
-    fragments by number of iterations required for each pixel. Compare these.
+![](img/over_relaxation_iter.PNG)
+
 * Compare time spent ray marching vs. time spent shading/lighting
   * This can be done by taking measurements with different parts of your code
     enabled (e.g. raymarching, raymarching+shadow, raymarching+shadow+AO).
