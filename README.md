@@ -77,6 +77,7 @@ The main features implemented include :
 ##### Comparison between Naive and Spherical Ray March
 
 * Steps View : The color goes from green to red to yellow (green being the minimum number of steps)
+
 <img src="renders/stepsNaive.png" height="192" width="341.333333333">
 <img src="renders/stepsSpherical.png" height="192" width="341.333333333">
 
