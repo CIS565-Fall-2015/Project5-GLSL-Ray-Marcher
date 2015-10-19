@@ -84,7 +84,7 @@ are defined in the fragment shader code executed for each pixel.
   
 * Lighting effects
   * (3pts) Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
-  
+  ![](img/soft_shadow.png)
   * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
   
 <img src="img/before_amb_occ.png" height="192" width="227.5"> <img src="img/amb_occ_debug.png" height="192" width="227.5"> <img src="img/ambient_occlusion.png" height="192" width="227.5">
