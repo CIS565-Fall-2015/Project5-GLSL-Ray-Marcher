@@ -10,7 +10,7 @@
 
 ### Live on Shadertoy
 
-<img src="renders/terrainMapping.png" height="256" width="144"> <img src="renders/fractal.png" height="256" width="144"> <img src="renders/pacman.png" height="256" width="144">
+<img src="renders/terrainMapping.png" height="144" width="256"> <img src="renders/fractal.png" height="144" width="256"> <img src="renders/pacman.png" height="144" width="256">
 
 ### Acknowledgements
 
