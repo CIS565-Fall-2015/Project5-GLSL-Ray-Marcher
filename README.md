@@ -43,14 +43,13 @@ note: to use "#define terrMap" the "#define naive" should be used at the same ti
 
 **Extra Features:**
 *  Other basic distance estimators/operations:
-<p>cone,Torus,cylinder</p>
-<p>operation: subtraction,repeat</p>
+  * cone,Torus,cylinder</p>
+  * operation: subtraction,repeat</p>
 * Advanced distance estimators
-  *  Height-mapped terrain rendering 
+  *  Height-mapped terrain rendering: (texture base) 
 * Lighting effects
   *  Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
   *  Ambient occlusion (see 565 slides for another reference) {iq-prim}
-
 
 ## Write-up
 
