@@ -41,7 +41,7 @@ https://www.shadertoy.com/view/MdXGW2 - water
 
 
 
-![](img/train_gif.gif)
+<img src="img/train_gif.gif" height="192" width="341.333333333">
 
 ###Final Image with debug views
 
