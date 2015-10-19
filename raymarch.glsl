@@ -151,8 +151,9 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
     // at each iteration, compute if the point is in any of the 20 subcubes
     // update maxCorner and minCorner.
     // if at any point it is not in a subcube, the point is not "inside" the sponge, so break.
+    float epsilon = 0.002;
     float currDist = 1000.0;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 3; i > 0; i--) {
         vec3 dimensions = (maxCorner - minCorner) / 3.0;
         vec3 currCorner = minCorner;
         // bottom 8
@@ -163,31 +164,68 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         ***********/
         // 1
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
 
         // 2
         currCorner.x += dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 3
         currCorner.x += dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
 
         // 4
         currCorner.z += dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 5
         currCorner.z += dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 6
         currCorner.x -= dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 7
         currCorner.x -= dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 8
         currCorner.z -= dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
@@ -203,19 +241,39 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 1
         currCorner.z -= dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 2
         currCorner.x += dimensions.x + dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 3
         currCorner.z += dimensions.z + dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 4
         currCorner.x -= dimensions.x + dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // top 8
         /***********
         *  1 2 3  -> +x
@@ -227,35 +285,76 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 1
         currCorner.z -= dimensions.z + dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 2
         currCorner.x += dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 3
         currCorner.x += dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 4
         currCorner.z += dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 5
         currCorner.z += dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 6
         currCorner.x -= dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 7
         currCorner.x -= dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
         // 8
         currCorner.z -= dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+         if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
+        if (currDist > 0.0) break;
     }
     return currDist;
 }
@@ -281,7 +380,7 @@ vec4 unionColorDistance(vec4 d1, vec4 d2) {
 vec4 sceneGraphDistanceFunction(in vec3 point)
 {
     vec4 returnMe = vec4(0.0, 0.0, 0.0, 22.0);
-
+/*
     vec4 sphere0 = vec4(1.0, 0.0, 0.0, -1.0);
     sphere0[3] = sphere(point, vec3(0.0, 0.6, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.5, 0.5, 0.5));
     returnMe = unionColorDistance(returnMe, sphere0);
@@ -304,9 +403,9 @@ vec4 sceneGraphDistanceFunction(in vec3 point)
 
     vec4 heightMap0 = vec4(0.6, 0.6, 0.6, -1.0);
     heightMap0[3] = heightFunction(point, vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 0.2, 2.0));
-    returnMe = unionColorDistance(returnMe, heightMap0);
+    returnMe = unionColorDistance(returnMe, heightMap0); */
 
-    vec4 oneThird = vec4(1.0, 1.0, 0.0, -1.0);
+    //vec4 oneThird = vec4(1.0, 1.0, 0.0, -1.0);
     //vec3 corner = vec3(0.5, 0.5, 0.5);
     //vec3 dimm = vec3(0.33333, 0.33333, 0.33333);
     //oneThird[3] = distInCube(point, corner, corner + dimm);
@@ -317,7 +416,7 @@ vec4 sceneGraphDistanceFunction(in vec3 point)
     //returnMe = unionColorDistance(one, oneThird);
 
     returnMe = vec4(1.0, 1.0, 0.0, -1.0);
-    returnMe[3] = fractalMenger(point, vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+    returnMe[3] = fractalMenger(point, vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(2.0, 2.0, 2.0));
 
     return returnMe;
 }
