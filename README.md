@@ -89,7 +89,7 @@ are defined in the fragment shader code executed for each pixel.
 * Other basic distance estimators/operations {McGuire 7/11}
   * Some other operators that I implemented were the difference, displacement, and repeat operators.  Below is an image of the repeat operator (the others have been shown in previos images).  These operations take the value given by the distance estimators and tweak them in some way to change the shape that is being generated.  
 
-
+![](img/wood_material.png)
 
 * Advanced distance estimators
   * (3pts) Height-mapped terrain rendering {iq-terr}
