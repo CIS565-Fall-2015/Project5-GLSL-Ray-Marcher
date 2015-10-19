@@ -11,7 +11,7 @@
 Overview
 ========================
 
-![](img/OverView.PNG)
+![](img/OverView.png)
 
 ![](img/HeightMap0.PNG)
 
@@ -31,17 +31,17 @@ Features
 
 **Merger Sponge**
 
-**Soft Shadow
+**Soft Shadow**
 
 |Soft Shdow				|Sharp Shadow
 |:---------------------------------:|:---------------------------------------:
-|![](img/softShadow.PNG )	|![](img/sharpShadow.PNG )
+|![](img/softShadow.png )	|![](img/sharpShadow.png )
 
 **Ambient Occlusion**
 
 |Without AO				|With AO
 |:---------------------------------:|:---------------------------------------:
-|![](img/withoutAO.PNG )	|![](img/withAO.PNG )
+|![](img/withoutAO.png)	|![](img/withAO.png )
 
 Analysis
 ========================
