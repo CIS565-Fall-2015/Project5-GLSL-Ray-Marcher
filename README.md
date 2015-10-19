@@ -37,13 +37,17 @@ This Shadertoy uses material from the following resources:
 
 ## Naive Marching vs. Sphere Tracing
 
+Black is 0, white is max number of steps.
+
 ![](img/naive_cast_ray_iter.PNG)
 
 Runs at 20FPS. Goes faster when objects are closer because they terminate much faster. Same with increasing stepsize and resoluton. However, regardless, sphere tracing removes this necessity all together.
 
 ![](img/cast_ray_iter.PNG)
 
-Runs at 60FPS.
+Runs at 60FPS. Here we can see some of the downsides of sphere tracing around the edges of objects. Objects themselves are much faster to compute, but around the edges, because sphere tracing computes distances to nearest object (not necessarily in its path), it will take much smaller step sizes near edges of objects, hence why the edges are very white and look like they distort the background around them.
+
+
 
 * Provide an analysis comparing naive ray marching with sphere tracing
   * In addition to FPS, implement a debug view which shows the "most expensive"
