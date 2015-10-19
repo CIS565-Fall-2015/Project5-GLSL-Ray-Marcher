@@ -9,11 +9,12 @@
   MacBook Pro 2.6 GHz Intel Core i5 @ 8 GB 1600 MHz DDR3, Intel Iris 1536 MB 
 
 ### Live on Shadertoy 
-https://www.shadertoy.com/view/Mt2XRV#
-https://www.shadertoy.com/view/MlSSRK
 
 
-[![](img/thumb.png)](https://www.shadertoy.com/view/TODO)
+
+
+[![](img/train.png)](https://www.shadertoy.com/view/Mt2XRV#)
+[![](img/menger_sponge.png)](https://www.shadertoy.com/view/MlSSRK)
 
 ### Acknowledgements
 
