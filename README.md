@@ -54,7 +54,7 @@ The same transformations are supported.
 
 ### Lighting Features
 
-## Lambert shading
+#### Lambert shading
 ![](img/lambert.png)
 A single light is supported. Lambert shading is computationally very cheap.
 
