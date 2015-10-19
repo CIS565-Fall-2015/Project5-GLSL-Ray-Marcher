@@ -41,7 +41,7 @@ note: to use "#define terrMap" the "#define naive" should be used at the same ti
 * Debug views 
   * Distance to surface for each pixel: #define debugView1
   * Number of ray march iterations used for each pixel:  #define debugView2
-<p><img src="img/debug1.png"  width="380" height="400">  <img src="img/debug2.png"  width="400" height="380"></p>
+<p><img src="img/debug1.png"  width="330" height="200">  <img src="img/debug2.png"  width="330" height="200"></p>
 
 
 **Extra Features:**
