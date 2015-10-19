@@ -35,21 +35,20 @@ Rererence: iq "Raymarching Primitives", McQuire "Implicitly Defined Surfaces"
 
 Rererence: iq "Modeling with distance functions"
 
+![](img/debug_softshadow_noise.png)
+
 #### Sphere Overrelaxation
 
 Reference: McQuire "Implicitly Defined Surfaces", "Enhanced Sphere Tracing"
 
-Iteration difference:
+The number of ray march iterations displayed as grayscale, with darker areas
+indicating fewer iterations before the surface is considered intersected.
 
 ![](img/iters_spheretracing.png)
 
 ![](img/iters_overrelax.png)
 
 ### Debug images
-
-Initial sphere
-
-![](img/1_sphere.png)
 
 Positions
 

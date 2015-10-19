@@ -2,8 +2,25 @@
 const vec3 light = vec3(2.0, 5.0, -1.0);
 const vec3 color = vec3(0.85, 0.85, 0.85);
 const vec3 ambient = vec3(0.05, 0.05, 0.05);
+const vec3 background = vec3(0.2, 0.5, 0.5);
+
+const vec3 scene2cam = vec3(.25, 2.25, -2.2);
+//const vec3 scene2cam = vec3(2.5, 2.2, -.8);
 const float EPSILON = 0.01;
 const float TMIN = 0.01;
+
+// Debug flags
+#define OVERRELAX   1
+#define SPHERETRACE 1
+#define NAIVE       0
+
+#define DISTANCE 0
+#define NORMAL   0
+#define ITERS    0
+
+#define SHADOW   1
+
+#define FIXEDCAM 1
 
 /*************************** Signed distance functions ***********************
  * McGuire: http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
@@ -88,41 +105,59 @@ vec3 tr(vec3 p, vec3 translate) {
  * McGuire: http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
  */
 
+#define SCENE1 0
+#define SCENE2 1
 float nearestIntersection(in vec3 p) {
+#if SCENE1
     float t = sdSphere(p, 0.5);
+    t = setunion(t, sdPlane     (tr(p, vec3(-2.0)), vec3(.0, 1.0, .0))             );
     t = setunion(t, sdTorus     (tr(p, vec3(-1.3,.8,-1.3)), .4, .15)               );
     t = setunion(t, sdTorus88   (tr(p, vec3(.0,.0,-1.5)), vec2(.35,.2))            );
     t = setunion(t, sdCapsule   (tr(p, vec3(.6, .0, .6)), vec3(1.0), vec3(.5), .2) );
     t = setunion(t, sdRoundedBox(tr(p, vec3(-1.0, 1.0, .0)), vec3(.2), .1)         );
-    t = setunion(t, sdPlane     (tr(p, vec3(-1.5)), vec3(.0, 1.0, .0))             );
+    t = setunion(t, sdPlane     (tr(p, vec3(-2.0)), vec3(.0, 1.0, .0))             );
     t = setunion(t, sdCylinder  (tr(p, vec3(1.2,.0,.0)), .5, .2)                   );
     t = setunion(t, sdTriPrism  (tr(p, vec3(.0,.0,1.5)), vec2(.4, .4))             );
+#endif
+#if SCENE2
+    float t = sdCylinder(tr(p, vec3(-.1, 0, 0)), 1.5, .5);
+    t = setunion(t, sdPlane     (tr(p, vec3(-2.0)), vec3(.0, 1.0, .0))   );
+    t = subtract(t, sdTriPrism  (tr(p, vec3(-.1,1,0)), vec2(1., 1.))     );
+
+    t = setunion(t, sdSphere    (tr(p, vec3(1,1,0)), .2)                 );
+    t = setunion(t, sdTorus     (tr(p, vec3(.4, 1,0)), .15, .1)          );
+    t = setunion(t, sdTorus88   (tr(p, vec3(-.2,  1,0)), vec2(.16, .06)) );
+    t = setunion(t, sdRoundedBox(tr(p, vec3(-.75,1,0)), vec3(.08), .06)  );
+    t = setunion(t, sdBox       (tr(p, vec3(-1.15, 1,0)), vec3(.12))     );
+#endif
     return t;
 }
 
 // Naive iteration
-float raymarch_naive(in vec3 ro, in vec3 rd) {
+vec2 raymarch_naive(in vec3 ro, in vec3 rd) {
     const float tmax = 30.0;
     const float tstep = 0.1;
-    for (float t = 0.0; t < tmax; t += tstep) {
+    int iters = 0;
+    for (float t = 0.1; t < tmax; t += tstep) {
+        iters++;
         vec3 p = ro + rd * t;
         float intersection = nearestIntersection(p);
         if (intersection > 0.0 && intersection < TMIN) {
-            return t;
+            return vec2(t, iters);
         }
     }
-    return -1.0;
+    return vec2(-1.0);
 }
 
 // Sphere tracing
-float raymarch_sphere(in vec3 ro, in vec3 rd) {
+vec2 raymarch_sphere(in vec3 ro, in vec3 rd) {
     const float tmax = 30.0;
     float t = 0.0;
     for (int i = 0; i < 100; i++) {
         vec3 p = ro + rd * t;
         float intersection = nearestIntersection(p);
         if (intersection > 0.0 && intersection < TMIN) {
-            return t;
+            return vec2(t, i);
         } else if (intersection > 0.0) {
             t += intersection;
         }
@@ -130,7 +165,7 @@ float raymarch_sphere(in vec3 ro, in vec3 rd) {
             break;
         }
     }
-    return -1.0;
+    return vec2(-1.0);
 }
 
 // Overrelaxation tracing
@@ -140,10 +175,11 @@ vec2 raymarch_overrelax(in vec3 ro, in vec3 rd) {
     const float tmax = 30.0;
     float t = 0.0;
     float dt = 0.0;
-    float diff = 0.0;
-    float K = 1.2;
+    float extrastep = 0.0;
+    float K = 1.0;
 
     for (int i = 0; i < 50; i++) {
+        iters++;
         vec3 p = ro + rd * t;
         float intersection = nearestIntersection(p);
         if (intersection > 0.0 && intersection < TMIN) {
@@ -154,26 +190,23 @@ vec2 raymarch_overrelax(in vec3 ro, in vec3 rd) {
             // Take K * intersection distance step forward
             // Unless that is too large; then step backwards
             float nstep = K * intersection;
-            if (intersection < diff) {
-                t -= (dt + diff);
+            if (intersection < extrastep) {
+                t -= (dt + extrastep);
                 break;
             } else {
                 dt = intersection;
-                diff = (K-1.) * intersection;
+                extrastep = (K-1.) * intersection;
+                t += nstep;
             }
-            t += nstep;
         } else {
-            // Negative distance??
-            t -= (dt + diff);
+            // Negative distance
+            t -= (K * dt);
             break;
         }
-        if (t > tmax) {
-            break;
-        }
-        iters++;
     }
 
     for (int i = 0; i < 50; i++) {
+        iters++;
         vec3 p = ro + rd * t;
         float intersection = nearestIntersection(p);
         if (intersection > 0.0 && intersection < TMIN) {
@@ -184,13 +217,20 @@ vec2 raymarch_overrelax(in vec3 ro, in vec3 rd) {
         if (t > tmax) {
             return vec2(-1,-1);
         }
-        iters++;
     }
     return vec2(-1,-1);
 }
 
 vec2 raymarch(in vec3 ro, in vec3 rd) {
+    #if OVERRELAX
     return raymarch_overrelax(ro, rd);
+    #endif
+    #if SPHERETRACE
+    return raymarch_sphere(ro, rd);
+    #endif
+    #if NAIVE
+    return raymarch_naive(ro, rd);
+    #endif
 }
 
 vec3 normalAt(in vec3 p) {
@@ -203,9 +243,9 @@ vec3 normalAt(in vec3 p) {
     return normalize(v / epsilon.xxx);
 }
 
-vec3 lambert(in vec3 p, in vec3 n) {
+vec3 lambert(in vec3 p, in vec3 n, in vec3 c) {
     vec3 lightdir = normalize(p - light);
-    return dot(n, lightdir) * color;
+    return dot(n, lightdir) * c;
 }
 
 // http://www.iquilezles.org/www/articles/rmshadows/rmshadows.htm
@@ -245,13 +285,39 @@ vec3 render(in vec3 ro, in vec3 rd) {
     float d = ray.x;
     float iters = ray.y;
     if (d > 0.0) {
+        #if ITERS
+            return vec3(iters/20.);
+        #endif
+
         vec3 p = ro + rd*d;
+        #if DISTANCE
+            return p;
+        #endif
+
         vec3 n = normalAt(p);
-        vec3 c = lambert(p, n);
-        c = shadow(p - 3.0*rd*EPSILON, c);
-        return clamp(c, 0.0, 1.0);
+
+        #if NORMAL
+            return n;
+        #endif
+        
+        vec3 basecolor = color;
+        if (p.y > -1.9 && p.y < .6) {
+            basecolor = color;
+        } else if (p.y > -1.9) {
+            vec3 absp = abs(p);
+            basecolor = absp;
+        }
+
+        vec3 c = lambert(p, n, basecolor);
+
+        #if SHADOW
+            c = shadow(p - 3.0*rd*EPSILON, c);
+            c = clamp(c, 0.0, 1.0);
+        #endif
+
+        return c;
     } else {
-        return vec3(0.25, 0.5, 0.5);
+        return background;
     }
 }
 
@@ -280,7 +346,17 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
             -0.5 + 3.5 * cos(0.1 * time + 6.0 * mo.x),
             1.0 + 2.0 * mo.y,
             0.5 + 3.5 * sin(0.1 * time + 6.0 * mo.x));
+    #if FIXEDCAM
+        #if SCENE1
+            ro = vec3(2.2, 3.5, -2);
+        #endif
+        #if SCENE2
+            ro = scene2cam;
+        #endif
+    #endif
+
     vec3 ta = vec3(-0.5, -0.4, 0.5);
+    ta = vec3(0);
 
     // camera-to-world transformation
     mat3 ca = setCamera(ro, ta, 0.0);
