@@ -5,6 +5,7 @@
 // debug rendering
 #define DEBUGDISTANCE 0
 #define DEBUGSTEPS 0
+#define DEBUGSTEPSRANGE 2000.0
 #define DEBUGNORMALS 0
 
 // render options
@@ -494,7 +495,8 @@ float softShadow(in vec3 rayPosition, in vec3 lightPosition)
 // the closer other things are, the stronger the AO term.
 // not sure 100% why IQ calculates sample points how he does,
 // why he has a falloff, why some of his coefficients exist...
-// but hey! it's IQ!
+// I know these things influence the shape of the AO, but I'm
+// not sure exactly how.
 float ambientOcclusion(in vec3 position, in vec3 normal) {
     float occlusionFactor = 0.0;
     float decayFactor = 1.0;
@@ -522,11 +524,19 @@ vec4 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
     for (int i = 0; i < 2000; i++) {
         vec4 colorAndDistance = sceneGraphDistanceFunction(rayPosition + rayDirection * t);
         distance = colorAndDistance[3];
+
         if (distance < EPSILON) {
+            #if DEBUGSTEPS
+                color = vec3(float(i));
+                break;
+            #endif
             color = colorAndDistance.rgb;
             break;
         }
         if (t > MAXDISTANCE) {
+            #if DEBUGSTEPS
+                color = vec3(float(i));
+            #endif
             break;
         }
         t += stepSize;
@@ -548,10 +558,17 @@ vec4 castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
         distance = colorAndDistance[3];
 
         if (distance < EPSILON) {
+            #if DEBUGSTEPS
+                color = vec3(float(i));
+                break;
+            #endif
             color = colorAndDistance.rgb;
             break;
         }
         if (t > MAXDISTANCE) {
+            #if DEBUGSTEPS
+                color = vec3(float(i));
+            #endif
             break;
         }
         t += distance;
@@ -578,6 +595,8 @@ vec3 render(in vec3 ro, in vec3 rd, in vec3 sunPosition, in vec3 sunColor) {
         return norm;
     #elif DEBUGDISTANCE
         return vec3(1.0 - materialDistance.a / MAXDISTANCE);
+    #elif DEBUGSTEPS
+        return vec3(materialDistance / DEBUGSTEPSRANGE);
     #endif
 
     if (materialDistance.r < 0.0 && materialDistance.g < 0.0 && materialDistance.b < 0.0) {
