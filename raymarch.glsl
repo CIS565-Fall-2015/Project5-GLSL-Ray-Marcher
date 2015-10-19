@@ -408,12 +408,12 @@ vec4 sceneGraphDistanceFunction(in vec3 point)
     returnMe = unionColorDistance(returnMe, plane0);
 
     vec4 heightMap0 = vec4(0.6, 0.6, 0.9, -1.0);
-    heightMap0[3] = heightFunction(point, vec3(0.0, 5.0, 0.0), vec3(3.14159, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+    heightMap0[3] = heightFunction(point, vec3(0.0, 6.0, 0.0), vec3(3.14159, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
     returnMe = unionColorDistance(returnMe, heightMap0);
 
-    vec4 fractal0 = vec4(1.0, 1.0, 0.0, -1.0);
-    fractal0[3] = fractalMenger(point, vec3(1.0, 0.0, 1.0), vec3(0.0, 0.0, 0.0), vec3(1.5, 1.5, 1.5));
-    returnMe = unionColorDistance(returnMe, fractal0);
+    //vec4 fractal0 = vec4(1.0, 1.0, 0.0, -1.0);
+    //fractal0[3] = fractalMenger(point, vec3(1.0, 0.0, 1.0), vec3(0.0, 0.0, 0.0), vec3(1.5, 1.5, 1.5));
+    //returnMe = unionColorDistance(returnMe, fractal0);
 
     return returnMe;
 }
@@ -428,6 +428,22 @@ vec3 computeNormal(in vec3 point) {
     return normalize(returnMe);
 }
 
+float hardShadow(in vec3 rayPosition, in vec3 lightPosition)
+{
+    float stepSize = 0.01; // 2000 * 0.01 + 1.0 gives us a max distance of 20.0
+    float epsilon = 0.002;
+    float t = epsilon + stepSize + stepSize;
+    vec3 stepDir = normalize(lightPosition - rayPosition);
+    float lightDistance = length(lightPosition - rayPosition);
+
+    for (int i = 0; i < 2000; i++){
+        float dist = sceneGraphDistanceFunction(rayPosition + stepDir * t)[3];
+        if (dist < epsilon) return 0.0; // shadowed
+        t += stepSize;
+        if (t > lightDistance) break;
+    }
+    return 1.0; // unshadowed
+}
 
 // returns a t along the ray that hits the first intersection.
 // uses naive stepping [McGuire 4]
@@ -435,7 +451,7 @@ vec3 computeNormal(in vec3 point) {
 vec4 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
 {
     float tmin = 1.0;
-    float stepSize = 0.01; // 2000 * 0.01 + 1.0 gives us a max distance of 1.0
+    float stepSize = 0.01; // 2000 * 0.01 + 1.0 gives us a max distance of 20.0
     float epsilon = 0.002;
 
     float t = tmin;
@@ -480,11 +496,7 @@ vec4 castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
     return vec4(color, t);}
 
 vec3 lambertShade(in vec3 norm, in vec3 position, in vec3 color, in vec3 sunPosition, in vec3 sunColor) {
-    vec3 shade = dot(normalize(sunPosition - position), norm) * color * sunColor;
-    if (shade.x <= 0.0 && shade.y <= 0.0 && shade.z <= 0.0) {
-        shade = color * sunColor * 0.02; // ambient term
-    }
-    return shade;
+    return dot(normalize(sunPosition - position), norm) * color * sunColor;
 }
 
 // takes in ray origin, ray direction, and sun position
@@ -496,7 +508,18 @@ vec3 render(in vec3 ro, in vec3 rd, in vec3 sunPosition, in vec3 sunColor) {
     if (materialDistance.r < 0.0 && materialDistance.g < 0.0 && materialDistance.b < 0.0) {
         return vec3(0.9, 1.0, 0.9);
     }
-    return lambertShade(norm, position, materialDistance.rgb, sunPosition, sunColor);
+    // lambert term
+    vec3 shade = lambertShade(norm, position, materialDistance.rgb, sunPosition, sunColor);
+
+    // shadow term
+    float shadow = hardShadow(position, sunPosition);
+    shade *= shadow;
+
+    // ambient term
+    if (shade.x <= 0.0 && shade.y <= 0.0 && shade.z <= 0.0) {
+        shade = materialDistance.rgb * sunColor * 0.02; // ambient term
+    }
+    return shade;
 }
 
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {

@@ -31,7 +31,7 @@ TODO:
 		-you can multiply the shadow term right onto the lambert computation.
 		-may need to move ambient outside of lambert shading
 	-TODO:
-		-modify the scene so you'll actually be able to see shadows
+		-modify the scene so you'll actually be able to see shadows [done]
 		-add a hard shadow function. takes in light, ray origin, ray direction. keep epsilon and max consistent!
 		-add a soft shadow function.
 
