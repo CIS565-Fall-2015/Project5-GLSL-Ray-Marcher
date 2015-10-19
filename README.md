@@ -16,9 +16,11 @@
 
 This Shadertoy uses material from the following resources:
 
-* http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm for height mapping
+* http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm for height map methodology
 * http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf
 * http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm for SDFs and Transformations
+* https://www.shadertoy.com/view/Xds3zN for ambient occlusion and soft shadows
+* http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/ for axis/angle to matrix rotations
 
 ### Features
 
@@ -27,10 +29,10 @@ This Shadertoy uses material from the following resources:
 * 7 SDFs: Plane, sphere, ellipsoid, torus, torus88, box, cylinder
 * Arbitrary transformations of objects
 * Debug views for number of ray march iterations and distances to surfaces
-* Simple BRDF lighting scheme
+* Simple lambert lighting scheme
 * Height Maps
 * Over-relaxation for sphere tracing optimization
-* Soft shadowing
+* Soft shadowing (both heavily influenced by IQ's shadertoy example...)
 * Ambient Occlusion
 
 ### Analysis
