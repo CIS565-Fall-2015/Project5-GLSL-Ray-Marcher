@@ -95,7 +95,11 @@ the mailing list).
 
 ###Bridge and Train
 ![](img/bridge_tracks.png)
+
+
 ![](img/smoke.gif)
+
+
 ![](img/train_smoke.png)
 ![](img/sun_reflecting.png)
 ![](img/bridge_under_water.png)
