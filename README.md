@@ -41,14 +41,14 @@ This shadertoy is an introductory exercise to raytracing by ray marching against
 
 ### Modeling Features
 
-## cubes, spheres, infinite planes, and modeling transformations
+#### cubes, spheres, infinite planes, and modeling transformations
 These are referenced from Morgan McGuire's *Numerical Methods for Ray Tracing Implicitly Defined Surfaces*
 Each potential function evaluator has been modified to take in modeling transformations along with the point whose distance is being computed. Transformations supported include translation, euler angle rotation, and non-uniform scaling.
 
-## height/terrain function
+#### height/terrain function
 The height/terrain function draws from Iñigo Quílez's article *Terrain Raymarching.* At the moment it uses a sine function over the x and z coordinates of the point instead of a perlin noise function as a compact proof of concept. The same transformations are supported.
 
-## menger sponge
+#### menger sponge
 The menger sponge function iteratively computes a distance for a menger sponge to the 3rd iteration.
 The same transformations are supported.
 
@@ -58,15 +58,15 @@ The same transformations are supported.
 ![](img/lambert.png)
 A single light is supported. Lambert shading is computationally very cheap.
 
-## Ambient Occlusion
+#### Ambient Occlusion
 ![](img/ao.png)
 Given a point that needs to be shaded, the shadertoy approximates ambient occlusion by sampling the distance function at points along the surface point's normal direction. This is heavily based on the ambient occlusion method described in Lukasz Jaroslaw Tomczak's *GPU Ray Marching of Distance Fields* and implemented in Iñigo Quílez's *Raymarching Primitives.*
 
-## Soft Shadows
+#### Soft Shadows
 ![](img/ao_soft_shadows.png)
 Given a point that needs to be shaded, the shadertoy approximates soft shadows by raymarching towards the light and using the point's distance from an occluding object to "soften" the shadow. This is heavily based on the soft shadow method described in Lukasz Jaroslaw Tomczak's *GPU Ray Marching of Distance Fields* and implemented in Iñigo Quílez's *Raymarching Primitives.*
 
-## Spherical Ray Marching
+#### Spherical Ray Marching
 ![](img/sphere_menger.png)
 Spherical ray marching attempts to speed up the ray marching by taking larger steps bounded by a distance function evaluation at each step. However, this can lead to unusual results with the terrain function and spheres with extreme nonuniform scale.
 Based on the description in Morgan McGuire's *Numerical Methods for Ray Tracing Implicitly Defined Surfaces.*
@@ -75,14 +75,14 @@ Based on the description in Morgan McGuire's *Numerical Methods for Ray Tracing 
 
 This raymarcher includes numerous debugging features, all of which can be toggled from the defines at the top of the file.
 
-## normals
+#### Normals
 ![](img/normals.png)
 
-## distance
+#### Distance
 ![](img/distance.png)
 Distance is similar to a depth test.
 
-## Steps
+#### Steps
 ![](img/steps_naive.png)
 Steps visualizes the number of steps the ray marching method took to reach each rendered point. The scale can be modified to change the contrast.
 
