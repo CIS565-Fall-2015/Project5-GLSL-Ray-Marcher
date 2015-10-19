@@ -161,7 +161,7 @@ vec4 sceneGraphDistanceFunction(in vec3 point)
     returnMe = unionDistance(returnMe, sphere1);
 
     vec4 sphere2 = vec4(1.0, 0.0, 1.0, -1.0);
-    sphere2[3] = sphere(point, vec3(0.6, 0.6, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.5, 0.5, 0.5));
+    sphere2[3] = sphere(point, vec3(1.6, 0.6, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.5, 0.5, 0.5));
     returnMe = unionDistance(returnMe, sphere2);
 
     vec4 cube0 = vec4(0.0, 1.0, 1.0, -1.0);
@@ -241,7 +241,7 @@ vec4 castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
     return vec4(color, t);}
 
 vec3 lambertShade(in vec3 norm, in vec3 position, in vec3 color, in vec3 sunPosition, in vec3 sunColor) {
-    vec3 shade = dot(norm, sunPosition - position) * color * sunColor;
+    vec3 shade = dot(normalize(sunPosition - position), norm) * color * sunColor;
     if (shade.x <= 0.0 && shade.y <= 0.0 && shade.z <= 0.0) {
         shade = color * sunColor * 0.02; // ambient term
     }
