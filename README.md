@@ -4,19 +4,32 @@
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
-* (TODO) YOUR NAME HERE
-* Tested on: (TODO) **Google Chrome 222.2** on
-  Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* Kangning Li
+* Tested on: Google Chrome 46.0.2490.71 m on
+* Windows 10, i7-4790 @ 3.6GHz 16GB, GTX 970 4096MB
 
-### Live on Shadertoy (TODO)
+### Live on Shadertoy
 
 [![](img/thumb.png)](https://www.shadertoy.com/view/TODO)
 
 ### Acknowledgements
 
 This Shadertoy uses material from the following resources:
-
-* TODO
+* Morgan McGuire, Williams College.
+  *Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014).
+  [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
+* Iñigo Quílez.
+  *Raymarching Primitives* (2013).
+  [Shadertoy](https://www.shadertoy.com/view/Xds3zN)
+* Iñigo Quílez.
+  *Terrain Raymarching* (2007).
+  [Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
+* Iñigo Quílez.
+  *Rendering Worlds with Two Triangles with raytracing on the GPU* (2008).
+  [Slides](http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
+* Lukasz Jaroslaw Tomczak, Technical University of Denmark.
+  *GPU Ray Marching of Distance Fields* (2012).
+  [PDF](http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf)
 
 ### (TODO: Your README)
 
