@@ -37,10 +37,12 @@ note: to use "#define terrMap" the "#define naive" should be used at the same ti
 * One simple lighting computatio: Blinn-Phong.
 * Union operator :float opU(...){}
 * Transformation operator: float opTrans(..){}
-[![](img/no_t.png)]
+![](img/no_t.png)
 * Debug views 
   * Distance to surface for each pixel: #define debugView1
   * Number of ray march iterations used for each pixel:  #define debugView2
+<p><img src="img/debug1.png"  width="380" height="400">  <img src="img/debug2.png"  width="400" height="380"></p>
+
 
 **Extra Features:**
 *  Other basic distance estimators/operations:
