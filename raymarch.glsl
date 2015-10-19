@@ -135,7 +135,8 @@ float raymarch_sphere(in vec3 ro, in vec3 rd) {
 
 // Overrelaxation tracing
 // http://erleuchtet.org/~cupe/permanent/enhanced_sphere_tracing.pdf
-float raymarch_overrelax(in vec3 ro, in vec3 rd) {
+vec2 raymarch_overrelax(in vec3 ro, in vec3 rd) {
+    int iters = 0;
     const float tmax = 30.0;
     float t = 0.0;
     float dt = 0.0;
@@ -147,7 +148,7 @@ float raymarch_overrelax(in vec3 ro, in vec3 rd) {
         float intersection = nearestIntersection(p);
         if (intersection > 0.0 && intersection < TMIN) {
             // Successful intersection
-            return t;
+            return vec2(t, iters);
         } else if (intersection > 0.0) {
             // Valid intersection
             // Take K * intersection distance step forward
@@ -169,24 +170,26 @@ float raymarch_overrelax(in vec3 ro, in vec3 rd) {
         if (t > tmax) {
             break;
         }
+        iters++;
     }
-    
+
     for (int i = 0; i < 50; i++) {
         vec3 p = ro + rd * t;
         float intersection = nearestIntersection(p);
         if (intersection > 0.0 && intersection < TMIN) {
-            return t;
+            return vec2(t, iters);
         } else if (intersection > 0.0) {
             t += intersection;
         }
         if (t > tmax) {
-            return -1.;
+            return vec2(-1,-1);
         }
+        iters++;
     }
-    return -1.0;
+    return vec2(-1,-1);
 }
 
-float raymarch(in vec3 ro, in vec3 rd) {
+vec2 raymarch(in vec3 ro, in vec3 rd) {
     return raymarch_overrelax(ro, rd);
 }
 
@@ -238,7 +241,9 @@ vec3 shadow(in vec3 p, in vec3 color) {
 }
 
 vec3 render(in vec3 ro, in vec3 rd) {
-    float d = raymarch(ro, rd);
+    vec2 ray = raymarch(ro, rd);
+    float d = ray.x;
+    float iters = ray.y;
     if (d > 0.0) {
         vec3 p = ro + rd*d;
         vec3 n = normalAt(p);
