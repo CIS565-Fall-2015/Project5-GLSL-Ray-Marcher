@@ -57,8 +57,10 @@ note: to use "#define terrMap" the "#define naive" should be used at the same ti
 * Provide an analysis comparing naive ray marching with sphere tracing
    <p>naive ray marching: 5.6fps;</p>
    <p>accelated ray marching : 60.1fps;</p>
-  * In addition to FPS, implement a debug view which shows the "most expensive"
-    fragments by number of iterations required for each pixel.
+  * the "most expensive" fragments by number of iterations required for each pixel.
+  <p><img src="img/de_naive.png"  width="330" height="200"><img src="img/de_2.png"  width="330" height="200"></p>
+  the first one is using naive ray marching, the whiter the number of iteration is bigger. the shadow I calculate using 
+the fixed footstep, so it iterates much. The naive ray marching is much more "expensive"
 
 * Compare time spent ray marching vs. time spent shading/lighting
   * This can be done by taking measurements with different parts of your code
