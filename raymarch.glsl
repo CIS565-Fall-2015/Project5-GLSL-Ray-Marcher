@@ -1,4 +1,7 @@
 /*utils***********************************************************************/
+#define EPSILON 0.002
+#define MAXDISTANCE 20.0
+
 mat3 eulerXYZRotationMatrix(in vec3 rotation) {
     //https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
     mat3 eulerXYZ;
@@ -151,7 +154,6 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
     // at each iteration, compute if the point is in any of the 20 subcubes
     // update maxCorner and minCorner.
     // if at any point it is not in a subcube, the point is not "inside" the sponge, so break.
-    float epsilon = 0.002;
     float currDist = 1000.0;
     for (int i = 3; i > 0; i--) {
         vec3 dimensions = (maxCorner - minCorner) / 3.0;
@@ -164,7 +166,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         ***********/
         // 1
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -174,7 +176,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 2
         currCorner.x += dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -183,7 +185,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 3
         currCorner.x += dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -193,7 +195,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 4
         currCorner.z += dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -202,7 +204,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 5
         currCorner.z += dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -211,7 +213,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 6
         currCorner.x -= dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -220,7 +222,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 7
         currCorner.x -= dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -229,7 +231,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 8
         currCorner.z -= dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -247,7 +249,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 1
         currCorner.z -= dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -256,7 +258,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 2
         currCorner.x += dimensions.x + dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -265,7 +267,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 3
         currCorner.z += dimensions.z + dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -274,7 +276,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 4
         currCorner.x -= dimensions.x + dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -291,7 +293,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 1
         currCorner.z -= dimensions.z + dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -300,7 +302,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 2
         currCorner.x += dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -309,7 +311,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 3
         currCorner.x += dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -318,7 +320,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 4
         currCorner.z += dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -327,7 +329,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 5
         currCorner.z += dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -336,7 +338,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 6
         currCorner.x -= dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -345,7 +347,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 7
         currCorner.x -= dimensions.x;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-        if (currDist <= epsilon && i > 1) {
+        if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -354,7 +356,7 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 8
         currCorner.z -= dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-         if (currDist <= epsilon && i > 1) {
+         if (currDist <= EPSILON && i > 1) {
             minCorner = currCorner;
             maxCorner = currCorner + dimensions;
             currDist = 1000.0;
@@ -420,7 +422,7 @@ vec4 sceneGraphDistanceFunction(in vec3 point)
 
 vec3 computeNormal(in vec3 point) {
     // McGuire 8: you can totally use the gradient of the scenegraph distance function.
-    vec3 epsilon = vec3(0.001, 0.0, 0.0);
+    vec3 epsilon = vec3(EPSILON, 0.0, 0.0);
     vec3 returnMe;
     returnMe.x = sceneGraphDistanceFunction(point + epsilon.xyz).a - sceneGraphDistanceFunction(point - epsilon.xyz).a;
     returnMe.y = sceneGraphDistanceFunction(point + epsilon.yxz).a - sceneGraphDistanceFunction(point - epsilon.yxz).a;
@@ -431,15 +433,17 @@ vec3 computeNormal(in vec3 point) {
 float hardShadow(in vec3 rayPosition, in vec3 lightPosition)
 {
     float stepSize = 0.01; // 2000 * 0.01 + 1.0 gives us a max distance of 20.0
-    float epsilon = 0.002;
-    float t = epsilon + stepSize + stepSize;
+    float t = EPSILON + stepSize + stepSize;
     vec3 stepDir = normalize(lightPosition - rayPosition);
     float lightDistance = length(lightPosition - rayPosition);
 
     for (int i = 0; i < 2000; i++){
         float dist = sceneGraphDistanceFunction(rayPosition + stepDir * t)[3];
-        if (dist < epsilon) return 0.0; // shadowed
+        if (dist < EPSILON) return 0.0; // shadowed
         if (t > lightDistance) break;
+        if (t > MAXDISTANCE) {
+            break;
+        }        
         t += stepSize;
     }
     return 1.0; // unshadowed
@@ -448,8 +452,7 @@ float hardShadow(in vec3 rayPosition, in vec3 lightPosition)
 float softShadow(in vec3 rayPosition, in vec3 lightPosition)
 {
     float stepSize = 0.01; // 2000 * 0.01 + 1.0 gives us a max distance of 20.0
-    float epsilon = 0.002;
-    float t = epsilon + stepSize + stepSize;
+    float t = EPSILON + stepSize + stepSize;
     vec3 stepDir = normalize(lightPosition - rayPosition);
     float lightDistance = length(lightPosition - rayPosition);
     float shadowTerm = 1.0; // default to unshadowed
@@ -457,8 +460,11 @@ float softShadow(in vec3 rayPosition, in vec3 lightPosition)
     for (int i = 0; i < 2000; i++){
         float dist = sceneGraphDistanceFunction(rayPosition + stepDir * t)[3];
         shadowTerm = min(shadowTerm, 6.0 * dist / t);
-        if (dist < epsilon) break; // shadowed
+        if (dist < EPSILON) break; // shadowed
         if (t > lightDistance) break;
+        if (t > MAXDISTANCE) {
+            break;
+        }
         t += stepSize;
     }
     return clamp(shadowTerm, 0.0, 1.0); // unshadowed
@@ -473,10 +479,9 @@ float softShadow(in vec3 rayPosition, in vec3 lightPosition)
 float ambientOcclusion(in vec3 position, in vec3 normal) {
     float occlusionFactor = 0.0;
     float decayFactor = 1.0;
-    float epsilon = 0.002;
     float stepSize = 0.01;
     for (int i = 0; i < 5; i++) {
-        float sampleT = stepSize + epsilon + 0.12 * float(i) / 4.0;
+        float sampleT = stepSize + EPSILON + 0.12 * float(i) / 4.0;
         float sampleDistance = sceneGraphDistanceFunction(position + normal * sampleT)[3];
         occlusionFactor += -(sampleDistance - sampleT) * decayFactor;
         decayFactor *= 0.95;
@@ -491,7 +496,6 @@ vec4 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
 {
     float tmin = 1.0;
     float stepSize = 0.01; // 2000 * 0.01 + 1.0 gives us a max distance of 20.0
-    float epsilon = 0.002;
 
     float t = tmin;
     float distance = 1000.0;
@@ -499,11 +503,14 @@ vec4 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
     for (int i = 0; i < 2000; i++) {
         vec4 colorAndDistance = sceneGraphDistanceFunction(rayPosition + rayDirection * t);
         distance = colorAndDistance[3];
-        t += stepSize;
-        if (distance < epsilon) {
+        if (distance < EPSILON) {
             color = colorAndDistance.rgb;
             break;
         }
+        if (t > MAXDISTANCE) {
+            break;
+        }
+        t += stepSize;
     }
     return vec4(color, t);
 }
@@ -513,8 +520,6 @@ vec4 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
 vec4 castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
 {
     float tmin = 0.0;
-    float epsilon = 0.002;
-    float maxDistance = 20.0;
 
     float t = tmin;
     float distance;
@@ -523,11 +528,11 @@ vec4 castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
         vec4 colorAndDistance = sceneGraphDistanceFunction(rayPosition + rayDirection * t);
         distance = colorAndDistance[3];
 
-        if (distance < epsilon) {
+        if (distance < EPSILON) {
             color = colorAndDistance.rgb;
             break;
         }
-        if (t > maxDistance) {
+        if (t > MAXDISTANCE) {
             break;
         }
         t += distance;

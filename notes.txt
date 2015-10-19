@@ -41,3 +41,9 @@ TODO:
 		-compare these to camera -> point distance
 	-overall intuition:
 		-use distance function to estimate if other things are close to the point to be shaded
+
+-add debugging and do some profiling
+
+-distance to surface (depth basically?)
+
+-ray march iterations
