@@ -193,9 +193,68 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
 
         // middle 4
+        /***********
+        *  1 x 2  -> +x
+        *  x   x  | +z
+        *  4 x 3  V
+        ***********/
+        currCorner.y += dimensions.y;
 
+        // 1
+        currCorner.z -= dimensions.z;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 2
+        currCorner.x += dimensions.x + dimensions.x;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 3
+        currCorner.z += dimensions.z + dimensions.z;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 4
+        currCorner.x -= dimensions.x + dimensions.x;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
 
         // top 8
+        /***********
+        *  1 2 3  -> +x
+        *  8   4  | +z
+        *  7 6 5  V
+        ***********/
+        currCorner.y += dimensions.y;
+
+        // 1
+        currCorner.z -= dimensions.z + dimensions.z;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 2
+        currCorner.x += dimensions.x;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 3
+        currCorner.x += dimensions.x;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 4
+        currCorner.z += dimensions.z;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 5
+        currCorner.z += dimensions.z;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 6
+        currCorner.x -= dimensions.x;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 7
+        currCorner.x -= dimensions.x;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 8
+        currCorner.z -= dimensions.z;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
 
     }
     return currDist;
