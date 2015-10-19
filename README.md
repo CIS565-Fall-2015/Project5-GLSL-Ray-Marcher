@@ -15,7 +15,7 @@
 
 [![](img/bridge2.png)](https://www.shadertoy.com/view/Mt2XRV#)
 
-[![](img/menger_sponge.png)](https://www.shadertoy.com/view/MlSSRK)
+[![](img/debug_image_orig.png)](https://www.shadertoy.com/view/MlSSRK)
 
 ### Acknowledgements
 
