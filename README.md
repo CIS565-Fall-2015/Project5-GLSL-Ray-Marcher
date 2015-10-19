@@ -1,22 +1,24 @@
-# [CIS565 2015F] YOUR TITLE HERE
+# [CIS565 2015F] Ray Marcher in Shadertoy
 
 **GLSL Ray Marching**
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
-* (TODO) YOUR NAME HERE
-* Tested on: (TODO) **Google Chrome 222.2** on
-  Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* Levi Cai
+* Tested on: (TODO) **Google Chrome** on
+* Windows 8, i7-5500U @ 2.4GHz, 12GB, NVidia GeForce 940M 2GB
+* 
+### Live on Shadertoy
 
-### Live on Shadertoy (TODO)
-
-[![](img/thumb.png)](https://www.shadertoy.com/view/TODO)
+[![](img/thumb.png)](https://www.shadertoy.com/view/ll2SzG)
 
 ### Acknowledgements
 
 This Shadertoy uses material from the following resources:
 
-* TODO
+* http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm
+* http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf
+* 
 
 ### (TODO: Your README)
 
