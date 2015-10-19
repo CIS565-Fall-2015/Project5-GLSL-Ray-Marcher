@@ -34,6 +34,7 @@ This Shadertoy uses material from the following resources:
 * Over-relaxation for sphere tracing optimization
 * Soft shadowing (both heavily influenced by IQ's shadertoy example...)
 * Ambient Occlusion
+* Naive coloring (lots of branch divergence!)
 
 ### Features and Analysis
 
