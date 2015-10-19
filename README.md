@@ -100,6 +100,9 @@ For both marching methods, computation time substantially decreased the closer t
 
 The "steps" debugging setting also yields some interesting observations. While the difference in brightness clearly indicates that the spherical method takes significantly fewer steps per ray, it also indicates from the light 'haze' around the edges of objects that rays marching near edges of objects tend to "decelerate" as they approach the object, taking more steps than rays passing objects from further away.
 
+![](img/steps_sphere.png)
+![](img/steps_naive.png)
+
 #### Time spent raymarching vs. Time spent on lighting computation
 ![](img/charts/stage_time.png)
 
