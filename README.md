@@ -77,6 +77,8 @@ It is clear from the images that the over relaxed method takes less steps in mos
 
 The largest branch divergence hit is my super naive implementation of color, in the getColor function, which does 4-condition branch to determine what color to use given a material. A faster way to implement this is just to apply the color directly directly in the map function, but I think this illustrates the issue with branches quickly, and was quick to implement. Adding this feature drops my runtime from 60FPS to 45FPS.
 
+Other branch divergences occur in all of the sphere/ray marching methods when fragments are finished computing while others are not. The closer the ratio is to half and half, the worse the performance I believe.
+
 
 ### Pull Request
 
