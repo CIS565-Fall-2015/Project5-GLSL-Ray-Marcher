@@ -10,7 +10,9 @@
 * 
 ### Live on Shadertoy
 
-[![](img/labelled_shapes.PNG)](https://www.shadertoy.com/view/ll2SzG)
+[![](img/labelled_shapes.png)](https://www.shadertoy.com/view/ll2SzG)
+
+![](img/height_map.PNG)
 
 ### Acknowledgements
 
