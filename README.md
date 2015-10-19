@@ -86,7 +86,11 @@ are defined in the fragment shader code executed for each pixel.
 **Extra Features:**
 
 
-* (0.25pt each, up to 1pt) Other basic distance estimators/operations {McGuire 7/11}
+* Other basic distance estimators/operations {McGuire 7/11}
+  * Some other operators that I implemented were the difference, displacement, and repeat operators.  Below is an image of the repeat operator (the others have been shown in previos images).  These operations take the value given by the distance estimators and tweak them in some way to change the shape that is being generated.  
+
+
+
 * Advanced distance estimators
   * (3pts) Height-mapped terrain rendering {iq-terr}
   ![](img/height_map1.png)
@@ -138,13 +142,6 @@ reference(s) you used.
   branch in question.
   (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
 
-
-
-**Tips:**
-
-* To avoid computing frame times given FPS, you can use the
-  [stats.js bookmarklet](https://github.com/mrdoob/stats.js/#bookmarklet)
-  to measure frame times in ms.
 
 ### Resources
 
