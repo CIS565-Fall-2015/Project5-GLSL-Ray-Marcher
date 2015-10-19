@@ -43,6 +43,8 @@ This Shadertoy uses material from the following resources:
 
 ![](img/height_map.PNG)
 
+Height mapping is created by taking in a texture image and using it as a height map (the color intensities are used as scaled heights). These are then computing by using a naive ray marching method and comparing to the height of the map at each step, then taking the color at that location and using it as the map's color at that point.
+
 ## Naive Marching vs. Sphere Tracing
 
 Black is 0, white is max number of steps.
@@ -73,25 +75,14 @@ Over-relaxed sphere:
 
 It is clear from the images that the over relaxed method takes less steps in most fragements when compared with the normal sphere stepping. However, due to my implementation, it seems that in certain scenarios it is actually slower when there are many objects nearby the camera frame. I believe this might be because of the additional distance computation I do. It might make sense to somehow only do 1 distance computation per iteration and re-use the previous computation (I do 2 per iteration) which might be the cause of this.
 
+## Soft shadows vs. Ambient Occlusion vs. Normal
+
+![](img/shading_ambient_shadow.png)
+
+The performance hit for each depends on the number of iterations added in order to compute at each fragment, both are set to 10-15 iterations, hence similar performance hits.
+
 ## Branch Divergence
 
 The largest branch divergence hit is my super naive implementation of color, in the getColor function, which does 4-condition branch to determine what color to use given a material. A faster way to implement this is just to apply the color directly directly in the map function, but I think this illustrates the issue with branches quickly, and was quick to implement. Adding this feature drops my runtime from 60FPS to 45FPS.
 
 Other branch divergences occur in all of the sphere/ray marching methods when fragments are finished computing while others are not. The closer the ratio is to half and half, the worse the performance I believe.
-
-
-### Pull Request
-
-**Even though your code is on Shadertoy, make sure it is also on GitHub!**
-
-1. Open a GitHub pull request so that we can see that you have finished.
-   The title should be "Submission: YOUR NAME".
-   * **ADDITIONALLY:**
-     In the body of the pull request, include a link to your repository.
-2. Send an email to the TA (gmail: kainino1+cis565@) with:
-   * **Subject**: in the form of `[CIS565] Project N: PENNKEY`.
-   * Direct link to your pull request on GitHub.
-   * Estimate the amount of time you spent on the project.
-   * If there were any outstanding problems, or if you did any extra
-     work, *briefly* explain.
-   * Feedback on the project itself, if any.
