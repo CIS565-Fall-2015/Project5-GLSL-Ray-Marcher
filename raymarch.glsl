@@ -229,7 +229,13 @@ float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec
         // 8
         currCorner.z -= dimensions.z;
         currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
-
+        if (currDist <= epsilon && i > 1) {
+            minCorner = currCorner;
+            maxCorner = currCorner + dimensions;
+            currDist = 1000.0;
+            continue;
+        }
+        
         // middle 4
         /***********
         *  1 x 2  -> +x
