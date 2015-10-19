@@ -73,7 +73,7 @@ are defined in the fragment shader code executed for each pixel.
 <img src="img/blinn_phong_lighting.png" height="192" width="341.333333333">
 
 * Union operator {McGuire 11.1}
-  * Necessary for rendering multiple objects
+  * The union operator allows for multiple objects to be rendered in the same scene.  The implementation of the union operator requires the comparison of each distance from the point to each object.  The object that has the minimum distance from the point on the ray should be drawn.  Thus, the union operator compares these distances and takes the minimum.  I do this in my scene function, comparing the t value of each object in the scene and choosing the minimum value to be drawn.  
 * Transformation operator {McGuire 11.5}
   * The transformation operator was implemented by creating a transformation matrix.  The inputs into the function were the translation, rotation, and scale vector.  Each coordinate in the rotation matrix represents the rotation about the x, y, or z axis. The inverse of this matrix is multiplied by the center of the object, and the product of this gives the correct new position.   The image below shows a cube being rotated about the z axis around the origin. 
 
