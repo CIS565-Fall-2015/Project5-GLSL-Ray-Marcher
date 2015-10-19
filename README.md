@@ -79,6 +79,10 @@ The main features implemented include :
 
 ##### Comparison between Naive and Spherical Ray March
 
+In a naive ray marcher, we take fixed jumps to get to the primitive. In a spherical ray march, we find the surface that is closest to the current point. Then we take the jump of that amount. This becomes extremely fast as the jumps every step are bigger. This can be easily seen from the FPS of the 2 approaches. The analysis is done for the following image 
+
+<img src="renders/lambert.png" height="144" width="512">
+
 * Steps View : The color goes from green to red to yellow (green being the minimum number of steps)
 
 <img src="renders/stepsNaive.png" height="192" width="341.333333333">
