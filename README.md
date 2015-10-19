@@ -1,22 +1,45 @@
-# [CIS565 2015F] YOUR TITLE HERE
+# [CIS565 2015F] A Badly named Awesome Ray Marcher
 
 **GLSL Ray Marching**
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
-* (TODO) YOUR NAME HERE
-* Tested on: (TODO) **Google Chrome 222.2** on
-  Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* SANCHIT GARG
+* Tested on: Google Chrome Version 45.0.2454.101 (64-bit) on
+* 	Mac OSX 10.10.4, i7 @ 2.4 GHz, GT 650M 1GB (Personal Computer)
 
-### Live on Shadertoy (TODO)
+### Live on Shadertoy
 
-[![](img/thumb.png)](https://www.shadertoy.com/view/TODO)
+<img src="renders/terrainMapping.png">
 
 ### Acknowledgements
 
-This Shadertoy uses material from the following resources:
+* {McGuire}
+  Morgan McGuire, Williams College.
+  *Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014).
+  [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
 
-* TODO
+* {iq-prim}
+  Iñigo Quílez.
+  *Raymarching Primitives* (2013).
+  [Shadertoy](https://www.shadertoy.com/view/Xds3zN)
+
+* {iq-terr}
+  Iñigo Quílez.
+  *Terrain Raymarching* (2007).
+  [Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
+
+* {iq-rwwtt}
+  Iñigo Quílez.
+  *Rendering Worlds with Two Triangles with raytracing on the GPU* (2008).
+  [Slides](http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
+
+* {Ashima}
+  Ashima Arts, Ian McEwan, Stefan Gustavson.
+  *webgl-noise*.
+  [GitHub](https://github.com/ashima/webgl-noise)
+
+  
 
 ### (TODO: Your README)
 
@@ -117,41 +140,6 @@ reference(s) you used.
 * To avoid computing frame times given FPS, you can use the
   [stats.js bookmarklet](https://github.com/mrdoob/stats.js/#bookmarklet)
   to measure frame times in ms.
-
-### Resources
-
-You **must** acknowledge any resources you use, including, but not limited to,
-the links below. **Do not copy non-trivial code verbatim.** Instead, use the
-references to understand the methods.
-
-For any code/material in the 565
-[slides](http://cis565-fall-2015.github.io/lectures/12-Ray-Marching.pptx),
-please reference the source found at the bottom of the slide.
-
-* {McGuire}
-  Morgan McGuire, Williams College.
-  *Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014).
-  [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
-  * You may credit and use code from this reference.
-* {iq-prim}
-  Iñigo Quílez.
-  *Raymarching Primitives* (2013).
-  [Shadertoy](https://www.shadertoy.com/view/Xds3zN)
-* {iq-terr}
-  Iñigo Quílez.
-  *Terrain Raymarching* (2007).
-  [Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
-  * You may credit and use code from this reference.
-* {iq-rwwtt}
-  Iñigo Quílez.
-  *Rendering Worlds with Two Triangles with raytracing on the GPU* (2008).
-  [Slides](http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
-* {Ashima}
-  Ashima Arts, Ian McEwan, Stefan Gustavson.
-  *webgl-noise*.
-  [GitHub](https://github.com/ashima/webgl-noise)
-  * You may use this code under the MIT-expat license.
-
 
 ## Submit
 
