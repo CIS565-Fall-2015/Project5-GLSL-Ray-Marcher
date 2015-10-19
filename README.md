@@ -4,9 +4,9 @@
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
-* (TODO) YOUR NAME HERE
-* Tested on: (TODO) **Google Chrome 222.2** on
-  Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* xinyue Zhu
+* Tested on: Chrome - Version 45.0.2454.93 m
+  Windows 10, i5-5200U @ 2.20GHz 8.0GB, GTX 960M 
 
 ### Live on Shadertoy (TODO)
 
@@ -16,78 +16,41 @@
 
 This Shadertoy uses material from the following resources:
 
-* TODO
-
-### (TODO: Your README)
-
-
-Instructions (delete me)
-========================
-
-This is due at midnight on the evening of Monday, October 19.
-
-**Summary:** In this project, you'll see yet another way in which GPU
-parallelism and compute-efficiency can be used to render scenes.
-You'll write a program in the popular online shader editor
-[Shadertoy](http://www.shadertoy.com/).
-Your goal will be to implement and show off different features in a cool and
-interesting demo. See Shadertoy for inspiration - and get creative!
-
-Ray marching is an iterative ray casting method in which objects are
-represented as implicit surfaces defined by signed distance functions (SDFs). This
-method is widely used in the Shadertoy community to render complex scenes which
-are defined in the fragment shader code executed for each pixel.
-
-**Important Notes:**
-* Even though you will be coding in Shadertoy, it is important as always to
-  save versions of your code so that you do not lose progress! Commit often!
-* A significant portion of this project will be in write-up and performance
-  analysis - don't save it for later.
-
-**Provided Code:**
-The provided code in `raymarch.glsl` is straight from iq's Raymarching
-Primitives; see {iq-prim}. It just sets up a simple starter camera.
-
-### Features
-
-All features must be visible in your final demo for full credit.
+<p>iq Cloudy Terrain:</p>
+<p>https://www.shadertoy.com/view/MdlGW7</p>
+<p>iq RayMarching Primitives:</p>
+<p>https://www.shadertoy.com/view/Xds3zN</p>
+<p>Numerical Methods for Ray Tracing Implicitly Defined Surfaces:</p>
+<p>http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf</p>
+<p>others:</p>
+<p>http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm</p>
+### ReadMe
+note: to use "#define terrMap" the "#define naive" should be used at the same time 
 
 **Required Features:**
-
-* Two ray marching methods (comparative analysis required)
-  * Naive ray marching (fixed step size) {McGuire 4}
-  * Sphere tracing (step size varies based on signed distance field) {McGuire 6}
-* 3 different distance estimators {McGuire 7} {iq-prim}
-  * With normal computation {McGuire 8}
-* One simple lighting computation (e.g. Lambert or Blinn-Phong).
-* Union operator {McGuire 11.1}
-  * Necessary for rendering multiple objects
-* Transformation operator {McGuire 11.5}
-* Debug views (preferably easily toggleable, e.g. with `#define`/`#if`)
-  * Distance to surface for each pixel
-  * Number of ray march iterations used for each pixel
+* Two ray marching methods: 
+  * Naive ray marching :#define naive
+  * Sphere tracing
+* 3 different distance estimators
+  * Box,wheel,roundBox,plane
+  * With normal computation 
+* One simple lighting computatio: Blinn-Phong.
+* Union operator :float opU(...){}
+* Transformation operator: float opTrans(..){}
+* Debug views 
+  * Distance to surface for each pixel: #define debugView1
+  * Number of ray march iterations used for each pixel:  #define debugView2
 
 **Extra Features:**
-
-You must do at least 10 points worth of extra features.
-
-* (0.25pt each, up to 1pt) Other basic distance estimators/operations {McGuire 7/11}
+*  Other basic distance estimators/operations:
+<p>cone,Torus,cylinder</p>
+<p>operation: subtraction,repeat</p>
 * Advanced distance estimators
-  * (3pts) Height-mapped terrain rendering {iq-terr}
-  * (3pts) Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
-  * **Note** that these require naive ray marching, if there is no definable
-    SDF. They may be optimized using bounding spheres (see below).
+  *  Height-mapped terrain rendering 
 * Lighting effects
-  * (3pts) Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
-  * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
-* Optimizations (comparative analysis required!)
-  * (3pts) Over-relaxation method of sphere tracing {McGuire 12.1}
-  * (2pts) Analytical bounding spheres on objects in the scene {McGuire 12.2/12.3}
-  * (1pts) Analytical infinite planes {McGuire 12.3}
+  *  Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
+  *  Ambient occlusion (see 565 slides for another reference) {iq-prim}
 
-This extra feature list is not comprehensive. If you have a particular idea
-that you would like to implement, please **contact us first** (preferably on
-the mailing list).
 
 ## Write-up
 
