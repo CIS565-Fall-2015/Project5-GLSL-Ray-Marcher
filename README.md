@@ -1,4 +1,4 @@
-# [CIS565 2015F] YOUR TITLE HERE
+# [CIS565 2015F] Ray Marcher
 
 **GLSL Ray Marching**
 
@@ -9,9 +9,6 @@
   MacBook Pro 2.6 GHz Intel Core i5 @ 8 GB 1600 MHz DDR3, Intel Iris 1536 MB 
 
 ### Live on Shadertoy 
-
-
-
 
 [![](img/bridge2.png)](https://www.shadertoy.com/view/Mt2XRV#)
 
@@ -48,32 +45,15 @@ https://www.shadertoy.com/view/MdXGW2 - water
 <img src="img/final_scene_gif.gif" height="192" width="341.333333333"> <img src="img/debug_image_steps.png" height="192" width="341.333333333"> <img src="img/debug_image_norm.png" height="192" width="341.333333333"> <img src="img/debug_image.png" height="192" width="341.333333333">
 
 
-Instructions (delete me)
-========================
-
-This is due at midnight on the evening of Monday, October 19.
-
 **Summary:** In this project, you'll see yet another way in which GPU
 parallelism and compute-efficiency can be used to render scenes.
-You'll write a program in the popular online shader editor
+I wrote a program in the popular online shader editor
 [Shadertoy](http://www.shadertoy.com/).
-Your goal will be to implement and show off different features in a cool and
-interesting demo. See Shadertoy for inspiration - and get creative!
 
 Ray marching is an iterative ray casting method in which objects are
 represented as implicit surfaces defined by signed distance functions (SDFs). This
 method is widely used in the Shadertoy community to render complex scenes which
 are defined in the fragment shader code executed for each pixel.
-
-**Important Notes:**
-* Even though you will be coding in Shadertoy, it is important as always to
-  save versions of your code so that you do not lose progress! Commit often!
-* A significant portion of this project will be in write-up and performance
-  analysis - don't save it for later.
-
-**Provided Code:**
-The provided code in `raymarch.glsl` is straight from iq's Raymarching
-Primitives; see {iq-prim}. It just sets up a simple starter camera.
 
 ### Features
 
@@ -94,9 +74,6 @@ Primitives; see {iq-prim}. It just sets up a simple starter camera.
 
 **Extra Features:**
 
-You must do at least 10 points worth of extra features.
-
-**INSTRUCTOR TODO: review point values**
 
 * (0.25pt each, up to 1pt) Other basic distance estimators/operations {McGuire 7/11}
 * Advanced distance estimators
@@ -107,16 +84,12 @@ You must do at least 10 points worth of extra features.
 * Lighting effects
   * (3pts) Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
   * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
-* Optimizations (comparative analysis required!)
-  * (3pts) Over-relaxation method of sphere tracing {McGuire 12.1}
-  * (2pts) Analytical bounding spheres on objects in the scene {McGuire 12.2/12.3}
-  * (1pts) Analytical infinite planes {McGuire 12.3}
 
 This extra feature list is not comprehensive. If you have a particular idea
 that you would like to implement, please **contact us first** (preferably on
 the mailing list).
 
-## Write-up
+
 
 For each feature (required or extra), include a screenshot which clearly
 shows that feature in action. Briefly describe the feature and mention which
@@ -135,9 +108,7 @@ reference(s) you used.
   plays a role in its performance characteristics, and, if so, point out the
   branch in question.
   (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
-* For each optimization feature, compare performance with and without the
-  optimization. Describe and demo the types of scenes which benefit from the
-  optimization.
+
 
 **Tips:**
 
