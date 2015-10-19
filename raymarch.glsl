@@ -1,4 +1,6 @@
+// Acknowledgements:
 // Mostly from/based off of IQ's code at: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
+// https://www.shadertoy.com/view/Xds3zN
 
 //#define DEBUG_ITER
 //#define DEBUG_DIST
@@ -110,9 +112,8 @@ vec2 map( in vec3 pos )
     
     res = opU(res, vec2(sdEllipsoid(posEllipsoid, vec3(0.2,0.4,0.2)),40.0));
     
-    res = opU(res, vec2(sdTorus(pos - vec3(1.5,0.5,0.0),vec2(0.4,0.2)), 36.0));
+    res = opU(res, vec2(sdTorus(pos - vec3(-1.5,0.5,0.0),vec2(0.4,0.2)), 36.0));
     res = opU(res, vec2(sdCylinder(pos - vec3(-1.0,0.0,0.0), vec3(0.01,1.0,0.2)), 26.0));
-    res = opU(res, vec2(sdEllipsoid(pos - vec3(2.0,0.2,0.1), vec3(0.1,0.8,0.4)), 16.0));
     res = opU(res, vec2(sdBox(posBox, vec3(0.2,0.2,0.2)), 10.0));
     res = opU(res, vec2(sdTorus88(pos, vec2(0.5,0.1)), 10.0));
     return res;
@@ -156,8 +157,8 @@ vec4 naiveCastRayHeightMap(in vec3 ro, in vec3 rd, in sampler2D iChannel){
 vec3 naiveCastRay(in vec3 ro, in vec3 rd){
     float tmax = 20.0;
     float tmin = 1.0;
-    float dt = 0.002;
-    const int max_iter = 4000;
+    float dt = 0.005;
+    const int max_iter = 2000;
     
     float t = tmin;
     float m = -1.0;
@@ -216,7 +217,7 @@ vec3 castRay( in vec3 ro, in vec3 rd )
     float tmin = 1.0;
     float tmax = 20.0;
     
-    float precis = 0.002;
+    float precis = 0.0001;
     float t = tmin;
     float m = -1.0;
     int iter;
@@ -243,64 +244,72 @@ vec3 calcNormal( in vec3 pos )
     return normalize(nor);
 }
 
-float calcAO( in vec3 pos, in vec3 nor )
+float calcAmbOcc(in vec3 pos, in vec3 nor)
 {
+    // Heavily based on IQ's implementation
+    // Takes in the surface position and normal, tries several small steps
+    // along the surface normal and finds the amount occluded
     float occ = 0.0;
-    float sca = 1.0;
-    for( int i=0; i<5; i++ )
+    float offset_amount = 1.0/100.0;
+    float dec = 1.0;
+    for (int i = 0; i<10; i++)
     {
-        float hr = 0.01 + 0.12*float(i)/4.0;
-        vec3 aopos =  nor * hr + pos;
-        float dd = map( aopos ).x;
-        occ += -(dd-hr)*sca;
-        sca *= 0.95;
+        vec3 occ_pos = pos + nor*float(i)*offset_amount;
+        float dist = map(occ_pos).x;
+        occ += (dist-float(i)*offset_amount)*dec;
+        dec *= 0.9;
     }
-    return clamp( 1.0 - 3.0*occ, 0.0, 1.0 );    
+    return clamp(1.0+4.0*occ,0.0,1.0);
+}
+
+float softshadow( in vec3 ro, in vec3 rd )
+{
+    float tmin = 0.01;
+    float tmax = 2.0;
+	float res = 1.0;
+    float t = tmin;
+    for( int i=0; i<10; i++ )
+    {
+		float h = map( ro + rd*t ).x;
+        res = min( res, h/t );
+        t += clamp( h, 0.02, 0.20 );
+        if( h<0.001 || t>tmax ) break;
+    }
+    return clamp( res, 0.0, 1.0 );
+
 }
 
 vec3 render( in vec3 ro, in vec3 rd )
 { 
     vec3 col = vec3(0.8, 0.9, 1.0); // Sky color
-    vec3 res = castRayOverRelaxation(ro,rd);
-    //vec3 res = castRay(ro,rd);
+    //vec3 res = castRayOverRelaxation(ro,rd);
+    vec3 res = castRay(ro,rd);
+    //vec3 res = naiveCastRay(ro, rd);
     float t = res.x;
     float m = res.y;
     if( m>-0.5 )  // Ray intersects a surface
     {
-        vec3 pos = ro + t*rd;
-        vec3 nor = calcNormal( pos );
-        vec3 ref = reflect( rd, nor );
+        vec3 pos = ro + t*rd; // surface position
+        vec3 nor = calcNormal( pos ); // surface normal
+        vec3 light = normalize( vec3(0.6, 0.7, 0.5) ); // direction of the light
         
+        // Material handling from IQ's reference
         // material        
-        col = 0.45 + 0.3*sin( vec3(0.05,0.08,0.10)*(m-1.0) );
+		col = 0.45 + 0.3*sin( vec3(0.05,0.08,0.10)*(m-1.0) );
+
+        // Diffuse shading + ambient occlusion + soft shadows  
+        float diffuse = clamp( dot( nor, light ), 0.0, 1.0 );
+        float occ = calcAmbOcc( pos, nor );
+
+		float amb = clamp( nor.y, 0.0, 1.0 );
         
-        if( m<1.5 )
-        {
-            float f = mod( floor(5.0*pos.z) + floor(5.0*pos.x), 2.0);
-            col = 0.4 + 0.1*f*vec3(1.0);
-        }
+        diffuse *= softshadow( pos, light );
 
-        // lighitng        
-        float occ = calcAO( pos, nor );
-        vec3  lig = normalize( vec3(-0.6, 0.7, -0.5) );
-        float amb = clamp( 0.5+0.5*nor.y, 0.0, 1.0 );
-        float dif = clamp( dot( nor, lig ), 0.0, 1.0 );
-        float bac = clamp( dot( nor, normalize(vec3(-lig.x,0.0,-lig.z))), 0.0, 1.0 )*clamp( 1.0-pos.y,0.0,1.0);
-        float dom = smoothstep( -0.1, 0.1, ref.y );
-        float fre = pow( clamp(1.0+dot(nor,rd),0.0,1.0), 2.0 );
-        float spe = pow(clamp( dot( ref, lig ), 0.0, 1.0 ),16.0);
-
-        vec3 brdf = vec3(0.0);
-        brdf += 1.20*dif*vec3(1.00,0.90,0.60);
-        brdf += 1.20*spe*vec3(1.00,0.90,0.60)*dif;
-        brdf += 0.30*amb*vec3(0.50,0.70,1.00)*occ;
-        brdf += 0.40*dom*vec3(0.50,0.70,1.00)*occ;
-        brdf += 0.30*bac*vec3(0.25,0.25,0.25)*occ;
-        brdf += 0.40*fre*vec3(1.00,1.00,1.00)*occ;
-        brdf += 0.02;
-        col = col*brdf;
-
-        col = mix( col, vec3(0.8,0.9,1.0), 1.0-exp( -0.0005*t*t ) );
+		vec3 brdf = vec3(0.0);
+        brdf += diffuse;
+        brdf += amb*occ;
+		brdf += 0.3;
+		col = col*brdf;
     }
 
     return vec3( clamp(col,0.0,1.0) );
@@ -348,11 +357,12 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     #ifdef DEBUG_ITER
     vec3 col = vec3(1.0);
-    vec3 t = castRayOverRelaxation( ro, rd );
-    //vec3 t = castRay( ro, rd );
+    //vec3 t = castRayOverRelaxation( ro, rd );
+    vec3 t = castRay( ro, rd );
     //vec3 t = naiveCastRay( ro, rd);
-    col = col * (t.z/50.0);
+    //col = col * (t.z/50.0);
     //col = col * (t.z/4000.0);
+    col = col * (t.z/350.0);
     #endif
     
     #ifdef HEIGHT_MAP
