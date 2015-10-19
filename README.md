@@ -55,6 +55,8 @@ note: to use "#define terrMap" the "#define naive" should be used at the same ti
 ### Analysis
 
 * Provide an analysis comparing naive ray marching with sphere tracing
+   naive ray marching: 5.6fps;
+   accelated ray marching : 60.1fps;
   * In addition to FPS, implement a debug view which shows the "most expensive"
     fragments by number of iterations required for each pixel. Compare these.
 * Compare time spent ray marching vs. time spent shading/lighting
