@@ -134,9 +134,9 @@ This Shadertoy uses material from the following resources:
   Iñigo Quílez.
   *Rendering Worlds with Two Triangles with raytracing on the GPU* (2008).
   [Slides](http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
-*{Nop Jiarathanakul's BLOG}
+* {Nop Jiarathanakul's BLOG}
   [Article](http://nopjia.blogspot.com/search?updated-min=2012-01-01T00:00:00-05:00&updated-max=2013-01-01T00:00:00-05:00&max-results=27)
-*{G3D Innovation Engine’s g3dmath.glsl}*
+* {G3D Innovation Engine’s g3dmath.glsl}
 
 
 
