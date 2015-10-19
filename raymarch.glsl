@@ -35,6 +35,7 @@ float sdCapsule(vec3 p, vec3 a, vec3 b, float r) {
 /********************************** Constants *********************************/
 const vec3 light = vec3(2.0, 5.0, -1.0);
 const vec3 color = vec3(0.85, 0.85, 0.85);
+const vec3 ambient = vec3(0.05, 0.05, 0.05);
 const float EPSILON = 0.01;
 const float TMIN = 0.02;
 
@@ -64,8 +65,7 @@ float nearestIntersection(in vec3 p) {
 }
 
 float raymarch(in vec3 ro, in vec3 rd) {
-    const float dt = 0.01;
-    const float tmax = 10.0;
+    const float tmax = 30.0;
     float t = 0.0;
     for (int i = 0; i < 100; i++) {
         vec3 p = ro + rd * t;
@@ -74,6 +74,9 @@ float raymarch(in vec3 ro, in vec3 rd) {
             return t;
         } else if (intersection > 0.0) {
             t += intersection;
+        }
+        if (t > tmax) {
+            break;
         }
     }
     return -1.0;
@@ -94,16 +97,35 @@ vec3 lambert(in vec3 p, in vec3 n) {
     return dot(n, lightdir) * color;
 }
 
+float shadowMarch(in vec3 ro, in vec3 rd) {
+    const float tmax = 10.0;
+    const float k = 8.0;
+    
+    float shadow = 1.0;
+    float t = 0.0;
+    
+    for (int i = 0; i < 100; i++) {
+        vec3 p = ro + rd * t;
+        float intersection = nearestIntersection(p);
+        if (intersection > 0.0 && intersection < TMIN) {
+            return 0.0;
+        } else if (intersection > 0.0) {
+            t += intersection;
+            shadow = min(shadow, k*intersection/t);
+        }
+        if (t > tmax) {
+            break;
+        }
+    }
+    return shadow;
+}
+
 vec3 shadow(in vec3 p, in vec3 color) {
-    vec3 lightdir = normalize(p - light);
+    vec3 lightdir = normalize(light - p);
     float lightdist = distance(p, light);
 
-    float t = raymarch(p, -lightdir);
-    if (t < 0.0 || lightdist - t < TMIN) {
-        return color;
-    } else {
-        vec3(0.0);
-    }
+    float shadow = shadowMarch(p, lightdir);
+    return shadow * color + ambient;
 }
 
 vec3 render(in vec3 ro, in vec3 rd) {
