@@ -68,7 +68,10 @@ are defined in the fragment shader code executed for each pixel.
   * With normal computation {McGuire 8}
   * I ended up using many different distance estimators throughout each of my scenes.  I implemented the sphere, plane, cube, rounded cube, capsule, torus, cross, and cylinder.   Distance estimators are the reason that the scene can be rendered with just two triangles, instead of multiple objects.  The rays are not actually intersecting with objects that are in the scene.  When the distance is being calculated, you use a distance estimator to find how far the point is from the object, if it were to be there.  This helps to allow complicated scenes render very quickly, because there are not actual objects being rendered, but the correct color is being calculated.  
 * One simple lighting computation (e.g. Lambert or Blinn-Phong).
-  *  
+  *  I implemented a Blinn-Phong lighting scheme.  Each object has it's own diffuse color.  Then, after calculating it's normal, the dot product of the normal and the light vector is used to determine how much diffuse and specular light will be seen.  This image shows three white objects that have a blinn-phong lighting applied to them
+ 
+![](img/blinn_phong_lighting.png)
+
 * Union operator {McGuire 11.1}
   * Necessary for rendering multiple objects
 * Transformation operator {McGuire 11.5}
