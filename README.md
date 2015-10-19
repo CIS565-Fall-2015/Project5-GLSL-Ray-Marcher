@@ -52,13 +52,6 @@ note: to use "#define terrMap" the "#define naive" should be used at the same ti
 <p><img src="img/ch0.png"  width="330" height="200"><img src="img/ch1.png"  width="330" height="200"></p>
 <p><img src="img/terrain1.png"  width="330" height="200"><img src="img/terrain2.png"  width="330" height="200"></p>
 
-
-## Write-up
-
-For each feature (required or extra), include a screenshot which clearly
-shows that feature in action. Briefly describe the feature and mention which
-reference(s) you used.
-
 ### Analysis
 
 * Provide an analysis comparing naive ray marching with sphere tracing
