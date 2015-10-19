@@ -411,9 +411,9 @@ vec4 sceneGraphDistanceFunction(in vec3 point)
     heightMap0[3] = heightFunction(point, vec3(0.0, 6.0, 0.0), vec3(3.14159, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
     returnMe = unionColorDistance(returnMe, heightMap0);
 
-    //vec4 fractal0 = vec4(1.0, 1.0, 0.0, -1.0);
-    //fractal0[3] = fractalMenger(point, vec3(1.0, 0.0, 1.0), vec3(0.0, 0.0, 0.0), vec3(1.5, 1.5, 1.5));
-    //returnMe = unionColorDistance(returnMe, fractal0);
+    vec4 fractal0 = vec4(1.0, 1.0, 0.0, -1.0);
+    fractal0[3] = fractalMenger(point, vec3(1.0, 0.0, 1.0), vec3(0.0, 0.0, 0.0), vec3(1.5, 1.5, 1.5));
+    returnMe = unionColorDistance(returnMe, fractal0);
 
     return returnMe;
 }
@@ -439,10 +439,29 @@ float hardShadow(in vec3 rayPosition, in vec3 lightPosition)
     for (int i = 0; i < 2000; i++){
         float dist = sceneGraphDistanceFunction(rayPosition + stepDir * t)[3];
         if (dist < epsilon) return 0.0; // shadowed
-        t += stepSize;
         if (t > lightDistance) break;
+        t += stepSize;
     }
     return 1.0; // unshadowed
+}
+
+float softShadow(in vec3 rayPosition, in vec3 lightPosition)
+{
+    float stepSize = 0.01; // 2000 * 0.01 + 1.0 gives us a max distance of 20.0
+    float epsilon = 0.002;
+    float t = epsilon + stepSize + stepSize;
+    vec3 stepDir = normalize(lightPosition - rayPosition);
+    float lightDistance = length(lightPosition - rayPosition);
+    float shadowTerm = 1.0; // default to unshadowed
+
+    for (int i = 0; i < 2000; i++){
+        float dist = sceneGraphDistanceFunction(rayPosition + stepDir * t)[3];
+        shadowTerm = min(shadowTerm, 6.0 * dist / t);
+        if (dist < epsilon) break; // shadowed
+        if (t > lightDistance) break;
+        t += stepSize;
+    }
+    return clamp(shadowTerm, 0.0, 1.0); // unshadowed
 }
 
 // returns a t along the ray that hits the first intersection.
@@ -512,7 +531,7 @@ vec3 render(in vec3 ro, in vec3 rd, in vec3 sunPosition, in vec3 sunColor) {
     vec3 shade = lambertShade(norm, position, materialDistance.rgb, sunPosition, sunColor);
 
     // shadow term
-    float shadow = hardShadow(position, sunPosition);
+    float shadow = softShadow(position, sunPosition);
     shade *= shadow;
 
     // ambient term
