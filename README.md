@@ -13,7 +13,7 @@
 
 
 
-[![](img/train.png)](https://www.shadertoy.com/view/Mt2XRV#)
+[![](img/bridge2.png)](https://www.shadertoy.com/view/Mt2XRV#)
 [![](img/menger_sponge.png)](https://www.shadertoy.com/view/MlSSRK)
 
 ### Acknowledgements
@@ -42,7 +42,7 @@ https://www.shadertoy.com/view/MdXGW2 - water
 
 ![](img/train_gif.gif)
 
-
+<img src="img/debug_image_orig.png" height="192" width="341.333333333"> <img src="img/debug_image_steps.png" height="192" width="341.333333333"> <img src="img/debug_image_norm.png" height="192" width="341.333333333"> <img src="img/debug_image.png" height="192" width="341.333333333">
 
 
 Instructions (delete me)
