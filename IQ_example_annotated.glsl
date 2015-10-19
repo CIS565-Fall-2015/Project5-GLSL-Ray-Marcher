@@ -249,10 +249,10 @@ float calcAO( in vec3 pos, in vec3 nor )
     float sca = 1.0;
     for( int i=0; i<5; i++ )
     {
-        float hr = 0.01 + 0.12*float(i)/4.0;
-        vec3 aopos =  nor * hr + pos;
-        float dd = map( aopos ).x;
-        occ += -(dd-hr)*sca;
+        float hr = 0.01 + 0.12*float(i)/4.0; // compute a sample distance
+        vec3 aopos =  nor * hr + pos; // compute the sample position
+        float dd = map( aopos ).x; // get the distance function at the sample position
+        occ += -(dd-hr)*sca; // occlusion += distance function - sample distance * falloff term
         sca *= 0.95;
     }
     return clamp( 1.0 - 3.0*occ, 0.0, 1.0 );    

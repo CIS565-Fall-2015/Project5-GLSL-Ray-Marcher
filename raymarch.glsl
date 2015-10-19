@@ -464,6 +464,26 @@ float softShadow(in vec3 rayPosition, in vec3 lightPosition)
     return clamp(shadowTerm, 0.0, 1.0); // unshadowed
 }
 
+// based heavily off of IQ's calcAO function
+// intuition: sample along the point's normal for proximity to other objects
+// the closer other things are, the stronger the AO term.
+// not sure 100% why IQ calculates sample points how he does,
+// why he has a falloff, why some of his coefficients exist...
+// but hey! it's IQ!
+float ambientOcclusion(in vec3 position, in vec3 normal) {
+    float occlusionFactor = 0.0;
+    float decayFactor = 1.0;
+    float epsilon = 0.002;
+    float stepSize = 0.01;
+    for (int i = 0; i < 5; i++) {
+        float sampleT = stepSize + epsilon + 0.12 * float(i) / 4.0;
+        float sampleDistance = sceneGraphDistanceFunction(position + normal * sampleT)[3];
+        occlusionFactor += -(sampleDistance - sampleT) * decayFactor;
+        decayFactor *= 0.95;
+    }
+    return clamp(1.0 - 3.0 * occlusionFactor, 0.0, 1.0);
+}
+
 // returns a t along the ray that hits the first intersection.
 // uses naive stepping [McGuire 4]
 // returns (r, g, b, distance), but if distance was maxed out, color is all -1
@@ -533,6 +553,10 @@ vec3 render(in vec3 ro, in vec3 rd, in vec3 sunPosition, in vec3 sunColor) {
     // shadow term
     float shadow = softShadow(position, sunPosition);
     shade *= shadow;
+
+    // AO term
+    float ao = ambientOcclusion(position, norm);
+    shade *= ao;
 
     // ambient term
     if (shade.x <= 0.0 && shade.y <= 0.0 && shade.z <= 0.0) {
