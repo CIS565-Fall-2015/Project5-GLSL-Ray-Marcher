@@ -59,9 +59,17 @@ Runs at 60FPS. Here we can see some of the downsides of sphere tracing around th
 
 ## Over-Relaxation Optimization for Sphere Tracing
 
-![](img/cast_ray_iter_vs_relaxation.PNG)
+Black is 0, white is max number of steps.
+
+Normal sphere:
+
+![](img/cast_ray_iter_vs_relaxed.PNG)
+
+Over-relaxed sphere:
 
 ![](img/over_relaxation_iter.PNG)
+
+It is clear from the images that the over relaxed method takes less steps in most fragements when compared with the normal sphere stepping. However, due to my implementation, it seems that in certain scenarios it is actually slower when there are many objects nearby the camera frame. I believe this might be because of the additional distance computation I do. It might make sense to somehow only do 1 distance computation per iteration and re-use the previous computation (I do 2 per iteration) which might be the cause of this.
 
 * Compare time spent ray marching vs. time spent shading/lighting
   * This can be done by taking measurements with different parts of your code
