@@ -1,189 +1,113 @@
-# [CIS565 2015F] YOUR TITLE HERE
-
-**GLSL Ray Marching**
+# [CIS565 2015F] GLSL Ray Marching
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
-* (TODO) YOUR NAME HERE
-* Tested on: (TODO) **Google Chrome 222.2** on
-  Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* Kangning Li
+* Tested on: Google Chrome 46.0.2490.71 m on Windows 10, i7-4790 @ 3.6GHz 16GB, GTX 970 4096MB
 
-### Live on Shadertoy (TODO)
+### Live on Shadertoy
 
-[![](img/thumb.png)](https://www.shadertoy.com/view/TODO)
+[![](img/thumb.png)](https://www.shadertoy.com/view/XlBSzc)
 
 ### Acknowledgements
 
 This Shadertoy uses material from the following resources:
+* Morgan McGuire, Williams College.
+  *Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014).
+  [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
+* Iñigo Quílez.
+  *Raymarching Primitives* (2013).
+  [Shadertoy](https://www.shadertoy.com/view/Xds3zN)
+* Iñigo Quílez.
+  *Terrain Raymarching* (2007).
+  [Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
+* Iñigo Quílez.
+  *Rendering Worlds with Two Triangles with raytracing on the GPU* (2008).
+  [Slides](http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
+* Lukasz Jaroslaw Tomczak, Technical University of Denmark.
+  *GPU Ray Marching of Distance Fields* (2012).
+  [PDF](http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf)
 
-* TODO
+### Overview
 
-### (TODO: Your README)
+This shadertoy is an introductory exercise to raytracing by ray marching against signed distance functions. It features:
+*support for cubes, spheres, infinite planes, height/terrain functions, and menger sponges
+*transformations and union for each "primitive" type
+*lambert shading with soft/hard shadows and ambient occlusion
+*an option to switch between naive ray marching and spherical distance ray marching
+*a handful of debugging features
 
+### Modeling Features
 
-Instructions (delete me)
-========================
+#### cubes, spheres, infinite planes, and modeling transformations
+These are referenced from Morgan McGuire's *Numerical Methods for Ray Tracing Implicitly Defined Surfaces*
+Each potential function evaluator has been modified to take in modeling transformations along with the point whose distance is being computed. Transformations supported include translation, euler angle rotation, and non-uniform scaling.
 
-This is due at midnight on the evening of Monday, October 19.
+#### height/terrain function
+![](img/sine_height.png)
+The height/terrain function draws from Iñigo Quílez's article *Terrain Raymarching.* At the moment it uses a sine function over the x and z coordinates of the point instead of a perlin noise function as a compact proof of concept. The same transformations are supported.
 
-**Summary:** In this project, you'll see yet another way in which GPU
-parallelism and compute-efficiency can be used to render scenes.
-You'll write a program in the popular online shader editor
-[Shadertoy](http://www.shadertoy.com/).
-Your goal will be to implement and show off different features in a cool and
-interesting demo. See Shadertoy for inspiration - and get creative!
+#### menger sponge
+![](img/sponge.png)
+The menger sponge function iteratively computes a distance for a menger sponge. The default computation is only to the 3rd iteration.
+The same transformations are supported.
 
-Ray marching is an iterative ray casting method in which objects are
-represented as implicit surfaces defined by signed distance functions (SDFs). This
-method is widely used in the Shadertoy community to render complex scenes which
-are defined in the fragment shader code executed for each pixel.
+### Lighting Features
 
-**Important Notes:**
-* Even though you will be coding in Shadertoy, it is important as always to
-  save versions of your code so that you do not lose progress! Commit often!
-* A significant portion of this project will be in write-up and performance
-  analysis - don't save it for later.
+#### Lambert shading
+![](img/lambert.png)
+A single light is supported. Lambert shading is computationally very cheap.
 
-**Provided Code:**
-The provided code in `raymarch.glsl` is straight from iq's Raymarching
-Primitives; see {iq-prim}. It just sets up a simple starter camera.
+#### Ambient Occlusion
+![](img/ao.png)
+Given a point that needs to be shaded, the shadertoy approximates ambient occlusion by sampling the distance function at points along the surface point's normal direction. This is heavily based on the ambient occlusion method described in Lukasz Jaroslaw Tomczak's *GPU Ray Marching of Distance Fields* and implemented in Iñigo Quílez's *Raymarching Primitives.*
 
-### Features
+#### Soft Shadows
+![](img/ao_soft_shadows.png)
+Given a point that needs to be shaded, the shadertoy approximates soft shadows by raymarching towards the light and using the point's distance from an occluding object to "soften" the shadow. This is heavily based on the soft shadow method described in Lukasz Jaroslaw Tomczak's *GPU Ray Marching of Distance Fields* and implemented in Iñigo Quílez's *Raymarching Primitives.*
 
-All features must be visible in your final demo for full credit.
+#### Spherical Ray Marching
+![](img/sphere_menger.png)
+Spherical ray marching attempts to speed up the ray marching by taking larger steps bounded by a distance function evaluation at each step. However, this can lead to unusual results with the terrain function and spheres with extreme nonuniform scale.
+Based on the description in Morgan McGuire's *Numerical Methods for Ray Tracing Implicitly Defined Surfaces.*
 
-**Required Features:**
+### Debugging
 
-* Two ray marching methods (comparative analysis required)
-  * Naive ray marching (fixed step size) {McGuire 4}
-  * Sphere tracing (step size varies based on signed distance field) {McGuire 6}
-* 3 different distance estimators {McGuire 7} {iq-prim}
-  * With normal computation {McGuire 8}
-* One simple lighting computation (e.g. Lambert or Blinn-Phong).
-* Union operator {McGuire 11.1}
-  * Necessary for rendering multiple objects
-* Transformation operator {McGuire 11.5}
-* Debug views (preferably easily toggleable, e.g. with `#define`/`#if`)
-  * Distance to surface for each pixel
-  * Number of ray march iterations used for each pixel
+This raymarcher includes numerous debugging features, all of which can be toggled from the defines at the top of the file.
 
-**Extra Features:**
+#### Normals
+![](img/normals.png)
 
-You must do at least 10 points worth of extra features.
+#### Distance
+![](img/distance.png)
+Distance is similar to a depth test.
 
-* (0.25pt each, up to 1pt) Other basic distance estimators/operations {McGuire 7/11}
-* Advanced distance estimators
-  * (3pts) Height-mapped terrain rendering {iq-terr}
-  * (3pts) Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
-  * **Note** that these require naive ray marching, if there is no definable
-    SDF. They may be optimized using bounding spheres (see below).
-* Lighting effects
-  * (3pts) Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
-  * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
-* Optimizations (comparative analysis required!)
-  * (3pts) Over-relaxation method of sphere tracing {McGuire 12.1}
-  * (2pts) Analytical bounding spheres on objects in the scene {McGuire 12.2/12.3}
-  * (1pts) Analytical infinite planes {McGuire 12.3}
-
-This extra feature list is not comprehensive. If you have a particular idea
-that you would like to implement, please **contact us first** (preferably on
-the mailing list).
-
-## Write-up
-
-For each feature (required or extra), include a screenshot which clearly
-shows that feature in action. Briefly describe the feature and mention which
-reference(s) you used.
+#### Steps
+![](img/steps_naive.png)
+Steps visualizes the number of steps the ray marching method took to reach each rendered point. The scale can be modified to change the contrast.
 
 ### Analysis
 
-* Provide an analysis comparing naive ray marching with sphere tracing
-  * In addition to FPS, implement a debug view which shows the "most expensive"
-    fragments by number of iterations required for each pixel. Compare these.
-* Compare time spent ray marching vs. time spent shading/lighting
-  * This can be done by taking measurements with different parts of your code
-    enabled (e.g. raymarching, raymarching+shadow, raymarching+shadow+AO).
-  * Plot this analysis using pie charts or a 100% stacked bar chart.
-* For each feature (required or extra), estimate whether branch divergence
-  plays a role in its performance characteristics, and, if so, point out the
-  branch in question.
-  (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
-* For each optimization feature, compare performance with and without the
-  optimization. Describe and demo the types of scenes which benefit from the
-  optimization.
+#### Naive Ray Marching vs. Spherical Tracing
+In the default scene provided, with all lighting settings enabled, spherical tracing was considerably faster than naive ray marching, averaging around 60 ms per frame in a full circle pass as opposed to the naive method's 170 ms per frame on average.
 
-**Tips:**
+For both marching methods, computation time substantially decreased the closer the camera got to the scene objects, presumably because each ray march was "bottoming out" sooner.
 
-* To avoid computing frame times given FPS, you can use the
-  [stats.js bookmarklet](https://github.com/mrdoob/stats.js/#bookmarklet)
-  to measure frame times in ms.
+![](img/near.png)
+![](img/far.png)
 
-### Resources
+The "steps" debugging setting also yields some interesting observations. While the difference in brightness clearly indicates that the spherical method takes significantly fewer steps per ray, it also indicates from the light 'haze' around the edges of objects that rays marching near edges of objects tend to "decelerate" as they approach the object, taking more steps than rays passing objects from further away.
 
-You **must** acknowledge any resources you use, including, but not limited to,
-the links below. **Do not copy non-trivial code verbatim.** Instead, use the
-references to understand the methods.
+![](img/steps_sphere.png)
+![](img/steps_naive.png)
 
-For any code/material in the 565
-[slides](http://cis565-fall-2015.github.io/lectures/12-Ray-Marching.pptx),
-please reference the source found at the bottom of the slide.
+#### Time spent raymarching vs. Time spent on lighting computation
+![](img/charts/stage_time.png)
 
-* {McGuire}
-  Morgan McGuire, Williams College.
-  *Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014).
-  [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
-  * You may credit and use code from this reference.
-* {iq-prim}
-  Iñigo Quílez.
-  *Raymarching Primitives* (2013).
-  [Shadertoy](https://www.shadertoy.com/view/Xds3zN)
-* {iq-terr}
-  Iñigo Quílez.
-  *Terrain Raymarching* (2007).
-  [Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
-  * You may credit and use code from this reference.
-* {iq-rwwtt}
-  Iñigo Quílez.
-  *Rendering Worlds with Two Triangles with raytracing on the GPU* (2008).
-  [Slides](http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
-* {Ashima}
-  Ashima Arts, Ian McEwan, Stefan Gustavson.
-  *webgl-noise*.
-  [GitHub](https://github.com/ashima/webgl-noise)
-  * You may use this code under the MIT-expat license.
+When using naive raymarching the vast majority of time per frame is spent on raymarching. Ambient occlusion and soft shadows are both relatively inexpensive. Since both computations perform a variant on the naive raymarch, however, each may also be influenced by the scene configuration. Ambient occlusion, for example, only addresses samples marching along a point's normal out to a hardcoded number of samples. Shadows, meanwhile, march towards the light until the ray march reaches the light or strikes an occluding object. Thus, unoccluded points very far from the light source have more expensive shadow computations.
 
+#### Branch Divergence Estimates
 
-## Submit
+Two of the above features are likely to demonstrate branch divergence performance hits: shadowing, and the distance function for the menger sponge. Soft shadowing breaks out of the ray march towards the light depending on the point in the scene. Threads computing points close to each other in the scene (and close to each other in screen space) should have less divergence the closer they are together, with the most divergence in the "soft shadow" region.
 
-### Post on Shadertoy
-
-Post your shader on Shadertoy (preferably *public*; *draft* will not work).
-For your title, come up with your own demo title and use the format
-`[CIS565 2015F] YOUR TITLE HERE` (also add this to the top of your README).
-
-In the Shadertoy description, include the following:
-
-* A link to your GitHub repository with the Shadertoy code.
-* **IMPORTANT:** A copy of the *Acknowledgements* section from above.
-  * Remember, this is public - strangers will want to know where you got your
-    material.
-
-Add a screenshot of your result to `img/thumb.png`
-(right click rendering -> Save Image As), and put the link to your
-Shadertoy at the top of your README.
-
-### Pull Request
-
-**Even though your code is on Shadertoy, make sure it is also on GitHub!**
-
-1. Open a GitHub pull request so that we can see that you have finished.
-   The title should be "Submission: YOUR NAME".
-   * **ADDITIONALLY:**
-     In the body of the pull request, include a link to your repository.
-2. Send an email to the TA (gmail: kainino1+cis565@) with:
-   * **Subject**: in the form of `[CIS565] Project N: PENNKEY`.
-   * Direct link to your pull request on GitHub.
-   * Estimate the amount of time you spent on the project.
-   * If there were any outstanding problems, or if you did any extra
-     work, *briefly* explain.
-   * Feedback on the project itself, if any.
+The menger sponge, on the other hand, features branch divergence in a much more extreme way that likely contributes to its computational expense. The sponge is computed at each iteration by assessing the bounding box of the sponge iteration and checking against each of the 22 sub-iteration boxes within this iteration's box. This check determines the bounding box of the next iteration that must be computed.

@@ -1,0 +1,5 @@
+"";"naive marching + lambert";"ambient occlusion";"soft shadow"
+"pure lambert";"120";"0";"0"
+"lambert + AO";"120";"30";"20"
+"lambert + shadow";"120";"0";"20"
+"lambert + AO + shadow";"120";"30";"20"

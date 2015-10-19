@@ -1,0 +1,70 @@
+TODO:
+-get a sphere working [done]
+-add material color return in scenegraph check [done]
+	-and use it in render [done]
+-add union op [done]
+-add plane check [done]
+-add cube check [done]
+-add normal [done]
+-add light [done]
+-add sphere tracing [buggy]
+
+-extract and generalize transformation operator. see if it fixes the sphere tracing problem?
+	-no good. can't generalize transformation op when scale is nonuniform
+	-besides, it's only a problem with nonuniform scaled spheres
+
+-add height-mapped terrain [done. kinda.]
+	-add a function that, given an xz coordinate, computes pseudorandom noise [done?]
+		-just using sin functions for now. perlin noise later?
+	-add a primitive that takes all 3 transforms and does the height mapped thing [done]
+
+-add fractal menger sponge
+	-primitive that should take in transforms and an iteration depth
+	-come up with an iterative method for computing menger depth
+	-something something something iterate if the point is in some region
+
+-add soft shadows [done. but not very pretty]
+	-intuition from the slides: march towards the light from point
+		-accumulate distance to the occluder. use that to determine shadow strength
+		-IQ's slides back this up: use samples of distance to closest geometry along line from surface to light
+		-also, the reading article source thing
+		-you can multiply the shadow term right onto the lambert computation.
+		-may need to move ambient outside of lambert shading
+	-TODO:
+		-modify the scene so you'll actually be able to see shadows [done]
+		-add a hard shadow function. takes in light, ray origin, ray direction. keep epsilon and max consistent! [done]
+		-add a soft shadow function. [done]
+
+-add ambient occlusion [done. but not very pretty]
+	-intuition from IQ's slides:
+		-sample nearest points along the point normal
+		-compare these to camera -> point distance
+	-overall intuition:
+		-use distance function to estimate if other things are close to the point to be shaded
+
+-add debugging [done] and do some profiling
+
+-distance to surface (depth basically?) [done]
+
+-ray march iterations [done]
+
+DATA
+
+javascript:(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();stats.setMode( 1);stats.domElement.style.cssText='position:fixed;left:0;top:0;z-index:10000';document.body.appendChild(stats.domElement);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);})()
+
+-oddly, the menger sponge works with sphere mode and it's FAST
+
+NAIVE RAY MARCHING VS SPHERE TRACING
+-naive: around 170 ms per frame in a full circle pass
+-sphere: around 60 ms per frame in a full circle pass
+
+TIME SPENT RAY MARCHING VS SHADING/LIGHTING
+-pure lambert: around 120 ms per frame in a full circle pass
+
+-shadow: about 150 ms per frame in a full circle pass 
+
+-AO: about 130 ms per frame in a full circle pass
+
+-shadow + AO: about 170 ms per frame in a full circle pass
+
+BRANCH DIVERGENCE
