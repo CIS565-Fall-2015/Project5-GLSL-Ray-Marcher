@@ -93,6 +93,15 @@ This extra feature list is not comprehensive. If you have a particular idea
 that you would like to implement, please **contact us first** (preferably on
 the mailing list).
 
+###Bridge and Train
+![](img/bridge_tracks.png)
+![](img/smoke.gif)
+![](img/train_smoke.png)
+![](img/sun_reflecting.png)
+![](img/bridge_under_water.png)
+![](img/bridge_over_water.png)
+
+
 
 
 For each feature (required or extra), include a screenshot which clearly
@@ -112,6 +121,7 @@ reference(s) you used.
   plays a role in its performance characteristics, and, if so, point out the
   branch in question.
   (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
+
 
 
 **Tips:**
