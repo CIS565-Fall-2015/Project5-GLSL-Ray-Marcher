@@ -78,14 +78,15 @@ are defined in the fragment shader code executed for each pixel.
 * (0.25pt each, up to 1pt) Other basic distance estimators/operations {McGuire 7/11}
 * Advanced distance estimators
   * (3pts) Height-mapped terrain rendering {iq-terr}
+  ![](img/height_map1.png)
   * Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
-  [![](img/menger_sponge.png)]
-  * **Note** that these require naive ray marching, if there is no definable
-    SDF. They may be optimized using bounding spheres (see below).
+  ![](img/menger_sponge.png)
+  
 * Lighting effects
   * (3pts) Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
+  
   * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
-
+  <img src="img/before_amb_occ.gif" height="192" width="227.5"> <img src="img/amb_occ_debug.png" height="192" width="227.5"> <img src="img/ambient_occlusion.gif" height="192" width="227.5">
 This extra feature list is not comprehensive. If you have a particular idea
 that you would like to implement, please **contact us first** (preferably on
 the mailing list).
