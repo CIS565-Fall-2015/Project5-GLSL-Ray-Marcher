@@ -40,7 +40,7 @@ note: to use "#define terrMap" the "#define naive" should be used at the same ti
 * Transformation operator: float opTrans(..){}
 * Lighting effects
   *  Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
-  *  Ambient occlusion (see 565 slides for another reference) {iq-prim}
+  *  Ambient occlusion  {iq-prim}
 ![](img/no_t.png)
 * Debug views 
   * Distance to surface for each pixel: #define debugView1
