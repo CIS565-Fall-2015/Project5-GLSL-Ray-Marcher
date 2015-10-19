@@ -101,15 +101,11 @@ float cube(in vec3 point, in vec3 translation, in vec3 rotation, in vec3 scale) 
 
 // for getting the union of two objects. the one with the smaller distance.
 vec4 unionDistance(vec4 d1, vec4 d2) {
-    float minDistance;
-    vec3 color = vec3(0.0, 0.0, 0.0);
+    float minDistance = d2[3];
+    vec3 color = d2.rgb;
     if (d1[3] < d2[3]) {
         color = d1.rgb;
         minDistance = d1[3];
-    } else {
-        color = d2.rgb;
-        minDistance = d2[3];
-    }
     return vec4(color, minDistance);
 }
 
@@ -195,7 +191,7 @@ vec4 castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
     for (int i = 0; i < 2000; i++) {
         vec4 colorAndDistance = sceneGraphDistanceFunction(rayPosition + rayDirection * t);
         distance = colorAndDistance[3];
-        t += distance;
+
         if (distance < epsilon) {
             color = colorAndDistance.rgb;
             break;
@@ -203,6 +199,7 @@ vec4 castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
         if (t > maxDistance) {
             break;
         }
+        t += distance;
     }
     return vec4(color, t);}
 

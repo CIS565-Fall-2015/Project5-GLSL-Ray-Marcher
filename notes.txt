@@ -9,10 +9,18 @@ TODO:
 -add light [done]
 -add sphere tracing [buggy]
 
--extract and generalize transformation operator. see if it fixes the sphere tracing problem.
-
+-extract and generalize transformation operator. see if it fixes the sphere tracing problem?
+	-no good. can't generalize transformation op
+	-besides, it's only a problem with scaled spheres
 
 -add height-mapped terrain
--add fractal
+	-add a function that, given an xz coordinate, computes pseudorandom noise
+	-add a primitive that takes all 3 transforms and does the height mapped thing
+
+-add fractal menger sponge
+	-primitive that should take in transforms and an iteration depth
+	-come up with an iterative method for computing menger depth
+	-something something something iterate if the point is in some region
+
 -add soft shadows
 -add ambient occlusion
