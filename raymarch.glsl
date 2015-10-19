@@ -386,7 +386,7 @@ vec4 unionColorDistance(vec4 d1, vec4 d2) {
 vec4 sceneGraphDistanceFunction(in vec3 point)
 {
     vec4 returnMe = vec4(0.0, 0.0, 0.0, 22.0);
-/*
+
     vec4 sphere0 = vec4(1.0, 0.0, 0.0, -1.0);
     sphere0[3] = sphere(point, vec3(0.0, 0.6, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.5, 0.5, 0.5));
     returnMe = unionColorDistance(returnMe, sphere0);
@@ -403,26 +403,17 @@ vec4 sceneGraphDistanceFunction(in vec3 point)
     cube0[3] = cube(point, vec3(0.8, 1.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 0.2, 2.0));
     returnMe = unionColorDistance(returnMe, cube0);
 
-    vec4 plane0 = vec4(0.0, 0.0, 1.0, -1.0);
-    plane0[3] = plane(point, vec3(0.0, 4.0, 0.0), vec3(3.14159, 0.0, 0.0));
+    vec4 plane0 = vec4(0.9, 1.0, 0.9, -1.0);
+    plane0[3] = plane(point, vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, 0.0));
     returnMe = unionColorDistance(returnMe, plane0);
 
-    vec4 heightMap0 = vec4(0.6, 0.6, 0.6, -1.0);
-    heightMap0[3] = heightFunction(point, vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 0.2, 2.0));
-    returnMe = unionColorDistance(returnMe, heightMap0); */
+    vec4 heightMap0 = vec4(0.6, 0.6, 0.9, -1.0);
+    heightMap0[3] = heightFunction(point, vec3(0.0, 5.0, 0.0), vec3(3.14159, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+    returnMe = unionColorDistance(returnMe, heightMap0);
 
-    //vec4 oneThird = vec4(1.0, 1.0, 0.0, -1.0);
-    //vec3 corner = vec3(0.5, 0.5, 0.5);
-    //vec3 dimm = vec3(0.33333, 0.33333, 0.33333);
-    //oneThird[3] = distInCube(point, corner, corner + dimm);
-
-    //vec4 one = vec4(1.0, 1.0, 0.0, -1.0);
-    //one[3] = distInCube(point, vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
-
-    //returnMe = unionColorDistance(one, oneThird);
-
-    returnMe = vec4(1.0, 1.0, 0.0, -1.0);
-    returnMe[3] = fractalMenger(point, vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(2.0, 2.0, 2.0));
+    vec4 fractal0 = vec4(1.0, 1.0, 0.0, -1.0);
+    fractal0[3] = fractalMenger(point, vec3(1.0, 0.0, 1.0), vec3(0.0, 0.0, 0.0), vec3(1.5, 1.5, 1.5));
+    returnMe = unionColorDistance(returnMe, fractal0);
 
     return returnMe;
 }
@@ -544,7 +535,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec3 rd = ca * normalize(vec3(p.xy, 2.0));
 
     // render
-    vec3 col = render(ro, rd, vec3(0.0, 10.0, 0.0), vec3(1.0, 1.0, 1.0));
+    vec3 col = render(ro, rd, vec3(0.0, 4.0, 0.0), vec3(1.0, 1.0, 1.0));
 
     col = pow(col, vec3(0.4545));
 

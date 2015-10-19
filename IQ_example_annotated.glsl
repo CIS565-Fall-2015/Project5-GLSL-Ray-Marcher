@@ -216,7 +216,8 @@ vec2 castRay( in vec3 ro, in vec3 rd )
     return vec2( t, m );
 }
 
-
+// returns a shadow value between 0.0 and 1.0. 1.0 is lit, 0.0 is unlit
+// 
 float softshadow( in vec3 ro, in vec3 rd, in float mint, in float tmax )
 {
 	float res = 1.0;
@@ -225,7 +226,7 @@ float softshadow( in vec3 ro, in vec3 rd, in float mint, in float tmax )
     {
 		float h = map( ro + rd*t ).x;
         res = min( res, 8.0*h/t );
-        t += clamp( h, 0.02, 0.10 );
+        t += clamp( h, 0.02, 0.10 ); // IQ's version doesn't let you go very far, does it? why?
         if( h<0.001 || t>tmax ) break;
     }
     return clamp( res, 0.0, 1.0 );

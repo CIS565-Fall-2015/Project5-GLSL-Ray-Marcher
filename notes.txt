@@ -24,4 +24,15 @@ TODO:
 	-something something something iterate if the point is in some region
 
 -add soft shadows
+	-intuition from the slides: march towards the light from point
+		-accumulate distance to the occluder. use that to determine shadow strength
+		-IQ's slides back this up: use samples of distance to closest geometry along line from surface to light
+		-also, the reading article source thing
+		-you can multiply the shadow term right onto the lambert computation.
+		-may need to move ambient outside of lambert shading
+	-TODO:
+		-modify the scene so you'll actually be able to see shadows
+		-add a hard shadow function. takes in light, ray origin, ray direction. keep epsilon and max consistent!
+		-add a soft shadow function.
+
 -add ambient occlusion
