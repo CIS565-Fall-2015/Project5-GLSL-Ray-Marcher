@@ -42,7 +42,7 @@ https://www.shadertoy.com/view/MdXGW2 - water
 
 ![](img/train_gif.gif)
 
-
+<img src="img/debug_image_orig.png" height="192" width="341.333333333"> <img src="img/debug_image_steps.png" height="192" width="341.333333333"> <img src="img/debug_image_norm.png" height="192" width="341.333333333"> <img src="img/debug_image.png" height="192" width="341.333333333">
 
 
 Instructions (delete me)
