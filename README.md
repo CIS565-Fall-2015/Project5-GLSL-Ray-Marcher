@@ -16,7 +16,7 @@
 
 This Shadertoy uses material from the following resources:
 
-![](images/toBoldlyGo.gif)
+![](img/train_gif.gif)
 
 
 
