@@ -1,4 +1,4 @@
-# [CIS565 2015F] Shadertoy
+# [CIS565 2015F] Shadertoy: Morph
 
 **GLSL Ray Marching**
 
@@ -6,7 +6,7 @@
 
 Terry Sun; Google Chrome 45.0, Arch Linux, Intel i5-4670, GTX 750
 
-### Live on Shadertoy (TODO)
+### Live on Shadertoy
 
 [![](img/thumb.png)](https://www.shadertoy.com/view/XISSRc)
 
@@ -20,6 +20,8 @@ This Shadertoy uses *code* from the following resources:
 * Iñigo Quílez's [Modeling with distance functions]
   (http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm) --
   [Shadertoy] (https://www.shadertoy.com/view/Xds3zN)
+* Iñigo Quílez's [Terrain Raymarching]
+  (http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
 * "Enhanced Sphere Tracing." Keinert, Schafer, Korndorf, Ganse, Stamminger.
   [PDF](http://erleuchtet.org/~cupe/permanent/enhanced_sphere_tracing.pdf)
 
@@ -33,13 +35,19 @@ Rererence: iq "Raymarching Primitives", McQuire "Implicitly Defined Surfaces"
 
 #### Soft Shadows
 
-Rererence: iq "Modeling with distance functions"
+Reference: iq "Modeling with distance functions"
 
 ![](img/debug_softshadow_noise.png)
 
+#### Height Mapped Terrain
+
+Reference: iq "Terrain Raymarching"
+
+![](img/height.png)
+
 #### Sphere Overrelaxation
 
-Reference: McQuire "Implicitly Defined Surfaces", "Enhanced Sphere Tracing"
+Reference: McQuire "Implicitly Defined Surfaces", Keinert "Enhanced Sphere Tracing"
 
 The number of ray march iterations displayed as grayscale, with darker areas
 indicating fewer iterations before the surface is considered intersected.
@@ -64,6 +72,6 @@ Overrelaxation without stepping backwards:
 
 ![](img/bloop_overrelax_gloopy.png)
 
-Accidentally broke naive raymarching and got wireframes (position colors):
+Naive ray marching with a step size of 0.1 (too small), got wireframes:
 
 ![](img/bloop_wireframe.png)
