@@ -1,8 +1,14 @@
 // Mostly from/based off of IQ's code at: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
 
 //#define DEBUG_ITER
+//#define DEBUG_DIST
+//#define HEIGHT_MAP
 
 vec3 camPos = vec3(3.0,3.0,3.0);
+
+float lengthn(vec2 x, float n){
+	return pow(pow(x.x,n)+pow(x.y,n), 1.0/n);
+}
 
 float sdCylinder( vec3 p, vec3 c )
 {
@@ -12,6 +18,7 @@ float sdCylinder( vec3 p, vec3 c )
 float sdCone( vec3 p, vec2 c )
 {
     // c must be normalized
+    c = normalize(c);
     float q = length(p.xy);
     return dot(c,vec2(q,p.z));
 }
@@ -44,9 +51,15 @@ float sdBox( vec3 p, vec3 b )
          length(max(d,0.0));
 }
 
+float sdTorus88( vec3 p, vec2 t )
+{
+  vec2 q = vec2(lengthn(p.xz,8.0)-t.x,p.y);
+  return lengthn(q,8.0)-t.y;
+}
+
 //----------------------------------------------------------------------
 
-// Code from: http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/
+// rotation code from: http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/
 mat4 rotation(vec3 axis, float angle)
 {
     axis = normalize(axis);
@@ -87,19 +100,57 @@ vec2 opU( vec2 d1, vec2 d2 )
 
 vec2 map( in vec3 pos )
 {
-    
     vec2 res = opU(
                 	vec2( sdPlane(pos), 1.0 ),
 	            	vec2( sdSphere(pos-vec3( 0.0,0.25, 0.0), 0.25 ), 46.9)
                );
     vec3 posEllipsoid = opTx(pos, vec3(0.0,0.0,1.0), 0.2, vec3(1.0,1.0,0.0));
+    vec3 posBox = opTx(pos, vec3(0.0,1.0,0.0), 0.3, vec3(1.0,1.0,-1.0));
+    //vec3 posCone = opTx(pos, vec3(0.0,0.0,0.0), 0.0, vec3(-1.0,0.7,2.0));
     
     res = opU(res, vec2(sdEllipsoid(posEllipsoid, vec3(0.2,0.4,0.2)),40.0));
     
-    //res = opU(res, vec2(sdTorus(pos - vec3(1.5,0.5,0.0),vec2(0.4,0.2)),36.0));
-    //res = opU(res, vec2(sdCylinder(pos - vec3(-1.0,0.0,0.0), vec3(0.01,1.0,0.2)), 26.0));
-    //res = opU(res, vec2(sdEllipsoid(pos - vec3(2.0,0.2,0.1), vec3(0.1,0.8,0.4)),16.0));
+    res = opU(res, vec2(sdTorus(pos - vec3(1.5,0.5,0.0),vec2(0.4,0.2)), 36.0));
+    res = opU(res, vec2(sdCylinder(pos - vec3(-1.0,0.0,0.0), vec3(0.01,1.0,0.2)), 26.0));
+    res = opU(res, vec2(sdEllipsoid(pos - vec3(2.0,0.2,0.1), vec3(0.1,0.8,0.4)), 16.0));
+    res = opU(res, vec2(sdBox(posBox, vec3(0.2,0.2,0.2)), 10.0));
+    res = opU(res, vec2(sdTorus88(pos, vec2(0.5,0.1)), 10.0));
     return res;
+}
+
+vec4 naiveCastRayHeightMap(in vec3 ro, in vec3 rd, in sampler2D iChannel){
+    float tmax = 20.0;
+    float tmin = 1.0;
+    float dt = 0.002;
+    const int max_iter = 4000;
+    
+    float t = tmin;
+    float m = -1.0;
+    
+    //vec3 pos = ro + rd*t;
+    vec3 pos;
+    vec4 color;
+    float h;
+    
+	int iter;
+    for (int i=0; i<max_iter; i++){
+        pos = ro + rd*t;
+        color = texture2D(iChannel, (pos.xz + 0.7) / 6.0);
+        h = 0.2989*color.r + 0.5870*color.g + 0.1140*color.b;
+        h = h*0.2;
+
+        //h = 1.0/h;
+        //h = color.x
+        
+        if (h >= pos.y){
+            m = color.x;
+        	break;
+        }
+        t += dt;
+		iter = i;
+    }
+
+    return vec4(iter,color.xyz);
 }
 
 vec3 naiveCastRay(in vec3 ro, in vec3 rd){
@@ -125,6 +176,39 @@ vec3 naiveCastRay(in vec3 ro, in vec3 rd){
         m = -1.0;
     }
     return vec3(t,m,iter);
+}
+
+vec3 castRayOverRelaxation( in vec3 ro, in vec3 rd )
+{
+    float k = 1.4;
+    float tmin = 1.0;
+    float tmax = 20.0;
+    
+    float precis = 0.002;
+    float t = tmin;
+    float m = -1.0;
+    int iter;
+    for(int i=0; i<50; i++ )
+    {
+        vec2 hx = map(ro + rd*t);
+        vec2 dt = k*hx;
+        vec2 hy = map(ro+rd*(t+dt.x));
+        
+        dt = float((hy.x >= dt.x))*dt + float((1.0-float(hy.x >= dt.x)))*hx;
+        
+        //if(!(hy.x >= dt.x)){
+        //    dt = hx;
+        //}
+        
+        if( dt.x<precis || t>tmax ) break;
+        
+        t += dt.x;
+        m = dt.y;
+        iter = i;
+    }
+
+    if( t>tmax ) m=-1.0;
+    return vec3( t, m, iter );
 }
 
 vec3 castRay( in vec3 ro, in vec3 rd )
@@ -177,7 +261,8 @@ float calcAO( in vec3 pos, in vec3 nor )
 vec3 render( in vec3 ro, in vec3 rd )
 { 
     vec3 col = vec3(0.8, 0.9, 1.0); // Sky color
-    vec3 res = castRay(ro,rd);
+    vec3 res = castRayOverRelaxation(ro,rd);
+    //vec3 res = castRay(ro,rd);
     float t = res.x;
     float m = res.y;
     if( m>-0.5 )  // Ray intersects a surface
@@ -240,7 +325,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     float time = 15.0 + iGlobalTime;
 
     // camera	
-    vec3 ro = vec3( -0.5+3.5*cos(0.1*time + 6.0*mo.x), 1.0 + 2.0*mo.y, 0.5 + 3.5*sin(0.1*time + 6.0*mo.x) );
+    //vec3 ro = vec3( -0.5+3.5*cos(0.1*time + 6.0*mo.x), 1.0 + 2.0*mo.y, 0.5 + 3.5*sin(0.1*time + 6.0*mo.x) );
+    vec3 ro = vec3( -0.5+3.5*cos( 6.0*mo.x), 1.0 + 2.0*mo.y, 0.5 + 3.5*sin(6.0*mo.x) );
+    //ro += vec3(0.0,4.0,0.0);
     //camPos += vec3(mo.x,mo.y,0.0);
     //vec3 ro = vec3(3.0+mo.x, 3.0+mo.y, 3.0);
     //vec3 ro = camPos;
@@ -249,7 +336,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     // camera-to-world transformation
     mat3 ca = setCamera( ro, ta, 0.0 );
     
-    // ray direction
+    // ray direction	
     vec3 rd = ca * normalize( vec3(p.xy,2.0) );
 
     // render
@@ -261,13 +348,26 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     #ifdef DEBUG_ITER
     vec3 col = vec3(1.0);
-    vec3 t = naiveCastRay( ro, rd );
-    col = col * (t.z/4000.0);
+    vec3 t = castRayOverRelaxation( ro, rd );
+    //vec3 t = castRay( ro, rd );
+    //vec3 t = naiveCastRay( ro, rd);
+    col = col * (t.z/50.0);
+    //col = col * (t.z/4000.0);
     #endif
     
+    #ifdef HEIGHT_MAP
+    vec3 col = vec3(1.0);
+    vec4 t = naiveCastRayHeightMap(ro,rd,iChannel0);
+    if (t.x < 3999.0){
+    	col = t.yzw;
+    }
+    #endif
+    
+    #ifndef HEIGHT_MAP
     #ifndef DEBUG_DIST
     #ifndef DEBUG_ITER
     vec3 col = render(ro, rd);
+    #endif
     #endif
     #endif
 
