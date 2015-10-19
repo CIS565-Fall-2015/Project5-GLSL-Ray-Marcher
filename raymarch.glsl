@@ -1,28 +1,35 @@
+/********************************** Constants *********************************/
+const vec3 light = vec3(2.0, 5.0, -1.0);
+const vec3 color = vec3(0.85, 0.85, 0.85);
+const vec3 ambient = vec3(0.05, 0.05, 0.05);
+const float EPSILON = 0.01;
+const float TMIN = 0.02;
+
 /*************************** Signed distance functions ***********************
  * McGuire: http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
  * iq: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
  */
 
-float sdSphere(vec3 p, vec3 center, float r) {
-    return length(p - center) - r;
+float sdSphere(vec3 p, float r) {
+    return length(p) - r;
 }
 
-float sdTorus(vec3 p, vec3 center, float minorRadius, float majorRadius) {
-    return length(vec2(length(p.xz - center.xz) - minorRadius, p.y - center.y)) - majorRadius;
+float sdTorus(vec3 p, float minorRadius, float majorRadius) {
+    return length(vec2(length(p.xz) - minorRadius, p.y)) - majorRadius;
 }
 
-float sdPlane(vec3 p, vec3 center, vec3 n) {
-    return dot(p - center, n);
+float sdPlane(vec3 p, vec3 n) {
+    return dot(p, n);
 }
 
-float sdBox(vec3 p, vec3 center, vec3 b) {
-    vec3 d = abs(p - center) - b;
+float sdBox(vec3 p, vec3 b) {
+    vec3 d = abs(p) - b;
     float dmax = max(max(d.x, d.y), d.z);
     return min(dmax, 0.0) + length(max(d, vec3(0, 0, 0)));
 }
 
-float sdRoundedBox(vec3 p, vec3 center, vec3 b, float r) {
-    return length(max(abs(p - center) - b, vec3(0, 0, 0))) - r;
+float sdRoundedBox(vec3 p, vec3 b, float r) {
+    return length(max(abs(p) - b, vec3(0, 0, 0))) - r;
 }
 
 float sdCapsule(vec3 p, vec3 a, vec3 b, float r) {
@@ -32,35 +39,64 @@ float sdCapsule(vec3 p, vec3 a, vec3 b, float r) {
     return length(pa - ba*h) - r;
 }
 
-/********************************** Constants *********************************/
-const vec3 light = vec3(2.0, 5.0, -1.0);
-const vec3 color = vec3(0.85, 0.85, 0.85);
-const vec3 ambient = vec3(0.05, 0.05, 0.05);
-const float EPSILON = 0.01;
-const float TMIN = 0.02;
+float sdCylinder(vec3 p, float r, float e) {
+    vec2 d = abs(vec2(length(p.xz), p.y)) - vec2(r, e);
+    float dmax = max(d.x, d.y);
+    return min(dmax, 0.0) + length(max(d, vec2(0, 0)));
+}
+
+float sdTriPrism(vec3 p, vec2 h) {
+    vec3 q = abs(p);
+    return  max(q.z-h.y,max((q.x*0.866025+q.y*0.5),q.y)-h.x);
+}
+
+float length8(vec2 p) {
+    p = p*p; p = p*p; p = p*p;
+    return pow(p.x + p.y, 1.0/8.0);
+}
+
+float sdTorus88(vec3 p, vec2 t) {
+    vec2 q = vec2(length8(p.xz)-t.x,p.y);
+    return length8(q)-t.y;
+}
+
+/***************************** Geometry Combinators ***************************
+ * McGuire 11: http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
+ */
+
+// set union of two geometry
+float setunion(float d1, float d2) {
+    return min(d1, d2);
+}
+
+// intersection of two geometry
+float intersect(float d1, float d2) {
+    return max(d1, d2);
+}
+
+// set subtraction of d2 from d1
+float subtract(float d1, float d2) {
+    return max(d1, -d2);
+}
+
+// transformation OF P by applying the inverse transform
+vec3 tr(vec3 p, vec3 translate) {
+    return p - translate;
+}
 
 /********************************** Raymarch **********************************
  * McGuire: http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
  */
 
 float nearestIntersection(in vec3 p) {
-    float t = 100000000.0;
-    float a = t;
-    if ((a = sdSphere(p, vec3(0.0), 0.5)) < t) {
-        t = a;
-    }
-    if ((a = sdTorus(p, vec3(0.0, -1.25, 0.0), .5, .15)) < t) {
-        t = a;
-    }
-    if ((a = sdCapsule(p, vec3(1.0), vec3(.5), 0.2)) < t) {
-        t = a;
-    }
-    if ((a = sdRoundedBox(p, vec3(-1.0, 1.0, 0.0), vec3(0.2), 0.1)) < t) {
-        t = a;
-    }
-    if ((a = sdPlane(p, vec3(-1.5), vec3(0.0, 1.0, 0.0))) < t) {
-        t = a;
-    }
+    float t = sdSphere(p, 0.5);
+    t = setunion(t, sdTorus     (tr(p, vec3(-1.3,.8,-1.3)), .4, .15)               );
+    t = setunion(t, sdTorus88   (tr(p, vec3(.0,.0,-1.5)), vec2(.35,.2))            );
+    t = setunion(t, sdCapsule   (tr(p, vec3(.6, .0, .6)), vec3(1.0), vec3(.5), .2) );
+    t = setunion(t, sdRoundedBox(tr(p, vec3(-1.0, 1.0, .0)), vec3(.2), .1)         );
+    t = setunion(t, sdPlane     (tr(p, vec3(-1.5)), vec3(.0, 1.0, .0))             );
+    t = setunion(t, sdCylinder  (tr(p, vec3(1.2,.0,.0)), .5, .2)                   );
+    t = setunion(t, sdTriPrism  (tr(p, vec3(.0,.0,1.5)), vec2(.4, .4))             );
     return t;
 }
 
@@ -97,13 +133,14 @@ vec3 lambert(in vec3 p, in vec3 n) {
     return dot(n, lightdir) * color;
 }
 
+// http://www.iquilezles.org/www/articles/rmshadows/rmshadows.htm
 float shadowMarch(in vec3 ro, in vec3 rd) {
     const float tmax = 10.0;
     const float k = 8.0;
-    
+
     float shadow = 1.0;
     float t = 0.0;
-    
+
     for (int i = 0; i < 100; i++) {
         vec3 p = ro + rd * t;
         float intersection = nearestIntersection(p);
@@ -125,7 +162,7 @@ vec3 shadow(in vec3 p, in vec3 color) {
     float lightdist = distance(p, light);
 
     float shadow = shadowMarch(p, lightdir);
-    return shadow * color + ambient;
+    return clamp(shadow * color, 0.0, 1.0) + ambient;
 }
 
 vec3 render(in vec3 ro, in vec3 rd) {
