@@ -1,11 +1,28 @@
-/* Signed distance functions */
+/*************************** Signed distance functions ***********************
+ * McGuire: http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
+ * iq: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
+ */
 
-float sdSphere(vec3 p, float r) {
-    return length(p)-r;
+float sdSphere(vec3 p, vec3 center, float r) {
+    return length(p - center) - r;
 }
 
 float sdTorus(vec3 p, vec3 center, float minorRadius, float majorRadius) {
-	return length(vec2(length(p.xz - center.xz) - minorRadius, p.y - center.y)) - majorRadius;
+    return length(vec2(length(p.xz - center.xz) - minorRadius, p.y - center.y)) - majorRadius;
+}
+
+float sdPlane(vec3 p, vec3 center, vec3 n) {
+    return dot(p - center, n);
+}
+
+float sdBox(vec3 p, vec3 center, vec3 b) {
+    vec3 d = abs(p - center) - b;
+    float dmax = max(max(d.x, d.y), d.z);
+    return min(dmax, 0.0) + length(max(d, vec3(0, 0, 0)));
+}
+
+float sdRoundedBox(vec3 p, vec3 center, vec3 b, float r) {
+    return length(max(abs(p - center) - b, vec3(0, 0, 0))) - r;
 }
 
 float sdCapsule(vec3 p, vec3 a, vec3 b, float r) {
@@ -14,18 +31,30 @@ float sdCapsule(vec3 p, vec3 a, vec3 b, float r) {
     return length( pa - ba*h ) - r;
 }
 
-/* Raymarch */
+/********************************** Raymarch **********************************
+ * McGuire: http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
+ */
+
+
+bool intersection(in vec3 p) {
+    if (sdSphere(p, vec3(0.0), 0.5) < .1) {
+        return true;
+    } else if (sdTorus(p, vec3(0.0, -1.25, 0.0), .5, .15) < .1) {
+        return true;
+    } else if (sdCapsule(p, vec3(1.0), vec3(.5), 0.2) < .1) {
+       return true;
+    } else {
+        return false;
+    }
+}
 
 float raymarch(in vec3 ro, in vec3 rd) {
     // Reference:
-    // http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
     const float dt = 0.01;
     const float tmax = 10.0;
     for (float t = 0.0; t < tmax; t += dt) {
         vec3 p = ro + rd * t;
-        if (sdSphere(p, 0.5) < .1) {
-            return t;
-        } else if (sdTorus(p, vec3(0.0, -1.25, 0.0), .5, .15) < .1) {
+        if (intersection(p)) {
             return t;
         }
     }
@@ -42,8 +71,11 @@ vec3 render(in vec3 ro, in vec3 rd) {
     }
 }
 
+/************************************ Setup ***********************************
+  * Directly from iq's Raymarching Primitives
+  * https://www.shadertoy.com/view/Xds3zN
+  */
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
-    // Directly from iq's Raymarching Primitives:
     vec3 cw = normalize(ta - ro);
     vec3 cp = vec3(sin(cr), cos(cr), 0.0);
     vec3 cu = normalize(cross(cw, cp));
@@ -52,7 +84,6 @@ mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
 }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-    // Directly from iq's Raymarching Primitives:
     vec2 q = fragCoord.xy / iResolution.xy;
     vec2 p = -1.0 + 2.0 * q;
     p.x *= iResolution.x / iResolution.y;
