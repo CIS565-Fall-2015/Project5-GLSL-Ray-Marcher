@@ -32,6 +32,12 @@ float sdCapsule(vec3 p, vec3 a, vec3 b, float r) {
     return length(pa - ba*h) - r;
 }
 
+/********************************** Constants *********************************/
+const vec3 light = vec3(2.0, 5.0, -1.0);
+const vec3 color = vec3(0.85, 0.85, 0.85);
+const float EPSILON = 0.01;
+const float TMIN = 0.02;
+
 /********************************** Raymarch **********************************
  * McGuire: http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
  */
@@ -51,17 +57,23 @@ float nearestIntersection(in vec3 p) {
     if ((a = sdRoundedBox(p, vec3(-1.0, 1.0, 0.0), vec3(0.2), 0.1)) < t) {
         t = a;
     }
+    if ((a = sdPlane(p, vec3(-1.5), vec3(0.0, 1.0, 0.0))) < t) {
+        t = a;
+    }
     return t;
 }
 
 float raymarch(in vec3 ro, in vec3 rd) {
     const float dt = 0.01;
     const float tmax = 10.0;
-    for (float t = 0.0; t < tmax; t += dt) {
+    float t = 0.0;
+    for (int i = 0; i < 100; i++) {
         vec3 p = ro + rd * t;
         float intersection = nearestIntersection(p);
-        if (intersection > 0.0 && intersection < 0.01) {
+        if (intersection > 0.0 && intersection < TMIN) {
             return t;
+        } else if (intersection > 0.0) {
+            t += intersection;
         }
     }
     return -1.0;
@@ -78,11 +90,20 @@ vec3 normalAt(in vec3 p) {
 }
 
 vec3 lambert(in vec3 p, in vec3 n) {
-    vec3 light = vec3(0.0, 5.0, -1.0);
-    vec3 color = vec3(0.85, 0.85, 0.85);
-
     vec3 lightdir = normalize(p - light);
     return dot(n, lightdir) * color;
+}
+
+vec3 shadow(in vec3 p, in vec3 color) {
+    vec3 lightdir = normalize(p - light);
+    float lightdist = distance(p, light);
+
+    float t = raymarch(p, -lightdir);
+    if (t < 0.0 || lightdist - t < TMIN) {
+        return color;
+    } else {
+        vec3(0.0);
+    }
 }
 
 vec3 render(in vec3 ro, in vec3 rd) {
@@ -91,9 +112,10 @@ vec3 render(in vec3 ro, in vec3 rd) {
         vec3 p = ro + rd*d;
         vec3 n = normalAt(p);
         vec3 c = lambert(p, n);
+        c = shadow(p - 3.0*rd*EPSILON, c);
         return clamp(c, 0.0, 1.0);
     } else {
-        return vec3(0.5, 0.5, 0.5);
+        return vec3(0.25, 0.5, 0.5);
     }
 }
 
