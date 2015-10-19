@@ -3,7 +3,7 @@ const vec3 light = vec3(2.0, 5.0, -1.0);
 const vec3 color = vec3(0.85, 0.85, 0.85);
 const vec3 ambient = vec3(0.05, 0.05, 0.05);
 const float EPSILON = 0.01;
-const float TMIN = 0.02;
+const float TMIN = 0.01;
 
 /*************************** Signed distance functions ***********************
  * McGuire: http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
@@ -100,7 +100,22 @@ float nearestIntersection(in vec3 p) {
     return t;
 }
 
-float raymarch(in vec3 ro, in vec3 rd) {
+// Naive iteration
+float raymarch_naive(in vec3 ro, in vec3 rd) {
+    const float tmax = 30.0;
+    const float tstep = 0.1;
+    for (float t = 0.0; t < tmax; t += tstep) {
+        vec3 p = ro + rd * t;
+        float intersection = nearestIntersection(p);
+        if (intersection > 0.0 && intersection < TMIN) {
+            return t;
+        }
+    }
+    return -1.0;
+}
+
+// Sphere tracing
+float raymarch_sphere(in vec3 ro, in vec3 rd) {
     const float tmax = 30.0;
     float t = 0.0;
     for (int i = 0; i < 100; i++) {
@@ -116,6 +131,63 @@ float raymarch(in vec3 ro, in vec3 rd) {
         }
     }
     return -1.0;
+}
+
+// Overrelaxation tracing
+// http://erleuchtet.org/~cupe/permanent/enhanced_sphere_tracing.pdf
+float raymarch_overrelax(in vec3 ro, in vec3 rd) {
+    const float tmax = 30.0;
+    float t = 0.0;
+    float dt = 0.0;
+    float diff = 0.0;
+    float K = 1.2;
+
+    for (int i = 0; i < 50; i++) {
+        vec3 p = ro + rd * t;
+        float intersection = nearestIntersection(p);
+        if (intersection > 0.0 && intersection < TMIN) {
+            // Successful intersection
+            return t;
+        } else if (intersection > 0.0) {
+            // Valid intersection
+            // Take K * intersection distance step forward
+            // Unless that is too large; then step backwards
+            float nstep = K * intersection;
+            if (intersection < diff) {
+                t -= (dt + diff);
+                break;
+            } else {
+                dt = intersection;
+                diff = (K-1.) * intersection;
+            }
+            t += nstep;
+        } else {
+            // Negative distance??
+            t -= (dt + diff);
+            break;
+        }
+        if (t > tmax) {
+            break;
+        }
+    }
+    
+    for (int i = 0; i < 50; i++) {
+        vec3 p = ro + rd * t;
+        float intersection = nearestIntersection(p);
+        if (intersection > 0.0 && intersection < TMIN) {
+            return t;
+        } else if (intersection > 0.0) {
+            t += intersection;
+        }
+        if (t > tmax) {
+            return -1.;
+        }
+    }
+    return -1.0;
+}
+
+float raymarch(in vec3 ro, in vec3 rd) {
+    return raymarch_overrelax(ro, rd);
 }
 
 vec3 normalAt(in vec3 p) {
