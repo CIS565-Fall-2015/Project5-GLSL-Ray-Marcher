@@ -72,8 +72,9 @@ are defined in the fragment shader code executed for each pixel.
 * Union operator {McGuire 11.1}
   * Necessary for rendering multiple objects
 * Transformation operator {McGuire 11.5}
-  * The transformation operator was implemented by creating a transformation matrix.  The inputs into the function were the translation, rotation, and scale vector.  Each coordinate in the rotation matrix represents the rotation about the x, y, or z axis. The inverse of this matrix is multiplied by the center of the object, and the product of this gives the correct new position.   The image below shows a cube being rotated about the y axis, with the cube scaled by 2 in the y axis.  
- ![](img/rotated_box.gif)
+  * The transformation operator was implemented by creating a transformation matrix.  The inputs into the function were the translation, rotation, and scale vector.  Each coordinate in the rotation matrix represents the rotation about the x, y, or z axis. The inverse of this matrix is multiplied by the center of the object, and the product of this gives the correct new position.   The image below shows a cube being rotated about the z axis around the origin. 
+
+ ![](img/rotating.gif)
   
 * Debug views (preferably easily toggleable, e.g. with `#define`/`#if`)
   * There are three differenct debug views that can be used in my scene.  The first is the normals, which will color each point on an object the color of the calculated normal at the point on the suface.  The second is the number of steps along the ray that are taken before it hits an object.  In the view, the less steps taken along a ray print black, while the larger amount of steps taken along a ray print a red color.  The last debug view is the distance to the surface for each pixel.  This will print a black color for objects that are close and white for objects that are further away.  These veiws can easily be toggled between at the top of the script. 
