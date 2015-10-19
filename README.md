@@ -39,7 +39,7 @@
 
 ### What is a Ray Marcher
 
-Ray marching is an image based volume rendering technique. With ray marching, you can compute 2D images from 3D volumetric data. For the data, I used implicit surface definitions using signes distance functions as explained in [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf).
+Ray marching is an image based volume rendering technique. With ray marching, you can compute 2D images from 3D volumetric data. For the data, I used implicit surface definitions using signed distance functions as explained in [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf).
 
 
 ### Features
@@ -64,27 +64,27 @@ The main features implemented include :
 * Infinite Terrains
 
 
-### Analysis
+### Performance Analysis
 
-* Provide an analysis comparing naive ray marching with sphere tracing
-  * In addition to FPS, implement a debug view which shows the "most expensive"
-    fragments by number of iterations required for each pixel. Compare these.
-* Compare time spent ray marching vs. time spent shading/lighting
-  * This can be done by taking measurements with different parts of your code
-    enabled (e.g. raymarching, raymarching+shadow, raymarching+shadow+AO).
-  * Plot this analysis using pie charts or a 100% stacked bar chart.
-* For each feature (required or extra), estimate whether branch divergence
-  plays a role in its performance characteristics, and, if so, point out the
-  branch in question.
-  (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
-* For each optimization feature, compare performance with and without the
-  optimization. Describe and demo the types of scenes which benefit from the
-  optimization.
+##### Debug Views:
 
-**Tips:**
+* Depth View : The color goes from white to black (white being closer to the camera)
+<img src="renders/depthNaive.png" height="288" width="512">
 
-* To avoid computing frame times given FPS, you can use the
-  [stats.js bookmarklet](https://github.com/mrdoob/stats.js/#bookmarklet)
-  to measure frame times in ms.
+* Normal View : The color goes from white to black (white being closer to the camera)
+<img src="renders/normalComputation.png" height="288" width="512">
+
+##### Comparison between Naive and Spherical Ray March
+
+* Steps View : The color goes from green to red to yellow (green being the minimum number of steps)
+<img src="renders/stepsNaive.png" height="144" width="256">
+<img src="renders/stepsSpherical.png" height="144" width="256">
+
+
+
+
+
+
+
 
 
