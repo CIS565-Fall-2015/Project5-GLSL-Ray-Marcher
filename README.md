@@ -88,6 +88,7 @@ are defined in the fragment shader code executed for each pixel.
   * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
   
 <img src="img/before_amb_occ.gif" height="192" width="227.5"> <img src="img/amb_occ_debug.png" height="192" width="227.5"> <img src="img/ambient_occlusion.gif" height="192" width="227.5">
+
 This extra feature list is not comprehensive. If you have a particular idea
 that you would like to implement, please **contact us first** (preferably on
 the mailing list).
