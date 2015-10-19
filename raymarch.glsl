@@ -16,7 +16,7 @@
 // advanced distsance functions and stepping method
 #define RENDERFRACTAL 1
 #define RENDERHEIGHTFUNCTION 1
-#define SPHERESTEP 0
+#define SPHERESTEP 1
 
 mat3 eulerXYZRotationMatrix(in vec3 rotation) {
     //https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
@@ -452,12 +452,12 @@ vec3 computeNormal(in vec3 point) {
 
 float hardShadow(in vec3 rayPosition, in vec3 lightPosition)
 {
-    float stepSize = 0.01; // 2000 * 0.01 + 1.0 gives us a max distance of 20.0
+    float stepSize = 0.01;
     float t = EPSILON + stepSize + stepSize;
     vec3 stepDir = normalize(lightPosition - rayPosition);
     float lightDistance = length(lightPosition - rayPosition);
 
-    for (int i = 0; i < 2000; i++){
+    for (int i = 0; i < 1000; i++){
         float dist = sceneGraphDistanceFunction(rayPosition + stepDir * t)[3];
         if (dist < EPSILON) return 0.0; // shadowed
         if (t > lightDistance) break;
@@ -471,13 +471,13 @@ float hardShadow(in vec3 rayPosition, in vec3 lightPosition)
 
 float softShadow(in vec3 rayPosition, in vec3 lightPosition)
 {
-    float stepSize = 0.01; // 2000 * 0.01 + 1.0 gives us a max distance of 20.0
+    float stepSize = 0.05; // 100 * 0.1 + 1.0 gives us a max distance of 20.0
     float t = EPSILON + stepSize + stepSize;
     vec3 stepDir = normalize(lightPosition - rayPosition);
     float lightDistance = length(lightPosition - rayPosition);
     float shadowTerm = 1.0; // default to unshadowed
 
-    for (int i = 0; i < 2000; i++){
+    for (int i = 0; i < 1000; i++){
         float dist = sceneGraphDistanceFunction(rayPosition + stepDir * t)[3];
         shadowTerm = min(shadowTerm, 6.0 * dist / t);
         if (dist < EPSILON) break; // shadowed
@@ -516,12 +516,12 @@ float ambientOcclusion(in vec3 position, in vec3 normal) {
 vec4 castRayNaive(in vec3 rayPosition, in vec3 rayDirection)
 {
     float tmin = 1.0;
-    float stepSize = 0.01; // 2000 * 0.01 + 1.0 gives us a max distance of 20.0
+    float stepSize = 0.01; // 100 * 0.1 + 1.0 gives us a max distance of 10.0
 
     float t = tmin;
     float distance = 1000.0;
     vec3 color = vec3(-1.0, -1.0, -1.0);
-    for (int i = 0; i < 2000; i++) {
+    for (int i = 0; i < 1000; i++) {
         vec4 colorAndDistance = sceneGraphDistanceFunction(rayPosition + rayDirection * t);
         distance = colorAndDistance[3];
 
@@ -553,7 +553,7 @@ vec4 castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
     float t = tmin;
     float distance;
     vec3 color = vec3(-1.0, -1.0, -1.0);
-    for (int i = 0; i < 2000; i++) {
+    for (int i = 0; i < 100; i++) {
         vec4 colorAndDistance = sceneGraphDistanceFunction(rayPosition + rayDirection * t);
         distance = colorAndDistance[3];
 
