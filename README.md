@@ -69,10 +69,13 @@ The main features implemented include :
 ##### Debug Views:
 
 * Depth View : The color goes from white to black (white being closer to the camera)
+
 <img src="renders/depthNaive.png" height="288" width="512">
 
-* Normal View : The color goes from white to black (white being closer to the camera)
+* Normals View
+
 <img src="renders/normalComputations.png" height="288" width="512">
+
 
 ##### Comparison between Naive and Spherical Ray March
 
