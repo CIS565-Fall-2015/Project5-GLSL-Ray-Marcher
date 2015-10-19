@@ -11,10 +11,37 @@
 Overview
 ========================
 
+![](img/OverView.PNG)
+
+![](img/HeightMap0.PNG)
+
+Acknolegements
+========================
+
+**Iñigo Quílez**
+
+* Raymarching Primitives. [Shadertoy](https://www.shadertoy.com/view/Xds3zN)
+
+* Menger Sponge.  [Shadertoy](https://www.shadertoy.com/view/4sX3Rn)
 
 Features
 ========================
 
+**Height Map**
+
+**Merger Sponge**
+
+**Soft Shadow
+
+|Soft Shdow				|Sharp Shadow
+|:---------------------------------:|:---------------------------------------:
+|![](img/softShadow.PNG )	|![](img/sharpShadow.PNG )
+
+**Ambient Occlusion**
+
+|Without AO				|With AO
+|:---------------------------------:|:---------------------------------------:
+|![](img/withoutAO.PNG )	|![](img/withAO.PNG )
 
 Analysis
 ========================
@@ -23,13 +50,13 @@ Analysis
 
 **Test Scene**
 
-![](img/debug_IterNum_TestScene.PNG =50x)
+![](img/debug_IterNum_TestScene.PNG)
 
 **Iteration Number Debug View**
 
 |Naive Ray Marching					|Sphere Tracing
 |:---------------------------------:|:---------------------------------------:
-|![](img/debug_IterNum_ST.PNG =50x50)	|![](img/debug_IterNum_Naive.PNG =50x50)
+|![](img/debug_IterNum_ST.PNG )	|![](img/debug_IterNum_Naive.PNG )
 | !!!!Analysis here ... ...
 
 **Precision and FPS**
