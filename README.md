@@ -87,3 +87,24 @@ Distance is similar to a depth test.
 Steps visualizes the number of steps the ray marching method took to reach each rendered point. The scale can be modified to change the contrast.
 
 ### Analysis
+
+#### Naive Ray Marching vs. Spherical Tracing
+In the default scene provided, with all lighting settings enabled, spherical tracing was considerably faster than naive ray marching, averaging around 60 ms per frame in a full circle pass as opposed to the naive method's 170 ms per frame on average.
+
+For both marching methods, computation time substantially decreased the closer the camera got to the scene objects, presumably because each ray march was "bottoming out" sooner.
+
+![](img/near.png)
+![](img/far.png)
+
+The "steps" debugging setting also yields some interesting observations. While the difference in brightness clearly indicates that the spherical method takes significantly fewer steps per ray, it also indicates from the light 'haze' around the edges of objects that rays marching near edges of objects tend to "decelerate" as they approach the object, taking more steps than rays passing objects from further away.
+
+#### Time spent raymarching vs. Time spent on lighting computation
+![](img/charts/stage_time.png)
+
+When using naive raymarching the vast majority of time per frame is spent on raymarching. Ambient occlusion and soft shadows are both relatively inexpensive. Since both computations perform a variant on the naive raymarch, however, each may also be influenced by the scene configuration. Ambient occlusion, for example, only addresses samples marching along a point's normal out to a hardcoded number of samples. Shadows, meanwhile, march towards the light until the ray march reaches the light or strikes an occluding object. Thus, unoccluded points very far from the light source have more expensive shadow computations.
+
+#### Branch Divergence Estimates
+
+Two of the above features are likely to demonstrate branch divergence performance hits: shadowing, and the distance function for the menger sponge. Soft shadowing breaks out of the ray march towards the light depending on the point in the scene. Threads computing points close to each other in the scene (and close to each other in screen space) should have less divergence the closer they are together, with the most divergence in the "soft shadow" region.
+
+The menger sponge, on the other hand, features branch divergence in a much more extreme way that likely explains its computational expense. The sponge is computed at each iteration by assessing the bounding box of the sponge iteration and checking against each of the 22 sub-iteration boxes within this iteration's box. This check determines the bounding box of the next iteration that must be computed.
