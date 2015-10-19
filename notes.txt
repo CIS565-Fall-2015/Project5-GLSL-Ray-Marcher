@@ -6,8 +6,11 @@ TODO:
 -add plane check [done]
 -add cube check [done]
 -add normal [done]
--add light
--add sphere tracing
+-add light [done]
+-add sphere tracing [buggy]
+
+-extract and generalize transformation operator. see if it fixes the sphere tracing problem.
+
 
 -add height-mapped terrain
 -add fractal

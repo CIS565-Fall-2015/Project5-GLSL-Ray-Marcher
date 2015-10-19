@@ -97,7 +97,7 @@ float cube(in vec3 point, in vec3 translation, in vec3 rotation, in vec3 scale) 
     return min(max(max(d.x, d.y), d.z), 0.0) + length(max(d, vec3(0.0, 0.0, 0.0)));
 }
 
-/*Boolean operations**********************************************************/
+/*Operations******************************************************************/
 
 // for getting the union of two objects. the one with the smaller distance.
 vec4 unionDistance(vec4 d1, vec4 d2) {
@@ -190,17 +190,17 @@ vec4 castRaySphere(in vec3 rayPosition, in vec3 rayDirection)
     float maxDistance = 20.0;
 
     float t = tmin;
-    float distance = 1000.0;
+    float distance;
     vec3 color = vec3(-1.0, -1.0, -1.0);
     for (int i = 0; i < 2000; i++) {
         vec4 colorAndDistance = sceneGraphDistanceFunction(rayPosition + rayDirection * t);
         distance = colorAndDistance[3];
         t += distance;
-        if (t > maxDistance) {
-            break;
-        }
         if (distance < epsilon) {
             color = colorAndDistance.rgb;
+            break;
+        }
+        if (t > maxDistance) {
             break;
         }
     }
@@ -216,7 +216,7 @@ vec3 lambertShade(in vec3 norm, in vec3 position, in vec3 color, in vec3 sunPosi
 
 // takes in ray origin, ray direction, and sun position
 vec3 render(in vec3 ro, in vec3 rd, in vec3 sunPosition, in vec3 sunColor) {
-    vec4 materialDistance = castRayNaive(ro, rd);
+    vec4 materialDistance = castRaySphere(ro, rd);//castRayNaive(ro, rd);
     //vec4 materialDistance = castRaySphere(ro, rd);
     vec3 position = ro + rd * materialDistance.a;
     vec3 norm = computeNormal(position);
