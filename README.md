@@ -46,10 +46,12 @@ These are referenced from Morgan McGuire's *Numerical Methods for Ray Tracing Im
 Each potential function evaluator has been modified to take in modeling transformations along with the point whose distance is being computed. Transformations supported include translation, euler angle rotation, and non-uniform scaling.
 
 #### height/terrain function
+![](img/sine_height.png)
 The height/terrain function draws from Iñigo Quílez's article *Terrain Raymarching.* At the moment it uses a sine function over the x and z coordinates of the point instead of a perlin noise function as a compact proof of concept. The same transformations are supported.
 
 #### menger sponge
-The menger sponge function iteratively computes a distance for a menger sponge to the 3rd iteration.
+![](img/sponge.png)
+The menger sponge function iteratively computes a distance for a menger sponge. The default computation is only to the 3rd iteration.
 The same transformations are supported.
 
 ### Lighting Features
@@ -107,4 +109,4 @@ When using naive raymarching the vast majority of time per frame is spent on ray
 
 Two of the above features are likely to demonstrate branch divergence performance hits: shadowing, and the distance function for the menger sponge. Soft shadowing breaks out of the ray march towards the light depending on the point in the scene. Threads computing points close to each other in the scene (and close to each other in screen space) should have less divergence the closer they are together, with the most divergence in the "soft shadow" region.
 
-The menger sponge, on the other hand, features branch divergence in a much more extreme way that likely explains its computational expense. The sponge is computed at each iteration by assessing the bounding box of the sponge iteration and checking against each of the 22 sub-iteration boxes within this iteration's box. This check determines the bounding box of the next iteration that must be computed.
+The menger sponge, on the other hand, features branch divergence in a much more extreme way that likely contributes to its computational expense. The sponge is computed at each iteration by assessing the bounding box of the sponge iteration and checking against each of the 22 sub-iteration boxes within this iteration's box. This check determines the bounding box of the next iteration that must be computed.
