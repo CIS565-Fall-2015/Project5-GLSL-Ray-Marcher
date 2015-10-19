@@ -44,6 +44,24 @@ Ray marching is an image based volume rendering technique. With ray marching, yo
 
 ### Features
 
+The main features implemented include :
+
+* Signed Distance functions for different geometries
+* Naive Ray March
+* Spherical Ray March
+* Normal Computations
+* Lambert Shading
+* Soft Shadow
+* Union Operation 
+* Difference Operation 
+* Intersection Operation 
+* Blend Operation 
+* Displacement Operation
+* Transformation Operation
+* Fractals
+* Terrain Mapping
+* Debug views for Distance, Step Count, Lambert, Normals
+* Infinite Terrains
 
 
 ### Analysis
