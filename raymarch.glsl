@@ -26,48 +26,74 @@ float sdRoundedBox(vec3 p, vec3 center, vec3 b, float r) {
 }
 
 float sdCapsule(vec3 p, vec3 a, vec3 b, float r) {
-    vec3 pa = p - a, ba = b - a;
-    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
-    return length( pa - ba*h ) - r;
+    vec3 pa = p - a;
+    vec3 ba = b - a;
+    float h = clamp(dot(pa,ba)/dot(ba,ba), 0.0, 1.0);
+    return length(pa - ba*h) - r;
 }
 
 /********************************** Raymarch **********************************
  * McGuire: http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
  */
 
-
-bool intersection(in vec3 p) {
-    if (sdSphere(p, vec3(0.0), 0.5) < .1) {
-        return true;
-    } else if (sdTorus(p, vec3(0.0, -1.25, 0.0), .5, .15) < .1) {
-        return true;
-    } else if (sdCapsule(p, vec3(1.0), vec3(.5), 0.2) < .1) {
-       return true;
-    } else {
-        return false;
+float nearestIntersection(in vec3 p) {
+    float t = 100000000.0;
+    float a = t;
+    if ((a = sdSphere(p, vec3(0.0), 0.5)) < t) {
+        t = a;
     }
+    if ((a = sdTorus(p, vec3(0.0, -1.25, 0.0), .5, .15)) < t) {
+        t = a;
+    }
+    if ((a = sdCapsule(p, vec3(1.0), vec3(.5), 0.2)) < t) {
+        t = a;
+    }
+    if ((a = sdRoundedBox(p, vec3(-1.0, 1.0, 0.0), vec3(0.2), 0.1)) < t) {
+        t = a;
+    }
+    return t;
 }
 
 float raymarch(in vec3 ro, in vec3 rd) {
-    // Reference:
     const float dt = 0.01;
     const float tmax = 10.0;
     for (float t = 0.0; t < tmax; t += dt) {
         vec3 p = ro + rd * t;
-        if (intersection(p)) {
+        float intersection = nearestIntersection(p);
+        if (intersection > 0.0 && intersection < 0.01) {
             return t;
         }
     }
     return -1.0;
 }
 
+vec3 normalAt(in vec3 p) {
+    vec2 epsilon = vec2(0.0001, 0.0);
+    float d = nearestIntersection(p);
+    float dx = nearestIntersection(p + epsilon.xyy);
+    float dy = nearestIntersection(p + epsilon.yxy);
+    float dz = nearestIntersection(p + epsilon.yyx);
+    vec3 v = vec3(d) - vec3(dx, dy, dz);
+    return normalize(v / epsilon.xxx);
+}
+
+vec3 lambert(in vec3 p, in vec3 n) {
+    vec3 light = vec3(0.0, 5.0, -1.0);
+    vec3 color = vec3(0.85, 0.85, 0.85);
+
+    vec3 lightdir = normalize(p - light);
+    return dot(n, lightdir) * color;
+}
+
 vec3 render(in vec3 ro, in vec3 rd) {
     float d = raymarch(ro, rd);
     if (d > 0.0) {
         vec3 p = ro + rd*d;
-        return vec3(p);
+        vec3 n = normalAt(p);
+        vec3 c = lambert(p, n);
+        return clamp(c, 0.0, 1.0);
     } else {
-        return vec3(0.7, 0.7, 0.7);
+        return vec3(0.5, 0.5, 0.5);
     }
 }
 
