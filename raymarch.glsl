@@ -103,19 +103,18 @@ vec2 opU( vec2 d1, vec2 d2 )
 vec2 map( in vec3 pos )
 {
     vec2 res = opU(
-                	vec2( sdPlane(pos), 1.0 ),
-	            	vec2( sdSphere(pos-vec3( 0.0,0.25, 0.0), 0.25 ), 46.9)
+                	vec2( sdPlane(pos), 4.0 ),
+	            	vec2( sdSphere(pos-vec3( 0.0,0.25, 0.0), 0.25 ), 4.0)
                );
     vec3 posEllipsoid = opTx(pos, vec3(0.0,0.0,1.0), 0.2, vec3(1.0,1.0,0.0));
     vec3 posBox = opTx(pos, vec3(0.0,1.0,0.0), 0.3, vec3(1.0,1.0,-1.0));
-    //vec3 posCone = opTx(pos, vec3(0.0,0.0,0.0), 0.0, vec3(-1.0,0.7,2.0));
     
-    res = opU(res, vec2(sdEllipsoid(posEllipsoid, vec3(0.2,0.4,0.2)),40.0));
+    res = opU(res, vec2(sdEllipsoid(posEllipsoid, vec3(0.2,0.4,0.2)),1.0));
     
-    res = opU(res, vec2(sdTorus(pos - vec3(-1.5,0.5,0.0),vec2(0.4,0.2)), 36.0));
-    res = opU(res, vec2(sdCylinder(pos - vec3(-1.0,0.0,0.0), vec3(0.01,1.0,0.2)), 26.0));
-    res = opU(res, vec2(sdBox(posBox, vec3(0.2,0.2,0.2)), 10.0));
-    res = opU(res, vec2(sdTorus88(pos, vec2(0.5,0.1)), 10.0));
+    res = opU(res, vec2(sdTorus(pos - vec3(-1.5,0.5,0.0),vec2(0.4,0.2)), 3.0));
+    res = opU(res, vec2(sdCylinder(pos - vec3(-1.0,0.0,0.0), vec3(0.01,1.0,0.2)), 2.0));
+    res = opU(res, vec2(sdBox(posBox, vec3(0.2,0.2,0.2)), 2.0));
+    res = opU(res, vec2(sdTorus88(pos, vec2(0.5,0.1)), 1.0));
     return res;
 }
 
@@ -252,7 +251,7 @@ float calcAmbOcc(in vec3 pos, in vec3 nor)
     float occ = 0.0;
     float offset_amount = 1.0/100.0;
     float dec = 1.0;
-    for (int i = 0; i<10; i++)
+    for (int i = 0; i<15; i++)
     {
         vec3 occ_pos = pos + nor*float(i)*offset_amount;
         float dist = map(occ_pos).x;
@@ -279,12 +278,27 @@ float softshadow( in vec3 ro, in vec3 rd )
 
 }
 
+vec3 getColor(float m){
+
+    if (m == 1.0){
+        return vec3(1.0,0.0,0.0);
+    } else if (m == 2.0){
+        return vec3(0.0,1.0,0.0);
+    } else if (m == 3.0){
+        return vec3(0.0,0.0,1.0);
+    } else {
+        return vec3(1.0,1.0,1.0);
+    }
+}
+
 vec3 render( in vec3 ro, in vec3 rd )
 { 
     vec3 col = vec3(0.8, 0.9, 1.0); // Sky color
-    //vec3 res = castRayOverRelaxation(ro,rd);
-    vec3 res = castRay(ro,rd);
+    
+    vec3 res = castRayOverRelaxation(ro,rd);
+    //vec3 res = castRay(ro,rd);
     //vec3 res = naiveCastRay(ro, rd);
+    
     float t = res.x;
     float m = res.y;
     if( m>-0.5 )  // Ray intersects a surface
@@ -293,21 +307,21 @@ vec3 render( in vec3 ro, in vec3 rd )
         vec3 nor = calcNormal( pos ); // surface normal
         vec3 light = normalize( vec3(0.6, 0.7, 0.5) ); // direction of the light
         
-        // Material handling from IQ's reference
-        // material        
-		col = 0.45 + 0.3*sin( vec3(0.05,0.08,0.10)*(m-1.0) );
+        //col = vec3(0.5,0.5,0.5);
+        //TODO: This color method is slow due to branch divergence
+        col = getColor(m)*0.5;
 
         // Diffuse shading + ambient occlusion + soft shadows  
-        float diffuse = clamp( dot( nor, light ), 0.0, 1.0 );
-        float occ = calcAmbOcc( pos, nor );
-
-		float amb = clamp( nor.y, 0.0, 1.0 );
+        vec3 brdf = vec3(0.0);
         
+        float diffuse = clamp( dot( nor, light ), 0.0, 1.0 );
         diffuse *= softshadow( pos, light );
-
-		vec3 brdf = vec3(0.0);
         brdf += diffuse;
+        
+        float occ = calcAmbOcc( pos, nor );
+		float amb = clamp( nor.y, 0.0, 1.0 );
         brdf += amb*occ;
+
 		brdf += 0.3;
 		col = col*brdf;
     }
@@ -358,8 +372,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     #ifdef DEBUG_ITER
     vec3 col = vec3(1.0);
     //vec3 t = castRayOverRelaxation( ro, rd );
-    vec3 t = castRay( ro, rd );
-    //vec3 t = naiveCastRay( ro, rd);
+    //vec3 t = castRay( ro, rd );
+    vec3 t = naiveCastRay( ro, rd);
     //col = col * (t.z/50.0);
     //col = col * (t.z/4000.0);
     col = col * (t.z/350.0);
