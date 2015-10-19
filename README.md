@@ -10,7 +10,7 @@
 
 ### Live on Shadertoy (TODO)
 
-[![](img/thumb.png)](https://www.shadertoy.com/view/TODO)
+[![](img/main.png)](https://www.shadertoy.com/view/TODO)
 
 ### Acknowledgements
 
@@ -37,6 +37,7 @@ note: to use "#define terrMap" the "#define naive" should be used at the same ti
 * One simple lighting computatio: Blinn-Phong.
 * Union operator :float opU(...){}
 * Transformation operator: float opTrans(..){}
+[![](img/no_t.png)]
 * Debug views 
   * Distance to surface for each pixel: #define debugView1
   * Number of ray march iterations used for each pixel:  #define debugView2
