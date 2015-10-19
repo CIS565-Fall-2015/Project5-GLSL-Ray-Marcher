@@ -70,7 +70,7 @@ are defined in the fragment shader code executed for each pixel.
 * One simple lighting computation (e.g. Lambert or Blinn-Phong).
   *  I implemented a Blinn-Phong lighting scheme.  Each object has it's own diffuse color.  Then, after calculating it's normal, the dot product of the normal and the light vector is used to determine how much diffuse and specular light will be seen.  This image shows three white objects that have a blinn-phong lighting applied to them
  
-![](img/blinn_phong_lighting.png)
+<img src="img/blinn_phong_lighting.png" height="192" width="341.333333333">
 
 * Union operator {McGuire 11.1}
   * Necessary for rendering multiple objects
