@@ -133,30 +133,78 @@ float heightFunction(in vec3 point, in vec3 translation, in vec3 rotation, in ve
 // helper for menger sponge.
 float distInCube(in vec3 point, in vec3 minCorner, in vec3 maxCorner) {
     vec3 center = (maxCorner + minCorner) / 2.0;
-    vec3 d = abs(point - center) - maxCorner;
+    vec3 Q1 = maxCorner - center;
+    vec3 d = abs(point - center) - Q1;
     return min(max(max(d.x, d.y), d.z), 0.0) + length(max(d, vec3(0.0, 0.0, 0.0)));
 }
 
-// menger sponge cube of dimensions in scale of iteration depth at most maxIter
-float fractalMenger(in vec3 point, in int maxIter, in vec3 translation, in vec3 rotation, in vec3 scale) {
+// menger sponge cube of dimensions in scale of iteration depth at most 4
+float fractalMenger(in vec3 point, in vec3 translation, in vec3 rotation, in vec3 scale) {
     // transform the point into local coordinates
     vec3 localPoint = point;
     localPoint -= translation; // untranslate
     localPoint = eulerZYXRotationMatrix(-1.0 * rotation) * localPoint; // unrotate
 
-    vec3 firstQuadrantCorner = vec3(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5);
+    vec3 maxCorner = vec3(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5);
+    vec3 minCorner = -maxCorner;
+
     // at each iteration, compute if the point is in any of the 20 subcubes
+    // update maxCorner and minCorner.
     // if at any point it is not in a subcube, the point is not "inside" the sponge, so break.
-    for (int i = 0; i < maxIter; i++) {
+    float currDist = 1000.0;
+    for (int i = 0; i < 4; i++) {
+        vec3 dimensions = (maxCorner - minCorner) / 3.0;
+        vec3 currCorner = minCorner;
+        // bottom 8
+        /***********
+        *  1 2 3  -> +x
+        *  8   4  | +z
+        *  7 6 5  V
+        ***********/
+        // 1
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 2
+        currCorner.x += dimensions.x;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 3
+        currCorner.x += dimensions.x;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 4
+        currCorner.z += dimensions.z;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 5
+        currCorner.z += dimensions.z;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 6
+        currCorner.x -= dimensions.x;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 7
+        currCorner.x -= dimensions.x;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // 8
+        currCorner.z -= dimensions.z;
+        currDist = min(distInCube(localPoint, currCorner, currCorner + dimensions), currDist);
+
+        // middle 4
+
+
+        // top 8
 
     }
-    return 0.0;
+    return currDist;
 }
 
 /*Operations******************************************************************/
 
 // for getting the union of two objects. the one with the smaller distance.
-vec4 unionDistance(vec4 d1, vec4 d2) {
+vec4 unionColorDistance(vec4 d1, vec4 d2) {
     float minDistance = d2[3];
     vec3 color = d2.rgb;
     if (d1[3] < d2[3]) {
@@ -165,7 +213,6 @@ vec4 unionDistance(vec4 d1, vec4 d2) {
     }
     return vec4(color, minDistance);
 }
-
 
 /*Code************************************************************************/
 
@@ -178,30 +225,40 @@ vec4 sceneGraphDistanceFunction(in vec3 point)
 
     vec4 sphere0 = vec4(1.0, 0.0, 0.0, -1.0);
     sphere0[3] = sphere(point, vec3(0.0, 0.6, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.5, 0.5, 0.5));
-    returnMe = unionDistance(returnMe, sphere0);
+    returnMe = unionColorDistance(returnMe, sphere0);
 
     vec4 sphere1 = vec4(0.0, 1.0, 0.0, -1.0);
     sphere1[3] = sphere(point, vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 0.1, 1.0));
-    returnMe = unionDistance(returnMe, sphere1);
+    returnMe = unionColorDistance(returnMe, sphere1);
 
     vec4 sphere2 = vec4(1.0, 0.0, 1.0, -1.0);
     sphere2[3] = sphere(point, vec3(1.6, 0.6, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.5, 0.5, 0.5));
-    returnMe = unionDistance(returnMe, sphere2);
+    returnMe = unionColorDistance(returnMe, sphere2);
 
     vec4 cube0 = vec4(0.0, 1.0, 1.0, -1.0);
     cube0[3] = cube(point, vec3(0.8, 1.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 0.2, 2.0));
-    returnMe = unionDistance(returnMe, cube0);
+    returnMe = unionColorDistance(returnMe, cube0);
 
     vec4 plane0 = vec4(0.0, 0.0, 1.0, -1.0);
     plane0[3] = plane(point, vec3(0.0, 4.0, 0.0), vec3(3.14159, 0.0, 0.0));
-    returnMe = unionDistance(returnMe, plane0);
+    returnMe = unionColorDistance(returnMe, plane0);
 
     vec4 heightMap0 = vec4(0.6, 0.6, 0.6, -1.0);
     heightMap0[3] = heightFunction(point, vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 0.2, 2.0));
-    returnMe = unionDistance(returnMe, heightMap0);
+    returnMe = unionColorDistance(returnMe, heightMap0);
 
-    returnMe.rgb = vec3(1.0, 1.0, 0.0);
-    returnMe[3] = distInCube(point, vec3(-1.0, 0.0, -1.0), vec3(1.0, 0.1, 1.0));
+    vec4 oneThird = vec4(1.0, 1.0, 0.0, -1.0);
+    //vec3 corner = vec3(0.5, 0.5, 0.5);
+    //vec3 dimm = vec3(0.33333, 0.33333, 0.33333);
+    //oneThird[3] = distInCube(point, corner, corner + dimm);
+
+    //vec4 one = vec4(1.0, 1.0, 0.0, -1.0);
+    //one[3] = distInCube(point, vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+
+    //returnMe = unionColorDistance(one, oneThird);
+
+    returnMe = vec4(1.0, 1.0, 0.0, -1.0);
+    returnMe[3] = fractalMenger(point, vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
 
     return returnMe;
 }
