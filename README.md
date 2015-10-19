@@ -78,7 +78,8 @@ are defined in the fragment shader code executed for each pixel.
 * (0.25pt each, up to 1pt) Other basic distance estimators/operations {McGuire 7/11}
 * Advanced distance estimators
   * (3pts) Height-mapped terrain rendering {iq-terr}
-  * (3pts) Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
+  * Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
+  [![](img/menger_sponge.png)]
   * **Note** that these require naive ray marching, if there is no definable
     SDF. They may be optimized using bounding spheres (see below).
 * Lighting effects
