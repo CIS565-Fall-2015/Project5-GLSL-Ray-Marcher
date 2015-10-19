@@ -104,21 +104,20 @@ are defined in the fragment shader code executed for each pixel.
   
 <img src="img/before_amb_occ.png" height="192" width="227.5"> <img src="img/amb_occ_debug.png" height="192" width="227.5"> <img src="img/ambient_occlusion.png" height="192" width="227.5">
 
-This extra feature list is not comprehensive. If you have a particular idea
-that you would like to implement, please **contact us first** (preferably on
-the mailing list).
 
-###Bridge and Train
+###Bridge and Train - Step by step break down
 ![](img/bridge_tracks.png)
 
+Here the box and capsule distance estimators were used with the difference and repeat operators.  The capsoles are being repeated along the x axis and are being subtracted from the rectangle that makes up the bridge.
 
 ![](img/smoke.gif)
 
+The smoke uses a sphere and a noise function as it's distance estimator.  The noise function changes because the variable iGlobalTime is used to compute how much noise is implemented into the sphere.  This image allows you to see the smokes movements much better than the final picture.  Because the size of the smoke had to be small, the noise was cut back.  
 
-![](img/train_smoke.png)
-![](img/sun_reflecting.png)
 ![](img/bridge_under_water.png)
-![](img/bridge_over_water.png)
+
+Here the bridge and train appear to be under the water.  This was happening because the color at each pixel added a reflection distrotion as long as the height of the water was less than 200, which is the horizon line.  This needed to be changed, so that instead of comparing the height to the horizon line, it compared it to all other obejcts in the scene.  This way, if the object was above the water at the distance, it would not have a reflection distoriton added to the scene.  
+
 ![](img/bridge2.png)
 
 
