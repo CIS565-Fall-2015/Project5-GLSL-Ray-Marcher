@@ -1,7 +1,20 @@
-float sdSphere( vec3 p, float s ) {
-    // Directly from iq's Raymarching Primitives
-    return length(p)-s;
+/* Signed distance functions */
+
+float sdSphere(vec3 p, float r) {
+    return length(p)-r;
 }
+
+float sdTorus(vec3 p, vec3 center, float minorRadius, float majorRadius) {
+	return length(vec2(length(p.xz - center.xz) - minorRadius, p.y - center.y)) - majorRadius;
+}
+
+float sdCapsule(vec3 p, vec3 a, vec3 b, float r) {
+    vec3 pa = p - a, ba = b - a;
+    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+    return length( pa - ba*h ) - r;
+}
+
+/* Raymarch */
 
 float raymarch(in vec3 ro, in vec3 rd) {
     // Reference:
@@ -11,6 +24,8 @@ float raymarch(in vec3 ro, in vec3 rd) {
     for (float t = 0.0; t < tmax; t += dt) {
         vec3 p = ro + rd * t;
         if (sdSphere(p, 0.5) < .1) {
+            return t;
+        } else if (sdTorus(p, vec3(0.0, -1.25, 0.0), .5, .15) < .1) {
             return t;
         }
     }
