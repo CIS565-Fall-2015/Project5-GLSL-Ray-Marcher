@@ -1,12 +1,34 @@
+float sdSphere( vec3 p, float s ) {
+    // Directly from iq's Raymarching Primitives
+    return length(p)-s;
+}
+
+float raymarch(in vec3 ro, in vec3 rd) {
+    // Reference:
+    // http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
+    const float dt = 0.01;
+    const float tmax = 10.0;
+    for (float t = 0.0; t < tmax; t += dt) {
+        vec3 p = ro + rd * t;
+        if (sdSphere(p, 0.5) < .1) {
+            return t;
+        }
+    }
+    return -1.0;
+}
+
 vec3 render(in vec3 ro, in vec3 rd) {
-    // TODO
-    return rd;  // camera ray direction debug view
+    float d = raymarch(ro, rd);
+    if (d > 0.0) {
+        vec3 p = ro + rd*d;
+        return vec3(p);
+    } else {
+        return vec3(0.7, 0.7, 0.7);
+    }
 }
 
 mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
-    // Starter code from iq's Raymarching Primitives
-    // https://www.shadertoy.com/view/Xds3zN
-
+    // Directly from iq's Raymarching Primitives:
     vec3 cw = normalize(ta - ro);
     vec3 cp = vec3(sin(cr), cos(cr), 0.0);
     vec3 cu = normalize(cross(cw, cp));
@@ -15,9 +37,7 @@ mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
 }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-    // Starter code from iq's Raymarching Primitives
-    // https://www.shadertoy.com/view/Xds3zN
-
+    // Directly from iq's Raymarching Primitives:
     vec2 q = fragCoord.xy / iResolution.xy;
     vec2 p = -1.0 + 2.0 * q;
     p.x *= iResolution.x / iResolution.y;
