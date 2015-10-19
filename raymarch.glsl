@@ -2,6 +2,21 @@
 #define EPSILON 0.002
 #define MAXDISTANCE 20.0
 
+// debug rendering
+#define DEBUGDISTANCE 0
+#define DEBUGSTEPS 0
+#define DEBUGNORMALS 0
+
+// render options
+#define LAMBERT  1
+#define SOFTSHADOW 1
+#define AMBIENTOCCLUSION 1
+
+// advanced distsance functions and stepping method
+#define RENDERFRACTAL 1
+#define RENDERHEIGHTFUNCTION 1
+#define SPHERESTEP 0
+
 mat3 eulerXYZRotationMatrix(in vec3 rotation) {
     //https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
     mat3 eulerXYZ;
@@ -409,13 +424,17 @@ vec4 sceneGraphDistanceFunction(in vec3 point)
     plane0[3] = plane(point, vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, 0.0));
     returnMe = unionColorDistance(returnMe, plane0);
 
-    vec4 heightMap0 = vec4(0.6, 0.6, 0.9, -1.0);
-    heightMap0[3] = heightFunction(point, vec3(0.0, 6.0, 0.0), vec3(3.14159, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
-    returnMe = unionColorDistance(returnMe, heightMap0);
+    #if RENDERHEIGHTFUNCTION
+        vec4 heightMap0 = vec4(0.6, 0.6, 0.9, -1.0);
+        heightMap0[3] = heightFunction(point, vec3(0.0, 6.0, 0.0), vec3(3.14159, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+        returnMe = unionColorDistance(returnMe, heightMap0);
+    #endif
 
-    vec4 fractal0 = vec4(1.0, 1.0, 0.0, -1.0);
-    fractal0[3] = fractalMenger(point, vec3(1.0, 0.0, 1.0), vec3(0.0, 0.0, 0.0), vec3(1.5, 1.5, 1.5));
-    returnMe = unionColorDistance(returnMe, fractal0);
+    #if RENDERFRACTAL
+        vec4 fractal0 = vec4(1.0, 1.0, 0.0, -1.0);
+        fractal0[3] = fractalMenger(point, vec3(1.0, 0.0, 1.0), vec3(0.0, 0.0, 0.0), vec3(1.5, 1.5, 1.5));
+        returnMe = unionColorDistance(returnMe, fractal0);
+    #endif
 
     return returnMe;
 }
@@ -545,23 +564,42 @@ vec3 lambertShade(in vec3 norm, in vec3 position, in vec3 color, in vec3 sunPosi
 
 // takes in ray origin, ray direction, and sun position
 vec3 render(in vec3 ro, in vec3 rd, in vec3 sunPosition, in vec3 sunColor) {
-    vec4 materialDistance = castRayNaive(ro, rd);//castRaySphere(ro, rd);
-    //vec4 materialDistance = castRaySphere(ro, rd);
+    vec4 materialDistance;
+    #if SPHERESTEP
+        materialDistance = castRaySphere(ro, rd);
+    #else
+        materialDistance = castRayNaive(ro, rd);
+    #endif
+
     vec3 position = ro + rd * materialDistance.a;
     vec3 norm = computeNormal(position);
+
+    #if DEBUGNORMALS
+        return norm;
+    #elif DEBUGDISTANCE
+        return vec3(1.0 - materialDistance.a / MAXDISTANCE);
+    #endif
+
     if (materialDistance.r < 0.0 && materialDistance.g < 0.0 && materialDistance.b < 0.0) {
         return vec3(0.9, 1.0, 0.9);
     }
     // lambert term
     vec3 shade = lambertShade(norm, position, materialDistance.rgb, sunPosition, sunColor);
 
-    // shadow term
-    float shadow = softShadow(position, sunPosition);
-    shade *= shadow;
+    #if !LAMBERT
+        shade = vec3(1.0);
+    #endif
 
+    // shadow term
+    #if SOFTSHADOW
+        float shadow = softShadow(position, sunPosition);
+        shade *= shadow;
+    #endif
     // AO term
-    float ao = ambientOcclusion(position, norm);
-    shade *= ao;
+    #if AMBIENTOCCLUSION
+        float ao = ambientOcclusion(position, norm);
+        shade *= ao;
+    #endif
 
     // ambient term
     if (shade.x <= 0.0 && shade.y <= 0.0 && shade.z <= 0.0) {
