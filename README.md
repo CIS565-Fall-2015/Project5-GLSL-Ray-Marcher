@@ -27,32 +27,31 @@ This Shadertoy uses material from the following resources:
 ### ReadMe
 note: to use "#define terrMap" the "#define naive" should be used at the same time 
 
-**Required Features:**
+**Features:**
 * Two ray marching methods: 
   * Naive ray marching :#define naive
   * Sphere tracing
-* 3 different distance estimators
-  * Box,wheel,roundBox,plane
+* different distance estimators & operation
+  * Box,wheel,roundBox,plane,cone,Torus,cylinder
+  * operation: subtraction,repeat
   * With normal computation 
 * One simple lighting computatio: Blinn-Phong.
 * Union operator :float opU(...){}
 * Transformation operator: float opTrans(..){}
+* Lighting effects
+  *  Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
+  *  Ambient occlusion (see 565 slides for another reference) {iq-prim}
 ![](img/no_t.png)
 * Debug views 
   * Distance to surface for each pixel: #define debugView1
   * Number of ray march iterations used for each pixel:  #define debugView2
 <p><img src="img/debug1.png"  width="330" height="200">  <img src="img/debug2.png"  width="330" height="200"></p>
 
-
-**Extra Features:**
-*  Other basic distance estimators/operations:
-  * cone,Torus,cylinder</p>
-  * operation: subtraction,repeat</p>
 * Advanced distance estimators
   *  Height-mapped terrain rendering: (texture base) 
-* Lighting effects
-  *  Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
-  *  Ambient occlusion (see 565 slides for another reference) {iq-prim}
+<p><img src="img/ch0.png"  width="330" height="200"><img src="img/ch1.png"  width="330" height="200"></p>
+<p><img src="img/terrain1.png"  width="330" height="200"><img src="img/terrain2.png"  width="330" height="200"></p>
+
 
 ## Write-up
 
