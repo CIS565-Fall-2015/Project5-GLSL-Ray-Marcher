@@ -67,10 +67,8 @@ the fixed footstep, so it iterates much. The naive ray marching is much more "ex
  <p align="center"><img src="img/timed.png"  width="400" height="200"></p>
  
    
-##ranch divergence
-  plays a role in its performance characteristics, and, if so, point out the
-  branch in question.
-  (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
+##Branch divergence
+  I think I have optimized my branch as much as I can. So the functions are all called onece, do not need to recalculate.
 
 
 ### Resources
