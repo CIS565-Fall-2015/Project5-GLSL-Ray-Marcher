@@ -10,7 +10,7 @@
 
 ### Live on Shadertoy (TODO)
 
-[![](img/main.png)](https://www.shadertoy.com/view/TODO)
+[![](img/thumb.png)](https://www.shadertoy.com/view/XtBXRc)
 
 ### Acknowledgements
 
