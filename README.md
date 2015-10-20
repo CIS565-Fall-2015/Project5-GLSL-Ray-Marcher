@@ -17,7 +17,7 @@ Overview
 
 ![](img/HeightMap.png )
 
-Acknolegements
+Acknowledgements
 ========================
 
 * {McGuire}
