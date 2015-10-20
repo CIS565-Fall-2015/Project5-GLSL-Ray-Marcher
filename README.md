@@ -64,7 +64,7 @@ the fixed footstep, so it iterates much. The naive ray marching is much more "ex
 
 * Compare time spent ray marching vs. time spent shading/lighting:<br />
  <p><img src="img/form.png"  width="380" height="150"><img src="img/time2.png"  width="300" height="150"></p>
- <p align="center"><img src="img/timed.png"  width="350" height="200"></p>
+ <p align="center"><img src="img/timed.png"  width="400" height="200"></p>
  
    
   * This can be done by taking measurements with different parts of your code
