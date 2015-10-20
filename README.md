@@ -82,3 +82,13 @@ Those two images used different height functions:
 
 ![](img/terrain1.png)
 ![](img/terrian2.png)
+
+#PART VIII: Fractal:
+
+This part we still have to use naive method.
+I only implemented the cube fractal here.
+Here we define a variable level as the iteration level of the fractal.
+Each time we hit a cube, we find out to which section does it intersect. We divide the cube into 27 small cube. If the intersected one is in the center or on the center of each face, then we say nothing hit and the ray marches on. Otherwize we go to the next level and divide the intersected cube into smaller27 cubes until it does not hit or the level goes beyond the threshould. After we found the intersection distance, we just do another cube interseciton to get the normal.
+
+![](img/fractal1.png)
+![](img/fractal2.png)
