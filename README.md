@@ -88,6 +88,8 @@ There are two ways to compare naive ray marching and sphere tracing. The first i
 #### Sphere Tracing Step Count Image
 ![](img/sphere_step.png "Sphere Tracing Step Count")
 
+With the STEP_COUNT flag enabled, the redder a pixel in an image, the more steps it took to color it. Since our naive marching image is orange (closer to red than green is) we can see that it took significantly more steps than the sphere tracing method. Another thing to note, the parts of the mandelbulb further away are redder, showing that those required more iterations to color because of their distance. But the sphere trace method wasn't dependent on distance, and as a result we get a mandlebulb that is the same color of green all around.
+
 ### Acknowledgements
 * [Morgan McGuire: Numerical Methods for Ray Tracing Implicitly Defined Surfaces](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
 * [Inigo Quilez: Terrain Raymarching](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
