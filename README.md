@@ -16,10 +16,10 @@ Click on the image to open the respective shader toy
 
 or go to the following links :
 
-TERRAIN: https://www.shadertoy.com/view/ll2SzK
-BASIC RAY MARCHER: https://www.shadertoy.com/view/Mt2SzK
-FRACTALS: https://www.shadertoy.com/view/4tSSz3
-PACMAN ANIMATION: https://www.shadertoy.com/view/4lBSz3
+* TERRAIN: https://www.shadertoy.com/view/ll2SzK
+* BASIC RAY MARCHER: https://www.shadertoy.com/view/Mt2SzK
+* FRACTALS: https://www.shadertoy.com/view/4tSSz3
+* PACMAN ANIMATION: https://www.shadertoy.com/view/4lBSz3
 
 
 ### Acknowledgements
