@@ -7,7 +7,7 @@
 // Defined propertitres
 #define NAIVE
 #define LAMBERT_COLOR
-//#define SOFT_SHADOW
+#define SOFT_SHADOW
 //#define STEP_COUNT_COLOR
 //#define DISTANCE_COLOR
 
