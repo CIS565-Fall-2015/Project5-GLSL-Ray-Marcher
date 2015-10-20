@@ -146,8 +146,10 @@ reference(s) you used.
 
 
 * Compare time spent ray marching vs. time spent shading/lighting
-  * This can be done by taking measurements with different parts of your code
-    enabled (e.g. raymarching, raymarching+shadow, raymarching+shadow+AO).
+  * The following analysis was done on the bridge scene, as the final scene was already running at 60.0 FPS and could not give good data by not including soft shadows or ambient occlusion.  Below is a pie graph that shows how much time was spent on each of the different ray marches in the scene.  Clearly, the original ray march took up the most time, as it is done for every pixel.  On average, with both the soft shadows and ambient occlusion off, the FPS was about 48.6.  The soft shadows took up the next most amount of time.  This makes sense, as it allows for more iterations than the ambient occlusion.  The soft shadows and ambient occlusion function are only called when the original ray hits an object, so they will ovvur less often.  On average, with the soft shadow function, the FPS was 40.0.  The ambient occlusion added on the least amount of time.  On average, the scene rendered at 36.4 FPS.  
+  
+![](img/pie.png)
+
   * Plot this analysis using pie charts or a 100% stacked bar chart.
 * For each feature (required or extra), estimate whether branch divergence
   plays a role in its performance characteristics, and, if so, point out the
