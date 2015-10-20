@@ -33,3 +33,13 @@ In smart ray marching, the move step is dynamic, based on the distance to the ne
 However, the smart time cannot do feature like height map and fractal which is talked below, naive can do both.
 The performance analysis is in the last part.
 
+PART III: Lambert and Blinn-phong Effect
+When we get the distance to the object and the normal, we get the intersection point. Given the ray position and light position, using what we have done in previous GPU projects, it is easy to get all those effects.
+![](img/AO1.png)
+
+PART IV: Object Transformation
+To transform an object, we can size it up, move it and rotate it. All those all defined using matrix multiplication. After the transformation, we need to transform both the ray position and direction to the object coordinate. So we get the following result:
+![](img/transform1.png)
+![](img/transform2.png)
+![](img/transform3.png)
+
