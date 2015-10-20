@@ -12,7 +12,7 @@
 
 [![](img/bridge2.png)](https://www.shadertoy.com/view/Mt2XRV#)
 
-[![](img/debug_image_orig.png)](https://www.shadertoy.com/view/MlSSRK)
+[![](img/debug_image_orig.png)](https://www.shadertoy.com/view/MtSXR3)
 
 ### Acknowledgements
 
