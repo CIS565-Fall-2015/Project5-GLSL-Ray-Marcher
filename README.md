@@ -97,3 +97,7 @@ However on the contrary, the sphere tracing method is not very sensitive to the 
 
 #### Time Spent
 
+![](img/TimeSpent.png )	
+
+As expected, the ray-casting step takes the longest time because all the iterations and interactions with objects are in this step. 
+Same for the shadowing, since there are some iteration towards the light for each objects, it takes relatively longer time for shadowing than shading and ambient occlusion.
