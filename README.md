@@ -57,6 +57,7 @@ When we get the distance to the object and the normal, we get the intersection p
 #PART IV: Object Transformation
 
 To transform an object, we can size it up, move it and rotate it. All those all defined using matrix multiplication. After the transformation, we need to transform both the ray position and direction to the object coordinate. So we get the following results:
+
 ![](img/transform1.png)
 ![](img/transform2.png)
 ![](img/transform3.png)
@@ -67,3 +68,4 @@ The images here has the lighting effects, but have no ambient occlusion and soft
 Here I used the distance to the camera to show the debug view. Instead of compute the light color, just use the distance to the object divide the max distance and get the color.
 ![](img/debug1.png)
 ![](img/debug2.png)
+
