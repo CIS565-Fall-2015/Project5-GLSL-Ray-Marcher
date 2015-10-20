@@ -45,6 +45,12 @@ Features
 
 **Height Map**
 
+In line 11, define HeightMap as 1 to test this terrain feature:
+
+```
+#define HeightMap 0		//height: iChannel0
+```
+
 |Terrain with texture				|Normal
 |:---------------------------------:|:---------------------------------------:
 |![](img/HeightMap.png )	|![](img/HeightMapNormal.png )
