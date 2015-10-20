@@ -11,7 +11,8 @@
 Overview
 ========================
 
-![](img/OverView.png)
+[![](img/OverView.png)](https://www.shadertoy.com/)
+[Shadertoy](https://www.shadertoy.com/)
 
 ![](img/HeightMap0.PNG)
 
@@ -29,11 +30,25 @@ Features
 
 **Height Map**
 
+|Terrain with texture				|Normal
+|:---------------------------------:|:---------------------------------------:
+|![](img/HeightMap.png )	|![](img/HeightMapNormal.png )
+|Distance Debug View			|Iteration Number Debug View
+|:---------------------------------:|:---------------------------------------:
+|![](img/HeightMapDistance.png )	|![](img/HeightMapIteration.png )
+
+*Purple means less iteration and blue means more.
+
 **Merger Sponge**
+
+![](img/MergerSponge_erosion.png )
+
+A fun thing about merger sponge is that by simply changing the threshold with time, there would be
+an interesting erosion effect, as shown above.
 
 **Soft Shadow**
 
-|Soft Shdow				|Sharp Shadow
+|Soft Shadow				|Sharp Shadow
 |:---------------------------------:|:---------------------------------------:
 |![](img/softShadow.png )	|![](img/sharpShadow.png )
 
@@ -56,30 +71,29 @@ Analysis
 
 |Naive Ray Marching					|Sphere Tracing
 |:---------------------------------:|:---------------------------------------:
-|![](img/debug_IterNum_ST.PNG )	|![](img/debug_IterNum_Naive.PNG )
-| !!!!Analysis here ... ...
+![](img/debug_IterNum_Naive.PNG )||![](img/debug_IterNum_ST.PNG )	
+
+*Purple means less iteration and blue means more.
 
 **Precision and FPS**
 
 * Naive Ray Marching
 
-|Max Iteration Numver| 1000| 1300| 2000| 4000|19000|
+|Max Iteration Number| 1000| 1300| 2000| 4000|19000|
 |--------------------|-----|-----|-----|-----|-----|
 |		Precision	 |0.02 |0.015| 0.01|0.005|0.001|
 |   FPS				 |   60|   52|   38|   20|  4.3|
 
-!!!!Analysis here ... ...
-
 * Sphere Tracing
 
-|Max Iteration Numver|80000 |        |        |        |
+|Max Iteration Number|80000 |        |        |        |
 |--------------------|------|--------|--------|--------|
 |		Precision	 |  1e-6|  9.5e-7|  9.0e-7|  6.0e-7|
 |   FPS				 |    60|    12.5|       7|     6.8|
 
-!!!!Analysis here ... ...
+As shown in the table, the FPS of naive ray marching drops off significantly due to the precision. 
+A smaller the precision threshold means more iteration number and thus takes more time.
+However on the contrary, the sphere tracing method is not very sensitive to the precision.
 
-#### XXX
+#### Time Spent
 
-References
-========================

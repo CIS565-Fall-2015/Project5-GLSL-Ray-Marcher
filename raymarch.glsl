@@ -6,7 +6,7 @@
 #define Debug_SurfDist 0
 #define Debug_iterNum 0
 #define NaiveMarch 0
-#define SoftShadow 1
+#define SoftShadow 0
 #define showMS 1
 #define HeightMap 0		//height: iChannel0
 #define AO_Test 0
@@ -57,6 +57,16 @@ float sdPlane_height(vec3 p,float s,float repeat)
 {
 	return p.y - s*length(texture2D( iChannel0, repeat*p.xz, 0.0 ).xyz);
 }
+
+vec4 Plane_Terrian(vec3 p,float s,float repeat)
+{
+    vec3 col = vec3(0.8,0.8,0.8);
+    col = vec3(0.1)+1.5*texture2D( iChannel0, repeat*p.xz, 0.0 ).xyz;
+    float dist = p.y - s*length(texture2D( iChannel0, repeat*p.xz, 0.0 ).xyz);
+    return vec4(clamp(col,0.0,1.0),dist);
+}
+
+
 /*
 float sdBox(vec3 p,vec3 s)
 {
@@ -98,11 +108,12 @@ vec4 MergeSponge(float boundDist,vec3 pos)
 {  
     float s = 1.0;
     vec3 col = vec3(1.0,0.1,0.2);
+    float t = abs(mod(iGlobalTime/2.0,2.6)-1.3)+0.1;
     for(int m=0;m<leve_MergeSponge;m++)
     {
         //vec3 a = abs(mod((pos)*s, 2.0)-1.0)-0.5;
         //vec3 a = abs(mod((pos)*s, 2.0))-vec3(0.5);
-        vec3 a = abs(mod(pos*s,2.0)-1.0)-(1.0/3.0)*2.0;
+        vec3 a = abs(mod(pos*s,2.0)-1.0)-(t/3.0)*2.0;
         float dx = min(a.x,a.y);
         float dy = min(a.y,a.z);
         float dz = min(a.z,a.x);
@@ -132,7 +143,9 @@ vec4 map(in vec3 pos)
 {
 
 #if HeightMap
-    vec4 plane = vec4(vec3(0.6,0.6,0.6),sdPlane_height(pos,0.2,0.1));
+    //vec4 plane = vec4(vec3(0.6,0.6,0.6),sdPlane_height(pos,0.2,0.1));
+    vec4 plane = Plane_Terrian(pos,0.4,0.1);
+    return plane;
 #else
     vec4 plane = vec4(vec3(float(floor(mod(pos.x*2.0,2.0))==floor(mod(pos.z*2.0,2.0)))*0.4+0.5), sdPlane(pos));
 #endif
