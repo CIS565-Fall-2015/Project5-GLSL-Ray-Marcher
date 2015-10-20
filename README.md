@@ -92,3 +92,26 @@ Each time we hit a cube, we find out to which section does it intersect. We divi
 
 ![](img/fractal1.png)
 ![](img/fractal2.png)
+
+#PART IX: Performance Analysis:
+
+The performance analysis shows two comparisons:
+The naive and smart ray casting methods:
+
+![](img/smart_naive_ana.png)
+
+In different iteration, the smart method has fixed 60 fps because it is done in constant time(the iteration is not finished before it is broken). But the naive method slows down when number of iteration is large
+
+The level vs fps in fractals:
+
+![](img/fractal_ana.png)
+
+Different level lead to different fps. Level from 1 to 4 has no fps difference probably because of the fps cut to 60. After 4, the speed drop drastically. The Level influences the speed in an exponential way.
+
+#PART X: References:
+
+1 CIS 562 Course Note
+
+2 {McGuire} Morgan McGuire, Williams College. Numerical Methods for Ray Tracing Implicitly Defined Surfaces (2014)
+
+3 {iq-prim} Iñigo Quílez. Raymarching Primitives (2013).
