@@ -1,3 +1,6 @@
+// Starter code from iq's Raymarching Primitives
+// https://www.shadertoy.com/view/Xds3zN
+// reference iq-terrain, iq-primitives
 #define EPSILON 0.00001
 #define MinStep 0.01
 #define MaxDis 120.0
@@ -7,7 +10,7 @@
 
 //#define debugView1
 //#define debugView2
-#define naive
+//#define naive
 #define terrMap
 float iterate_num=0.0;
 float terrain_y=0.0;
@@ -124,16 +127,17 @@ vec3 opTrans( vec3 p, vec3 s,vec3 r,vec3 t )//m:tranformation matrxi,s scale par
 //----------------------------------------------------------------------
 
 
-float envelope( vec3 point )
+float Textyrek( vec3 point )
 {
-	float k = 1.0-smoothstep( 0.52, 0.95, texture2D( iChannel0, 0.02*point.zx,-100.0).x);
-	return  k*texture2D( iChannel1, 0.01*point.xz ).x;
+    
+	float k = 1.0-smoothstep( 0.42, 0.95, texture2D( iChannel0, 0.04*point.xz,-70.0).x);
+	return  k*texture2D( iChannel1, 0.02*point.zx ).x;
 
 }
 
 float mapTerrain( in vec3 pos )
 {
-	return pos.y - envelope(pos);
+	return pos.y - Textyrek(pos);
 }
 
 vec2 setGeo( in vec3 point )
@@ -148,14 +152,16 @@ vec2 setGeo( in vec3 point )
     res = opU(vec2( mapTerrain(point), 1.0 ), vec2( sdSphere(point-cpt-0.5, R ), 50.0 ) );
 #else 
     float tt=0.0;
-#endif
     res = opU(res, vec2(  sdBox  (point-vec3(cpt.x+disi,cpt.y, cpt.z)-tt, vec3(R) ),21.0 ) );
- 
+ #endif 
     res = opU( res, vec2( udRoundBox(point-vec3( cpt.x-disi,cpt.y, cpt.z)-tt, vec3(R-0.1), 0.1 ), 41.0 ) );
 	res = opU( res, vec2( sdTorus   (point-vec3( cpt.x-2.0*disi,cpt.y,cpt.z)-tt, vec2(R,0.05) ), 25.0 ) );
     res = opU( res, vec2( sdWheel   (point-vec3( cpt.x+2.0*disi,cpt.y,cpt.z)-tt, vec2(R,0.05) ), 35.0 ) );    
+#ifdef terrMap
+#else 
     res = opU( res, vec2( sdBox   (point-vec3(cpt.x+disi, cpt.y, cpt.z+disi)-tt, vec3(R/3.0) ),60.0 ));
     res = opU( res, vec2( sdCone  (point-vec3(cpt.x+disi, cpt.y+0.1, cpt.z-disi)-tt, vec3(R) ),31.0 ) );
+
     //operation:subtraction,repeat, transform
     res = opS( res, vec2( sdSphere (point-vec3(cpt.x+disi,cpt.y, cpt.z)-tt,R+0.05 ), 0.0 ));
     //repeatl;
@@ -168,6 +174,7 @@ vec2 setGeo( in vec3 point )
     vec3 p2 = opTrans(point-vec3(cpt.x, cpt.y, cpt.z+disi)-tt,sm,rm,tm);
     res = opU(res, vec2( sdCylinder (p2, vec2(R/2.0,R/2.0) ), 15.0 ) );
 
+#endif
     return res;
 }
 
@@ -235,61 +242,33 @@ vec3 calTerrNor()
 {
 return vec3(1.0,1.0,1.0);
 }
-vec3 diffNormal( in vec3 pos )
+vec3 diffNormal( in vec3 point )
 {
 	vec3 eps = vec3( EPSILON, 0.0, 0.0 );
 	vec3 nor = vec3(
-	    setGeo(pos+eps.xyy).x - setGeo(pos-eps.xyy).x,
-	    setGeo(pos+eps.yxy).x - setGeo(pos-eps.yxy).x,
-	    setGeo(pos+eps.yyx).x - setGeo(pos-eps.yyx).x );
+	    setGeo(point+eps.xyy).x - setGeo(point-eps.xyy).x,
+	    setGeo(point+eps.yxy).x - setGeo(point-eps.yxy).x,
+	    setGeo(point+eps.yyx).x - setGeo(point-eps.yyx).x );
 	return normalize(nor);
 }
 
-float calcAO( in vec3 pos, in vec3 nor )
+float calAO( in vec3 pos, in vec3 nor )
 {
 	float occ = 0.0;
     float sca = 1.0;
-    for( int i=0; i<5; i++ )
+    float d=0.0;
+    for( int i=0; i<6; i++ )
     {
-        float hr = 0.01 + 0.12*float(i)/4.0;
-        vec3 aopos =  nor * hr + pos;
-        float dd = setGeo(aopos).x;
-        occ += -(dd-hr)*sca;
+        float h = 0.01 + 0.12*float(i)/4.0;
+        vec3 aopos =  nor * h + pos;
+        d = setGeo(aopos).x;
+        occ += -(d-h)*sca;
         sca *= 0.95;
     }
     return clamp( 1.0 - 3.0*occ, 0.0, 1.0 );    
 }
 
-vec3 phong(in vec3 ro,in vec3 rd, in vec3 hitpos,in vec3 base_color )
-{
-    vec3 spec;
-    vec3 color;
-    vec3 normal=diffNormal(hitpos);
-    vec3 lightdir=normalize(vec3(0.8, 1.8, -0.5)-hitpos);
-    
-    float light_len=length(lightdir);
-    vec3 H=normalize(lightdir+normalize(ro-hitpos));
-    float hdot=dot(H,normal);
-    spec = float(max(pow(hdot,100.0),0.0))*vec3(0.7,0.7,0.7);
-    vec3 Lambert=base_color;
-    vec3 Ambient = vec3(0.02,0.02,0.02);
-    float occ = calcAO( hitpos, normal );
-    float diffuse=clamp(dot(normal,lightdir),0.0,1.0);
-    Lambert *= diffuse;
-    
-    float shw;
-    shw = softshadow( hitpos, lightdir, 0.0625,light_len, 8.0 );
-    color= 0.5*spec+0.5*Lambert+0.01*Ambient;
-    color+=0.3*vec3(0.80,0.70,1.00);
-    float attn = 1.0 - pow( min( 1.0, length(lightdir) / 100.0 ), 2.0 );
-    if(shw>0.0){
-    color = clamp(color,0.0,1.0)*attn;
-    color*=shw;
-        color=clamp(color,0.0,1.0);
-    }
-        return color;
 
-}
 vec3 render( in vec3 ro, in vec3 rd )
 { 
     vec3 col = vec3(0.8, 0.9, 1.0);
@@ -334,8 +313,9 @@ vec3 render( in vec3 ro, in vec3 rd )
             float f = mod( floor(5.0*point.z) + floor(5.0*point.x), 2.0);
             col = 0.4 + 0.1*f*vec3(1.0);
         }
-           // material  
-        float occ = calcAO( point, normal );
+        // material  
+        float occ = calAO( point, normal );
+       //float occ=1.0;
 		float amb = clamp( 0.5+0.5*normal.y, 0.0, 1.0 );
         float dif = clamp( dot( normal, lightdir ), 0.0, 1.0 );
         float dom = smoothstep( -0.1, 0.1, ref.y );
@@ -357,10 +337,12 @@ vec3 render( in vec3 ro, in vec3 rd )
 #ifdef terrMap
         if(m<1.5){
             float f = mod( floor(5.0*point.z) + floor(5.0*point.x), 2.0);
-            vec3 basec=vec3(0.05,0.05,0.15);
+            vec3 basec=vec3(0.75,0.75,0.75);
             col = basec;
             col*=1.0*dif+0.2*amb*occ;
-            col.xyz = mix( col.xyz, basec, 1.0-exp(-0.0018*t*t) );
+            col.xyz = mix( col.xyz, basec, 0.2);
+            col*=0.9;
+            // col*=vec3(0.2,0.8,0.7);
             
         }
         //the terrin map
