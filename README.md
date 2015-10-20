@@ -91,7 +91,8 @@ There are two ways to compare naive ray marching and sphere tracing. The first i
 With the STEP_COUNT flag enabled, the redder a pixel in an image, the more steps it took to color it. Since our naive marching image is orange (closer to red than green is) we can see that it took significantly more steps than the sphere tracing method. Another thing to note, the parts of the mandelbulb further away are redder, showing that those required more iterations to color because of their distance. But the sphere trace method wasn't dependent on distance, and as a result we get a mandlebulb that is the same color of green all around.
 
 ### Performance Breakdown
-From this chart you can see how the performance of my shader breaks down between various different stages: the ray march, Lambert lighting calculation, and calculating soft shadows.
+From this chart you can see how the performance of my shader breaks down between various different stages: the ray march, Lambert lighting calculation, and calculating soft shadows. The majority of the time is spent calculating the soft shadows, but not much longer than is spent doing the ray march.
+![](img/Performance Breakdown.png "Performance Breakdown")
 
 ### Acknowledgements
 * [Morgan McGuire: Numerical Methods for Ray Tracing Implicitly Defined Surfaces](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
