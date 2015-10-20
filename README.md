@@ -66,7 +66,7 @@ The main features implemented include :
 
 ### Performance Analysis
 
-##### Debug Views:
+##### <u> Debug Views </u>
 
 * Depth View : The color goes from white to black (white being closer to the camera)
 
@@ -77,7 +77,9 @@ The main features implemented include :
 <img src="renders/normalComputations.png" height="288" width="512">
 
 
-##### Comparison between Naive and Spherical Ray March
+
+
+##### <u> Comparison between Naive and Spherical Ray March </u>
 
 In a naive ray marcher, we take fixed jumps to get to the primitive. In a spherical ray march, we find the surface that is closest to the current point. Then we take the jump of that amount. This becomes extremely fast as the jumps every step are bigger. This can be easily seen from the FPS of the 2 approaches. The analysis is done for the following image 
 
@@ -96,8 +98,9 @@ Looking at the step count debug view, we can see that the image on the left (Nai
 <img src="renders/stepsSpherical.png" height="192" width="341.333333333">
 
 
-1540 × 1102
-##### Analysis on Ray Marching, Lambert shading, Shadow calculation
+
+
+##### <u>Analysis on Ray Marching, Lambert shading, Shadow calculation </u>
 
 Note: Spherical ray marching is considered in this analysis.
 
@@ -107,8 +110,11 @@ Looking at the various steps in the algorithm we see when we do only the ray mar
 
 This result is expected as in Lambert, we have a normal calculation where we have to spend time calculating the distance functions 6 times. In shadow calculations, we add another ray march from the intersection point to the light which is expensive.
 
+Next, let us see at the time spend on each step
 
+<img src="analysis/pieComparison.png"  height="405" width="443">
 
+Looking at the time spend on each step, we can see that the ray marching and shadow calculation steps are equally expensive. This is expected, as in ray marching, we find the intersection point for the initial ray and in shadow, we find ray march to the light. Both steps should be equally expensive and this can be seen from the pie chart below.
 
 
 
