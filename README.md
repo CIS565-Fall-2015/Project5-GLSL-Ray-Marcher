@@ -10,7 +10,17 @@
 
 ### Live on Shadertoy
 
+Click on the image to open the respective shader toy
+
 <a href = "https://www.shadertoy.com/view/ll2SzK"> <img src="renders/terrainMapping.png" height="192" width="341.333333333"></a>  <a href = "https://www.shadertoy.com/view/Mt2SzK"><img src="renders/everything.png" height="192" width="341.333333333"></a>   <a href = "https://www.shadertoy.com/view/4tSSz3"><img src="renders/fractal.png" height="192" width="341.333333333"></a>   <a href = "https://www.shadertoy.com/view/4lBSz3"><img src="renders/pacman.png" height="192" width="341.333333333"></a> 
+
+or go to the following links :
+
+TERRAIN: https://www.shadertoy.com/view/ll2SzK
+BASIC RAY MARCHER: https://www.shadertoy.com/view/Mt2SzK
+FRACTALS: https://www.shadertoy.com/view/4tSSz3
+PACMAN ANIMATION: https://www.shadertoy.com/view/4lBSz3
+
 
 ### Acknowledgements
 
