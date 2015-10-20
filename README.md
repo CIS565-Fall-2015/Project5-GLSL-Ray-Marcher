@@ -7,8 +7,9 @@
 siqi Huang Tested on: Windows 7, Inter(R) Core(TM) i7-4870 HQ CPU@ 2.5GHz; GeForce GT 750M(GK107) (Personal Computer)
 
 Representative Images:
+
 ![](img/AO1.png)
-![](img/terrian1.png)
+![](img/terrain1.png)
 ![](img/fractal1.png)
 
 PART I: Different Ray Marching Methods
