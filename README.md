@@ -5,9 +5,10 @@
 * Bradley Crusco
 * Tested on: Google Chrome 46 on Windows 10, i7-3770K @ 3.50GHz 16GB, 2 x GTX 980 4096MB (Personal Computer)
 
-### Live on Shadertoy (TODO)
+### Live on Shadertoy
 
 [![](img/top.png)](https://www.shadertoy.com/view/MlBSzc)
+Click the image above or click [here](https://www.shadertoy.com/view/MlBSzc) to view the shader live on Shadertoy.
 
 ## Description
 
