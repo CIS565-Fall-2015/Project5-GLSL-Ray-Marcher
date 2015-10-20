@@ -9,6 +9,33 @@
 
 [![](img/thumb.png)](https://www.shadertoy.com/view/TODO)
 
+## Description
+
+TODO
+
+## Features
+
+### Naive Ray Marching
+
+### Sphere Tracing
+
+### Distance Estimators
+
+### Height-Mapped Terrain Distance Estimator
+
+### Fractal Distance Estimator
+
+### Lambert Lighting Computation
+
+### Soft Shadows
+
+### Distance Operators
+(union, transformation, etc)
+
+### Debug Views
+
+## Analysis
+
 ### Acknowledgements
 
 This Shadertoy uses material from the following resources:
