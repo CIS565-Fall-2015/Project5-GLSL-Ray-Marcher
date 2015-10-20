@@ -17,7 +17,11 @@ TODO
 
 ### Naive Ray Marching
 
+Ray marching with a fixed step size. Refer to the analysis section for more information on this method.
+
 ### Sphere Tracing
+
+Ray marching using a variable step size based on a signed distance field. Refer to the analysis section for more information on this method.
 
 ### Distance Estimators
 Distance estimators are used to define the objects in our scene. Support for the following basic distance estimators is provided:
