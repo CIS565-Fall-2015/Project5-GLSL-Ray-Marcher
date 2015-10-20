@@ -38,7 +38,7 @@ This Shadertoy uses material from the following resources:
   [GitHub](https://github.com/ashima/webgl-noise)
 
 ## Project Description:
-In this project, ray marching is implemented with several other features in an online shader editor [Shadertoy](http://www.shadertoy.com/) using GLSL.
+In this project, a WebGL ray marcher is implemented in an online shader editor [Shadertoy](http://www.shadertoy.com/) using GLSL.
 The implemented features include,
 * Two ray marching methods
   * Naive ray marching (fixed step size) {McGuire 4}
@@ -65,7 +65,7 @@ The implemented features include,
 
 ## Analysis
 I implemented both naive ray marching and sphere tracing, the perfomance of them are,
-* Naive ray marching: 23.5 FPS
+* Naive ray marching: 18.5 FPS
 * Sphere tracing: 57.3 FPS
 
 It is clear that sphere tracing has a much better rendering perfomance, the reason is it uses a singed distance funtion to adjust the size of each step of the ray cast, thus need much fewer iterations than the naive ray marching which use a fixed step size.
