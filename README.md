@@ -14,12 +14,12 @@ Representative Images:
 
 PART O: Operations
 #define mode
-case 1: Smart Ray Casting;
-case 2: Naive Ray Casting;
-case 3: Height Map;
-case 4: Fractals;
-case 5: Ambient Occlusion and Soft Shadows;
-case 6: Debug View;
+case 1: Smart Ray Casting 
+case 2: Naive Ray Casting
+case 3: Height Map
+case 4: Fractals
+case 5: Ambient Occlusion and Soft Shadows
+case 6: Debug View
 
 PART I: Different Ray Marching Methods
 
