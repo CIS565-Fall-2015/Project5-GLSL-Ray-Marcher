@@ -34,6 +34,8 @@ Distance estimators are used to define the objects in our scene. Support for the
 
 ### Height-Mapped Terrain Distance Estimator
 
+Implemented based on the method outlined by Inigo Quilez [here](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm). The height-map is defined by a simple function: point.y - height * sin(length * point.x) * cos(point.z)
+
 ![](img/terrain.png "Height-Mapped Terrain Distance Estimator")
 
 ### Fractal Distance Estimator
