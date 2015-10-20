@@ -1,10 +1,11 @@
-#define EPSILON 0.01
+#define EPSILON 0.001
 #define MAX_STEPS 500
 #define MAX_DISTANCE 100.0
 #define DISPLACEMENT_FACTOR 5.0
 #define SHADOW_SCALE 30.0
 
 // Defined propertitres
+#define NAIVE
 #define LAMBERT_COLOR
 #define SOFT_SHADOW
 //#define STEP_COUNT_COLOR
@@ -55,9 +56,17 @@ float blendDistance(float a, float b, float blendRadius) {
     return (c * a + (1.0 - c) * b) - blendRadius * c * (1.0 - c);
 }
 
+float crossDistance(vec3 point, float size) {
+	float v = 1.5;
+    float a = boxDistance(point.xyz, vec3(size, v, v));
+    float b = boxDistance(point.yzx, vec3(v, size, v));
+    float c = boxDistance(point.zxy, vec3(v, v, size));
+    return min(a, min(b, c));
+}
+
 // Mandelbulb fractal rendering
 // https://www.shadertoy.com/view/XsXXWS
-float distanceToSurface(vec3 point) {
+float mandelbulbDistance(vec3 point) {
 	float scale = 1.0; // scale the surface brightness by this value
     float power = 8.0;
     float derivative = 1.0;
@@ -78,7 +87,7 @@ float distanceToSurface(vec3 point) {
 
 		if (r > 2.0) {
 			// The point escaped, remap the scale for more brightness and return
-			scale = min((scale + 0.075) * 4.1, 1.0);
+			scale = min((scale + 0.075) * 4.1, 0.0);
 			return min(length(point) - internalBoundingRadius, 0.5 * log(r) * r / derivative);
 		} else {
 			// Convert to polar coordinates and then rotate by the power
@@ -94,6 +103,21 @@ float distanceToSurface(vec3 point) {
 	}
 
 	return EPSILON;
+}
+
+float mengerSponge(vec3 point) {
+	float distance = boxDistance(point, vec3(1.0));
+    float s = 0.5;
+
+    for(int i = 0; i < 3; i++) {
+    	vec3 a = mod(point * s, 2.0) - 1.0;
+        s *= 5.0;
+        vec3 b = 5.0 - 5.0 * abs(a); // double check
+        float c = crossDistance(b, 1000.0) / s;
+        distance = max(distance, -c);
+    }
+
+    return distance;
 }
 
 // Height-mapped terrain rendering
@@ -134,19 +158,56 @@ vec3 transform(vec3 point, vec3 t, vec3 rot_axis, float angle, vec3 s) {
     return new_point.xyz;
 }
 
-// So this is where the actual scene creation stuff is done?
-float estimateDistance(vec3 point) {
-	float distance = sphereDistance(point - vec3(1.0, 0.0, 0.0), 0.5);
+// Scene creation
+float map(vec3 point) {
+    float distance = 0.0;
+
+    // add a sphere
+    vec3 temp_point = transform(point, vec3(-1.5, 0.0, 0.0), vec3(1.0), 0.0, vec3(1.5));
+    float sphere = sphereDistance(temp_point - vec3(1.0, 0.0, 0.0), 0.5);
+
+    // add a plane
+    float plane = planeDistance(point, -2.0);
+
+    // Combine them
+    distance = unionDistance(sphere, plane);
+
+    // add a torus
+    temp_point = transform(point, vec3(2.0, -0.5, 0.0), vec3(1.0), 0.0, vec3(0.3));
+    float torus = torusDistance(temp_point, 2.0, 1.0);
+    distance = unionDistance(distance, torus);
+
+    temp_point = transform(point, vec3(-2.0, 0.5, 0.0), vec3(0.0, 1.0, 0.0), 45.0, vec3(0.5));
+    float roundedBox = roundedBoxDistance(temp_point);
+    distance = unionDistance(distance, roundedBox);
+
+    //temp_point = transform(point, vec3(0.0, 0.0, 0.0), vec3(1.0), 0.0, vec3(0.5));
+    //float sponge = mengerSponge(temp_point);
+    //distance = unionDistance(distance, sponge);
+
+    //temp_point = transform(point, vec3(0.0, 0.0, 0.0), vec3(1.0), 0.0, vec3(0.5));
+    //float mandelbulb = mandelbulbDistance(temp_point);
+    //distance = unionDistance(distance, mandelbulb);
+
+    return distance;
+
+
+
+	//float distance = sphereDistance(point - vec3(1.0, 0.0, 0.0), 0.5);
 
     //distance += displacementDistance(point);
-    //distance = unionDistance(distance, min(distance, planeDistance(point, -2.0)));
+    //distance = unionDistance(distance, min(distance, planeDistance(transform(point, vec3(0.0, 1.0, 0.0), vec3(0.0), 0.0, vec3(0.0)), -2.0)));
+    //transform(point, vec3(2.0, 0.0, 0.0), vec3(0.0), 0.0, vec3(0.0))
+
+    //distance = unionDistance(distance, );
+    //torusDistance(vec3 point, float minorRadius, float majorRadius
 
     //distance = terrainDistance(point, 0.5, 2.5);
 
     //distance = distanceToSurface(point);
 
-    distance = roundedBoxDistance(point);
-    return distance;
+    //distance += roundedBoxDistance(point);
+    //return distance;
 }
 
 float calculateSoftShadow(vec3 point, vec3 lightPosition) {
@@ -161,7 +222,7 @@ float calculateSoftShadow(vec3 point, vec3 lightPosition) {
     	//point = ro + t * rd;
         point = ro + rd * t;
 
-        float distance = estimateDistance(point);
+        float distance = map(point);
 
         if(distance < EPSILON) {
         	return 0.0;
@@ -181,16 +242,16 @@ float calculateSoftShadow(vec3 point, vec3 lightPosition) {
 vec3 calculateNormal(in vec3 point) {
 	vec3 epsilon = vec3(EPSILON, 0.0, 0.0);
     vec3 normal = vec3(
-        estimateDistance(point + epsilon.xyy) - estimateDistance(point - epsilon.xyy),
-        estimateDistance(point + epsilon.yxy) - estimateDistance(point - epsilon.yxy),
-        estimateDistance(point + epsilon.yyx) - estimateDistance(point - epsilon.yyx));
+        map(point + epsilon.xyy) - map(point - epsilon.xyy),
+        map(point + epsilon.yxy) - map(point - epsilon.yxy),
+        map(point + epsilon.yyx) - map(point - epsilon.yyx));
     return normalize(normal);
 }
 
 // Lambert Color
 vec3 calculateLambertColor(vec3 point, vec3 ro) {
-	vec3 lightPosition = vec3(5.0, 5.0, 0.0);
-    vec3 lightColor = vec3(1.0);
+	vec3 lightPosition = vec3(6.0, 5.0, 0.0);
+    vec3 lightColor = vec3(0.8);
     vec3 lightVector = normalize(lightPosition - point);
 
     // calculate the normal
@@ -240,7 +301,7 @@ vec3 naiveRayMarch(in vec3 ro, in vec3 rd) {
     	point = ro + rd * t;
 
         // distance estimator goes here
-        float distance = estimateDistance(point);
+        float distance = map(point);
 
         if(distance < EPSILON) {
         	// if valid distance return color calculation
@@ -257,7 +318,7 @@ vec3 sphericalRayMarch(in vec3 ro, in vec3 rd) {
 
     for(int i = 0; i < MAX_STEPS; i++) {
     	vec3 point = ro + rd * t;
-        float distance = estimateDistance(point);
+        float distance = map(point);
 
         if(distance <= EPSILON) {
         	return calculateColor(point, vec2(t, MAX_DISTANCE), ro, vec2(float(i), MAX_STEPS));
