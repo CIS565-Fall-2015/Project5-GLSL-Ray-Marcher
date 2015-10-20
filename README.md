@@ -176,32 +176,3 @@ reference(s) you used.
   [GitHub](https://github.com/ashima/webgl-noise)
   * You may use this code under the MIT-expat license.
 
-
-## Submit
-
-In the Shadertoy description, include the following:
-
-* A link to your GitHub repository with the Shadertoy code.
-* **IMPORTANT:** A copy of the *Acknowledgements* section from above.
-  * Remember, this is public - strangers will want to know where you got your
-    material.
-
-Add a screenshot of your result to `img/thumb.png`
-(right click rendering -> Save Image As), and put the link to your
-Shadertoy at the top of your README.
-
-### Pull Request
-
-**Even though your code is on Shadertoy, make sure it is also on GitHub!**
-
-1. Open a GitHub pull request so that we can see that you have finished.
-   The title should be "Submission: YOUR NAME".
-   * **ADDITIONALLY:**
-     In the body of the pull request, include a link to your repository.
-2. Send an email to the TA (gmail: kainino1+cis565@) with:
-   * **Subject**: in the form of `[CIS565] Project N: PENNKEY`.
-   * Direct link to your pull request on GitHub.
-   * Estimate the amount of time you spent on the project.
-   * If there were any outstanding problems, or if you did any extra
-     work, *briefly* explain.
-   * Feedback on the project itself, if any.
