@@ -109,6 +109,7 @@ are defined in the fragment shader code executed for each pixel.
 ![](img/soft_shadow.png)
  
   * Ambient occlusion {iq-prim}
+    * Ambient occlusions allows the lighting in a scene to be more realistic, by measuring how exposed a point on the surface is to ambient lighting.  This means that surfaces that are more occluded will recieve less ambient lighting and will be darker than other surfaces.  In the images below (a very simple scene, so not much ambient light is scene) you can see where the ambient light comes into play in the scene and how it changes the final images.  When implementing ambient occlusion, it requires another ray trace.  This is a shorter ray march than in the soft shadows, but it can still add time to your render. However, there is no thread divergence that will occur when adding ambient occlusion.   
   
 <img src="img/before_amb_occ.png" height="192" width="227.5"> <img src="img/amb_occ_debug.png" height="192" width="227.5"> <img src="img/ambient_occlusion.png" height="192" width="227.5">
 
