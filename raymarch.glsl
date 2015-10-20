@@ -6,6 +6,9 @@
 
 // Defined propertitres
 #define LAMBERT_COLOR
+#define SOFT_SHADOW
+//#define STEP_COUNT_COLOR
+//#define DISTANCE_COLOR
 
 // Distance estimates for different objects
 float sphereDistance(vec3 vector, float radius) {
@@ -140,7 +143,9 @@ float estimateDistance(vec3 point) {
 
     //distance = terrainDistance(point, 0.5, 2.5);
 
-    distance = distanceToSurface(point);
+    //distance = distanceToSurface(point);
+
+    distance = roundedBoxDistance(point);
     return distance;
 }
 
