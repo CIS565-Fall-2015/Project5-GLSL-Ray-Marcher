@@ -63,7 +63,8 @@ note: to use "#define terrMap" the "#define naive" should be used at the same ti
 the fixed footstep, so it iterates much. The naive ray marching is much more "expensive"
 
 * Compare time spent ray marching vs. time spent shading/lighting:<br />
-
+ <p><img src="img/form.png"  width="280" height="200"><img src="img/time2.png"  width="230" height="200">
+ <img src="img/timed.png"  width="230" height="200"></p>
  
    
   * This can be done by taking measurements with different parts of your code
