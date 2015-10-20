@@ -8,7 +8,7 @@
 * Tested on: Chrome - Version 45.0.2454.93 m
   Windows 10, i5-5200U @ 2.20GHz 8.0GB, GTX 960M 
 
-### Live on Shadertoy (TODO)
+### Live on Shadertoy 
 
 [![](img/thumb.png)](https://www.shadertoy.com/view/XtBXRc)
 
