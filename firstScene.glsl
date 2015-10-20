@@ -3,6 +3,12 @@
 //http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf - ray marching/sphere tracing
 //http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf - ambient occlusion/soft shadows
 //--Distance Functions-------------------------------------------------------------------
+#define NO_DEBUG 1
+#define NORMALS 0
+#define RAY_STEPS 0
+#define DISTANCE 0
+#define SPHERE_TRACE 1
+
 
 float planeDist( vec3 p )
 {
@@ -66,12 +72,29 @@ float displace( vec3 p )
     return d1+d2;
 }
 
+vec3 transform(vec3 pt, vec3 translate, vec3 rot, vec3 scale) {
+    scale.x = 1.0/scale.x;
+    scale.y = 1.0/scale.y;
+    scale.z = 1.0/scale.z;
+    mat3 invRot = mat3(scale.x*cos(rot.y)*cos(rot.x), sin(rot.y)*sin(rot.z)*cos(rot.x) - cos(rot.z)*sin(rot.x) , sin(rot.y)*sin(rot.x) + cos(rot.z)*sin(rot.y)*cos(rot.x) ,
+                       cos(rot.y)*sin(rot.x), (sin(rot.z)*sin(rot.y)*sin(rot.x) + cos(rot.z)*cos(rot.x))*scale.y, sin(rot.x)*sin(rot.y)*cos(rot.z) - cos(rot.x)*sin(rot.z),
+                       -sin(rot.y), cos(rot.y)*sin(rot.z), cos(rot.y)*cos(rot.z)*scale.z);
+    mat4 trans = mat4(scale.x*cos(rot.y)*cos(rot.x), sin(rot.y)*sin(rot.z)*cos(rot.x) - cos(rot.z)*sin(rot.x) , sin(rot.y)*sin(rot.x) + cos(rot.z)*sin(rot.y)*cos(rot.x) , 0.0,
+                      cos(rot.y)*sin(rot.x), (sin(rot.z)*sin(rot.y)*sin(rot.x) + cos(rot.z)*cos(rot.x))*scale.y, sin(rot.x)*sin(rot.y)*cos(rot.z) - cos(rot.x)*sin(rot.z), 0.0,
+                      -sin(rot.y), cos(rot.y)*sin(rot.z), cos(rot.y)*cos(rot.z)*scale.z, 0.0,
+                      (-invRot*translate).x, (-invRot*translate).y, (-invRot*translate).z, 1.0);
+    
+    vec4 newPt = vec4(pt, 1.0);
+    newPt = trans*newPt;
+    return vec3(newPt);
+    
+}
 //--Different Scenes-------------------------------------------------------------------
 
-float sceneSponge(vec3 ro, vec3 rd, float t) {
+float sceneFractal(vec3 ro, vec3 rd, float t) {
     vec3 pt = ro + rd*t;
     
-    float tmin = boxDist(pt, vec3(1.0));
+    float tmin = boxDist(pt - vec3(1.0, 0.0, 0.0), vec3(.5));
     
     float s = 1.0;
     for( int m=0; m<3; m++ )
@@ -87,7 +110,7 @@ float sceneSponge(vec3 ro, vec3 rd, float t) {
         
         tmin = max(tmin,c);
     }
-    
+    tmin = min(tmin, planeDist(pt - vec3(0.0, -.5, 0.0)));
     return tmin;
     
 }
@@ -99,7 +122,7 @@ float sceneDisplacement(vec3 ro, vec3 rd, float t) {
    	return tmin;
 }
 
-float scene(vec3 ro, vec3 rd, float t) {
+float sceneNothin(vec3 ro, vec3 rd, float t) {
     vec3 pt = ro + rd*t;
     float tmin = 0.0;
     
@@ -111,6 +134,15 @@ float sceneRepeat(vec3 ro, vec3 rd, float t) {
     
     return tmin;
     
+}
+
+float sceneTransform(vec3 ro, vec3 rd, float t) {
+    vec3 pt = ro + t*rd;
+    
+   	vec3 pos = transform(vec3(pt), vec3(1.0, 0.0, 0.0), vec3(radians(iGlobalTime), radians(0.), radians(45.)), vec3(.5, 1.0, 1.0));
+    float tmin = boxDist(pos, vec3(0.5));
+    
+    return tmin;
 }
 
 float sceneHeight(vec3 ro, vec3 rd, float t) {
@@ -204,8 +236,10 @@ float ambientOcc( in vec3 pt, in vec3 norm )
 
 vec3 render(in vec3 ro, in vec3 rd) {
     // TODO
-    int debug = 0;
-    bool root = false;
+    int debug = 1;
+    bool root;
+    if (SPHERE_TRACE == 1) root = false;
+    else root = true;
     vec3 col = vec3(.8, .9, 1.0);
     float t = -1.0;
     vec2 dist;
@@ -247,14 +281,14 @@ vec3 render(in vec3 ro, in vec3 rd) {
             
         }
         
-        col = vec3(amb*.2) + lambert * vec3(diffuse) + specular * vec3(0.5);
+        col = vec3(.2) + lambert * vec3(diffuse) + specular * vec3(0.5); //amb*
         
         col = pow(col, vec3(1.0/2.2));
         col *= 1.0 - smoothstep( 20.0, 40.0, t );
-        if (debug == 1) {
+        if (NORMALS == 1) {
             col = norm;
         }
-        else if (debug == 2) {
+        else if (RAY_STEPS == 1) {
             if (root) {
                 col = vec3(1.0, 0.0, 0.0)*(dist.y / 500.0);
             }
@@ -262,7 +296,7 @@ vec3 render(in vec3 ro, in vec3 rd) {
                 col = vec3(1.0, 0.0, 0.0)*(dist.y / 50.0);
             }
         }
-        else if (debug == 3) {
+        else if (DISTANCE == 1) {
             col = vec3(1.0) * ((5.0 - t) / 5.0);
         }
     }

@@ -3,6 +3,8 @@
 //http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf - ray marching/sphere tracing
 //http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf - ambient occlusion/soft shadows
 //https://www.shadertoy.com/view/4t2SRz - smoke color
+//https://www.shadertoy.com/view/MdXGW2 - water
+//https://www.shadertoy.com/view/MdX3zr - smoke movement
 //--Distance Functions-------------------------------------------------------------------
 
 float time;
@@ -395,11 +397,11 @@ vec4 render(in vec3 ro, in vec3 rd, float t) {
         vec3 ref = reflect(rd, norm);
         vec3 light = normalize(vec3(0.0, 2.0, 2.0) - pt);
         float lambert = clamp(dot(light, norm), 0.0, 1.0);
-        float amb = ambientOcc(pt, norm);
+        //float amb = ambientOcc(pt, norm);
         //soft shadows
-        lambert *= softshadow( pt, light, 0.02, 2.5 );
+        //lambert *= softshadow( pt, light, 0.02, 2.5 );
         float dom = smoothstep( -0.1, 0.1, ref.y );
-        dom *= softshadow( pt, ref, 0.02, 2.5 );
+        //dom *= softshadow( pt, ref, 0.02, 2.5 );
         
         float specular = 0.0;
         if (lambert > 0.0) {
@@ -410,7 +412,7 @@ vec4 render(in vec3 ro, in vec3 rd, float t) {
             
         }
         
-        col = vec3(amb*.2) + lambert * vec3(diffuse) + specular * vec3(0.5);
+        col = vec3(.2) + lambert * vec3(diffuse) + specular * vec3(0.5); //amb*
         
         col = pow(col, vec3(1.0/2.2));
         col *= 1.0 - smoothstep( 20.0, 40.0, t );
@@ -531,7 +533,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
         vec3 refr = refract( rdo, normal, 1./1.3330 );
         intersectPlane( ro, refr, -2., refldist );
         col += mix( texture2D( iChannel2, (roo+refldist*refr).xz*1.3 ).xyz *
-                   vec3(1.,.9,0.6), vec3(1.,.9,0.8)*0.5, clamp( refldist / 3., 0., 1.) )
+                   vec3(1.,.9,0.6), vec3(1.,.9,0.8)*0.5, clamp( refldist / 3., 0., 1.) ) 
         * (1.-fresnel)*0.125;
         
     }
@@ -540,20 +542,6 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     col = mix( col, vec3(dot(col,vec3(0.33))), -0.5 );
     col *= 0.25 + 0.75*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.1 );
     fragColor = vec4(col, 1.0);
-    /*if (color.w == 1.0) {
-     col = pow(col, vec3(0.7)); //4545));
-     col = col*col*(3.0-2.0*col);
-     col = mix( col, vec3(dot(col,vec3(0.33))), -0.5 );
-     col *= 0.25 + 0.75*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.1 );
-     fragColor = vec4(col, 1.0);
-     }
-     else {
-     float glow = color.w;
-     
-     color = mix(vec4(1.,.5,.1,1.), vec4(0.1,.5,1.,1.), rd.y*.02+.4);
-     
-     fragColor = mix(vec4(0.0), color, pow(glow*2.,4.));
-     
-     }*/
+    
     
 }
