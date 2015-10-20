@@ -64,15 +64,7 @@ the fixed footstep, so it iterates much. The naive ray marching is much more "ex
 
 * Compare time spent ray marching vs. time spent shading/lighting:<br />
 
-     | First Header  | Second Header |
-     | ------------- | ------------- |
-     | Content Cell  | Content Cell  |
-     | Content Cell  | Content Cell  |
-
-  <p>|raymarching with terrain  |8 FPS          |132ms|</p>
-  <p>|raymarching without terr  |49.2FPS  ||</p>
-  <p>|ray marching without terr & AO: 50.1 FPS</p>
-  <p>|ray marching without terr & AO & shadow: 60.0 FPS</p>
+ 
    
   * This can be done by taking measurements with different parts of your code
     enabled (e.g. raymarching, raymarching+shadow, raymarching+shadow+AO).
