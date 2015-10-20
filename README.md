@@ -139,8 +139,7 @@ reference(s) you used.
 ### Analysis
 
 * Provide an analysis comparing naive ray marching with sphere tracing
-  * In addition to FPS, implement a debug view which shows the "most expensive"
-    fragments by number of iterations required for each pixel. Compare these.
+  * In the images below, you can see the difference between a scene generated using the naive ray marcher (left) and the sphere tracer (right).  As you can see, the naive ray marcher requires many more steps per ray cast.  (The more red the pixel, the more steps were required.)  This shows how much time can be saved by the sphere tracer, since it can do the same amount of work with many less steps. 
 
 
   <img src="img/debug_naive.png" height="192" width="341.333333333"> <img src="img/debug_sphere.png" height="192" width="341.333333333"> 
