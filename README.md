@@ -93,6 +93,7 @@ With the STEP_COUNT flag enabled, the redder a pixel in an image, the more steps
 ### Performance Breakdown
 From this chart you can see how the performance of my shader breaks down between various different stages: the ray march, Lambert lighting calculation, and calculating soft shadows.
 
+
 ### Acknowledgements
 * [Morgan McGuire: Numerical Methods for Ray Tracing Implicitly Defined Surfaces](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
 * [Inigo Quilez: Terrain Raymarching](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
