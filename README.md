@@ -48,7 +48,7 @@ Features
 In line 11, define HeightMap as 1 to test this terrain feature:
 
 ```
-#define HeightMap 0		//height: iChannel0
+#define HeightMap 1		//height: iChannel0
 ```
 
 |Terrain with texture				|Normal
@@ -73,6 +73,12 @@ an interesting erosion effect, as shown above and [live on Shadertoy](https://ww
 |![](img/softShadow.png )	|![](img/sharpShadow.png )
 
 **Ambient Occlusion**
+
+In line 12, define AO_Test as 1 to use the below scene:
+
+```
+#define AO_Test 0
+```
 
 |Without AO				|With AO
 |:---------------------------------:|:---------------------------------------:
