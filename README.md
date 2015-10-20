@@ -141,6 +141,8 @@ reference(s) you used.
 * Provide an analysis comparing naive ray marching with sphere tracing
   * In addition to FPS, implement a debug view which shows the "most expensive"
     fragments by number of iterations required for each pixel. Compare these.
+  <img src="img/debug_naive.png" height="192" width="341.333333333"> <img src="img/debug_sphere.png" height="192" width="341.333333333"> 
+
 * Compare time spent ray marching vs. time spent shading/lighting
   * This can be done by taking measurements with different parts of your code
     enabled (e.g. raymarching, raymarching+shadow, raymarching+shadow+AO).
