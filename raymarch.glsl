@@ -124,7 +124,7 @@ vec3 shade(vec3 ro, vec3 rd, vec2 res){
     
     //return color*diffuse;
     return color*diffuse*shadow;
-    //return clamp( dot( rd, (ro+rd*res.x) )*vec3(0.1), 0.0, 1.0 );
+    //return clamp( dot( rd, (rd*res.x) )*vec3(0.05), 0.0, 1.0 );
     //return norm;
 }
 
