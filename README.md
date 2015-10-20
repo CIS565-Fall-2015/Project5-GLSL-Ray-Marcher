@@ -32,6 +32,10 @@ A simple Lambert lighting computation was used for rendering. Below is an exampl
 ![](img/lambert.png "Lambert Lighting Image")
 
 ### Soft Shadows
+Soft shadows are added by completing a second ray march to the light, and scaling the shadow by the ratio of the change in distance and the total distance on each iteration of the march.
+
+#### Lambert Lighting Image (Soft Shadows)
+![](img/soft_shadows.png "Lambert Lighting Image with Soft Shadows")
 
 ### Distance Operators
 (union, transformation, etc)
