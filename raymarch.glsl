@@ -1,4 +1,4 @@
-#define EPSILON 0.001
+#define EPSILON 0.01
 #define MAX_STEPS 500
 #define MAX_DISTANCE 100.0
 #define DISPLACEMENT_FACTOR 5.0
@@ -7,7 +7,7 @@
 // Defined propertitres
 #define NAIVE
 #define LAMBERT_COLOR
-#define SOFT_SHADOW
+//#define SOFT_SHADOW
 //#define STEP_COUNT_COLOR
 //#define DISTANCE_COLOR
 
@@ -33,7 +33,7 @@ float torusDistance(vec3 point, float minorRadius, float majorRadius) {
 	return length(vec2(length(point.xz) - minorRadius, point.y)) - majorRadius;
 }
 
-// Distance operations
+// Distance estimator operations
 float unionDistance(float distance1, float distance2) {
 	return min(distance1, distance2);
 }
@@ -56,15 +56,39 @@ float blendDistance(float a, float b, float blendRadius) {
     return (c * a + (1.0 - c) * b) - blendRadius * c * (1.0 - c);
 }
 
-float crossDistance(vec3 point, float size) {
-	float v = 1.5;
-    float a = boxDistance(point.xyz, vec3(size, v, v));
-    float b = boxDistance(point.yzx, vec3(v, size, v));
-    float c = boxDistance(point.zxy, vec3(v, v, size));
-    return min(a, min(b, c));
+vec3 transform(vec3 point, vec3 t, vec3 rot_axis, float angle, vec3 s) {
+    // translation
+	mat4 translation = mat4(
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        -t.x, -t.y, -t.z, 1.0);
+
+    //rotation matrix
+    rot_axis = normalize(rot_axis);
+    float sin = sin(radians(-angle));
+    float cos = cos(radians(-angle));
+
+   mat4 rotation = mat4(
+       (1.0 - cos) * rot_axis.x * rot_axis.x + cos, (1.0 - cos) * rot_axis.x * rot_axis.y - rot_axis.z * sin, (1.0 - cos) * rot_axis.z * rot_axis.x + rot_axis.y * sin, 0.0,
+       (1.0 - cos) * rot_axis.x * rot_axis.y + rot_axis.z * sin, (1.0 - cos) * rot_axis.y * rot_axis.y + cos, (1.0 - cos) * rot_axis.y * rot_axis.z - rot_axis.x * sin, 0.0,
+       (1.0 - cos) * rot_axis.z * rot_axis.x - rot_axis.y * sin, (1.0 - cos) * rot_axis.y * rot_axis.z + rot_axis.x * sin, (1.0 - cos) * rot_axis.z * rot_axis.z + cos, 0.0,
+       0.0, 0.0, 0.0, 1.0);
+
+    //scale matrix
+    mat4 scale = mat4(
+        1.0 / s.x, 0.0, 0.0, 0.0,
+        0.0, 1.0 / s.y, 0.0, 0.0,
+        0.0, 0.0, 1.0 / s.s, 0.0,
+        0.0, 0.0, 0.0, 1.0);
+
+    vec4 new_point = point.xyzz;
+    new_point.w = 1.0;
+    new_point = scale * rotation * translation * new_point;
+    return new_point.xyz;
 }
 
-// Mandelbulb fractal rendering
+// Mandelbulb fractal estimator
 // https://www.shadertoy.com/view/XsXXWS
 float mandelbulbDistance(vec3 point) {
 	float scale = 1.0; // scale the surface brightness by this value
@@ -105,57 +129,9 @@ float mandelbulbDistance(vec3 point) {
 	return EPSILON;
 }
 
-float mengerSponge(vec3 point) {
-	float distance = boxDistance(point, vec3(1.0));
-    float s = 0.5;
-
-    for(int i = 0; i < 3; i++) {
-    	vec3 a = mod(point * s, 2.0) - 1.0;
-        s *= 5.0;
-        vec3 b = 5.0 - 5.0 * abs(a); // double check
-        float c = crossDistance(b, 1000.0) / s;
-        distance = max(distance, -c);
-    }
-
-    return distance;
-}
-
-// Height-mapped terrain rendering
-// http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm
+// Height-mapped terrain estimator
 float terrainDistance(vec3 point, float height, float length) {
 	return point.y - height * sin(length * point.x) * cos(point.z);
-}
-
-vec3 transform(vec3 point, vec3 t, vec3 rot_axis, float angle, vec3 s) {
-    // translation
-	mat4 translation = mat4(
-        1.0, 0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0, 0.0,
-        -t.x, -t.y, -t.z, 1.0);
-
-    //rotation matrix
-    rot_axis = normalize(rot_axis);
-    float sin = sin(radians(-angle));
-    float cos = cos(radians(-angle));
-
-   mat4 rotation = mat4(
-       (1.0 - cos) * rot_axis.x * rot_axis.x + cos, (1.0 - cos) * rot_axis.x * rot_axis.y - rot_axis.z * sin, (1.0 - cos) * rot_axis.z * rot_axis.x + rot_axis.y * sin, 0.0,
-       (1.0 - cos) * rot_axis.x * rot_axis.y + rot_axis.z * sin, (1.0 - cos) * rot_axis.y * rot_axis.y + cos, (1.0 - cos) * rot_axis.y * rot_axis.z - rot_axis.x * sin, 0.0,
-       (1.0 - cos) * rot_axis.z * rot_axis.x - rot_axis.y * sin, (1.0 - cos) * rot_axis.y * rot_axis.z + rot_axis.x * sin, (1.0 - cos) * rot_axis.z * rot_axis.z + cos, 0.0,
-       0.0, 0.0, 0.0, 1.0);
-
-    //scale matrix
-    mat4 scale = mat4(
-        1.0 / s.x, 0.0, 0.0, 0.0,
-        0.0, 1.0 / s.y, 0.0, 0.0,
-        0.0, 0.0, 1.0 / s.s, 0.0,
-        0.0, 0.0, 0.0, 1.0);
-
-    vec4 new_point = point.xyzz;
-    new_point.w = 1.0;
-    new_point = scale * rotation * translation * new_point;
-    return new_point.xyz;
 }
 
 // Scene creation
@@ -168,8 +144,6 @@ float map(vec3 point) {
 
     // add a plane
     float plane = planeDistance(point, -2.0);
-
-    // Combine them
     distance = unionDistance(sphere, plane);
 
     // add a torus
@@ -177,39 +151,15 @@ float map(vec3 point) {
     float torus = torusDistance(temp_point, 2.0, 1.0);
     distance = unionDistance(distance, torus);
 
+    // add rounded box
     temp_point = transform(point, vec3(-2.0, 0.5, 0.0), vec3(0.0, 1.0, 0.0), 45.0, vec3(0.5));
     float roundedBox = roundedBoxDistance(temp_point);
     distance = unionDistance(distance, roundedBox);
 
-    //temp_point = transform(point, vec3(0.0, 0.0, 0.0), vec3(1.0), 0.0, vec3(0.5));
-    //float sponge = mengerSponge(temp_point);
-    //distance = unionDistance(distance, sponge);
-
-    //temp_point = transform(point, vec3(0.0, 0.0, 0.0), vec3(1.0), 0.0, vec3(0.5));
-    //float mandelbulb = mandelbulbDistance(temp_point);
-    //distance = unionDistance(distance, mandelbulb);
-
     return distance;
-
-
-
-	//float distance = sphereDistance(point - vec3(1.0, 0.0, 0.0), 0.5);
-
-    //distance += displacementDistance(point);
-    //distance = unionDistance(distance, min(distance, planeDistance(transform(point, vec3(0.0, 1.0, 0.0), vec3(0.0), 0.0, vec3(0.0)), -2.0)));
-    //transform(point, vec3(2.0, 0.0, 0.0), vec3(0.0), 0.0, vec3(0.0))
-
-    //distance = unionDistance(distance, );
-    //torusDistance(vec3 point, float minorRadius, float majorRadius
-
-    //distance = terrainDistance(point, 0.5, 2.5);
-
-    //distance = distanceToSurface(point);
-
-    //distance += roundedBoxDistance(point);
-    //return distance;
 }
 
+// Soft shadow effect
 float calculateSoftShadow(vec3 point, vec3 lightPosition) {
 	float t = 2.0;
     float minT = 2.0;
@@ -219,7 +169,6 @@ float calculateSoftShadow(vec3 point, vec3 lightPosition) {
     float shadowColor = 1.0;
 
     for(int i = 0; i < MAX_STEPS; i++) {
-    	//point = ro + t * rd;
         point = ro + rd * t;
 
         float distance = map(point);
@@ -248,7 +197,7 @@ vec3 calculateNormal(in vec3 point) {
     return normalize(normal);
 }
 
-// Lambert Color
+// Lambert color calculation
 vec3 calculateLambertColor(vec3 point, vec3 ro) {
 	vec3 lightPosition = vec3(6.0, 5.0, 0.0);
     vec3 lightColor = vec3(0.8);
@@ -290,8 +239,6 @@ vec3 calculateColor(vec3 point, vec2 distance, vec3 ro, vec2 steps) {
     return vec3(0.0);
 }
 
-// McGuire {4}
-// http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
 vec3 naiveRayMarch(in vec3 ro, in vec3 rd) {
 	vec3 point; //The point on the ray
 
@@ -312,6 +259,7 @@ vec3 naiveRayMarch(in vec3 ro, in vec3 rd) {
     return vec3(0.0);
 }
 
+// Spherical trace
 vec3 sphericalRayMarch(in vec3 ro, in vec3 rd) {
     float minStep = 0.01;
     float t = 0.0;
