@@ -1,4 +1,4 @@
-# [CIS565 2015F] YOUR TITLE HERE
+# [CIS565 2015F] GLSL-Ray-Marcher
 
 **GLSL Ray Marching**
 
