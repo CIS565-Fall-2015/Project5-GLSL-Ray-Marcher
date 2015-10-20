@@ -55,8 +55,8 @@ note: to use "#define terrMap" the "#define naive" should be used at the same ti
 ### Analysis
 
 * Provide an analysis comparing naive ray marching with sphere tracing
-   <p>naive ray marching: 5.6fps;</p>
-   <p>accelated ray marching : 60.1fps;</p>
+   <p>naive ray marching: 5.6fps; 132 ms</p>
+   <p>accelated ray marching : 60.1fps; 22.5 ms</p>
   * the "most expensive" fragments by number of iterations required for each pixel.
   <p><img src="img/de_naive.png"  width="330" height="200"><img src="img/de_2.png"  width="330" height="200"></p>
   the first one is using naive ray marching, the whiter the number of iteration is bigger. the shadow I calculate using 
@@ -67,16 +67,10 @@ the fixed footstep, so it iterates much. The naive ray marching is much more "ex
  <p align="center"><img src="img/timed.png"  width="400" height="200"></p>
  
    
-  * This can be done by taking measurements with different parts of your code
-    enabled (e.g. raymarching, raymarching+shadow, raymarching+shadow+AO).
-  * Plot this analysis using pie charts or a 100% stacked bar chart.
 * For each feature (required or extra), estimate whether branch divergence
   plays a role in its performance characteristics, and, if so, point out the
   branch in question.
   (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
-* For each optimization feature, compare performance with and without the
-  optimization. Describe and demo the types of scenes which benefit from the
-  optimization.
 
 
 ### Resources
