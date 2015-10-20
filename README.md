@@ -103,7 +103,7 @@ Note: Spherical ray marching is considered in this analysis.
 
 Looking at the various steps in the algorithm we see when we do only the ray marching step, the FPS rate a very high ~60 FPS. Lambert shading makes it a little slower ~50FPS but adding the shadow calculation reduces the rate further more to around ~40 FPS. 
 
-<img src="analysis/fpsComparison.png"  height="275.5" width="385">
+<img src="analysis/diffStageComparison.png"  height="275.5" width="385">
 
 This result is expected as in Lambert, we have a normal calculation where we have to spend time calculating the distance functions 6 times. In shadow calculations, we add another ray march from the intersection point to the light which is expensive.
 
