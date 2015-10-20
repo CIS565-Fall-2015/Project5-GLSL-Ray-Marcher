@@ -26,6 +26,9 @@ TODO
 ### Fractal Distance Estimator
 
 ### Lambert Lighting Computation
+A simple Lambert lighting computation was used for rendering. Below is an example render using the Lambert computation without soft shadows.
+
+#### Lambert Lighting Image (No Soft Shadows)
 
 ### Soft Shadows
 
