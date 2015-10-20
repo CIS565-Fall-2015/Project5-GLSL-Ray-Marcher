@@ -3,7 +3,7 @@
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
 * Ziwei Zong
-* Tested on: (TODO) **Google Chrome 222.2** on
+* Tested on:**Google Chrome 46.0** on
   Windows 10, i7-5500 @ 2.40GHz 8GB, GTX 950M (Personal)
 
 Overview
