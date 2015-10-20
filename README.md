@@ -7,7 +7,7 @@
 
 ### Live on Shadertoy (TODO)
 
-[![](img/thumb.png)](https://www.shadertoy.com/view/TODO)
+[![](img/top.png)](https://www.shadertoy.com/view/MlBSzc)
 
 ## Description
 
