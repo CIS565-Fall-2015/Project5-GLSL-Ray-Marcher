@@ -1,8 +1,8 @@
 #define EPSILON 0.01
 #define MAX_STEPS 500
 #define MAX_DISTANCE 100.0
-#define DISPLACEMENT_FACTOR 5.0
-#define SHADOW_SCALE 30.0
+#define DISPLACEMENT_FACTOR 4.0
+#define SHADOW_SCALE 25.0
 
 // Defined propertitres
 #define NAIVE
