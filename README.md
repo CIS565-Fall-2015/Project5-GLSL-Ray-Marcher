@@ -38,7 +38,9 @@ Implemented based on the method outlined by Inigo Quilez [here](http://www.iquil
 
 ![](img/terrain.png "Height-Mapped Terrain Distance Estimator")
 
-### Fractal Distance Estimator
+### Mandelbulb Fractal Distance Estimator
+
+Implemented based on the method outlined [here](https://www.shadertoy.com/view/XsXXWS), this distance estimator renders the mandelbulb fractal object.
 
 ![](img/mandlebulb.png "Mandlebulb Fractal Distance Estimator")
 
