@@ -150,22 +150,8 @@ reference(s) you used.
   
 ![](img/pie.png)
 
-  * Plot this analysis using pie charts or a 100% stacked bar chart.
-* For each feature (required or extra), estimate whether branch divergence
-  plays a role in its performance characteristics, and, if so, point out the
-  branch in question.
-  (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
-
 
 ### Resources
-
-You **must** acknowledge any resources you use, including, but not limited to,
-the links below. **Do not copy non-trivial code verbatim.** Instead, use the
-references to understand the methods.
-
-For any code/material in the 565
-[slides](http://cis565-fall-2015.github.io/lectures/12-Ray-Marching.pptx),
-please reference the source found at the bottom of the slide.
 
 * {McGuire}
   Morgan McGuire, Williams College.
@@ -193,12 +179,6 @@ please reference the source found at the bottom of the slide.
 
 
 ## Submit
-
-### Post on Shadertoy
-
-Post your shader on Shadertoy (preferably *public*; *draft* will not work).
-For your title, come up with your own demo title and use the format
-`[CIS565 2015F] YOUR TITLE HERE` (also add this to the top of your README).
 
 In the Shadertoy description, include the following:
 
