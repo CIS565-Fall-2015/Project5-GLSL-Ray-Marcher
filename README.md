@@ -20,11 +20,25 @@ Overview
 Acknolegements
 ========================
 
-**Iñigo Quílez**
+* {McGuire}
+  Morgan McGuire, Williams College.
+  *Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014).
+  [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
 
-* Raymarching Primitives. [Shadertoy](https://www.shadertoy.com/view/Xds3zN)
+* {iq-prim}
+  Iñigo Quílez.
+  *Raymarching Primitives* (2013).
+  [Shadertoy](https://www.shadertoy.com/view/Xds3zN)
 
-* Menger Sponge.  [Shadertoy](https://www.shadertoy.com/view/4sX3Rn)
+* {iq-terr}
+  Iñigo Quílez.
+  *Terrain Raymarching* (2007).
+  [Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
+  
+  * {iq-meng}
+  Iñigo Quílez.
+  *Menger Sponge* (2013).
+  [Shadertoy](https://www.shadertoy.com/view/4sX3Rn)
 
 Features
 ========================
@@ -39,12 +53,12 @@ Features
 
 *Purple means less iteration and blue means more.
 
-**Merger Sponge**
+**Menger Sponge**
 
 ![](img/MS_erossion.png )
 
-A fun thing about merger sponge is that by simply changing the threshold with time, there would be
-an interesting erosion effect, as shown above.
+A fun thing about menger sponge is that by simply changing the threshold with time, there would be
+an interesting erosion effect, as shown above and [live on Shadertoy](https://www.shadertoy.com/view/4tjSRK).
 
 **Soft Shadow**
 
