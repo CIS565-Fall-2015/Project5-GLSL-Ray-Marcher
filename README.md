@@ -96,8 +96,10 @@ are defined in the fragment shader code executed for each pixel.
     * Height map terrain can be used to render complicated and never ending terrain very quickly.  This is done by using a texture to deterine the height of the terrain at each pixel.  The height of the point along the ray is compared to a value determined from the texture at specific coordinates.  This value can be manipulated in amany different ways to help get the desired resultes.  In this case, I used the average of the R, G, and B values of the color at those texture coordinates.  The image below shows a height map using a checkered texture.  While this method is very useful for rendering complicated scenes, it does require you use the naive method.  This is because you do not have specific objects in the scene, you have a height for each pixel given by the texture, and you would have to compare the distance of each spot on the terrain (each pixel).   This would end up taking much longer than just stepping through the ray by a constant value.  
   
   ![](img/height_map1.png)
+
   * Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
-    * 
+    * The fractal rendering shows a repeating desing on an object.  In the image below, it shows the difference of a box and cross repeating on the cube.  This is done by using the difference estimators fro the box and cross, along with the difference operator.  Then, you iterate through and apply the pattern to each smaller section of the cube.  The more iterations you step through, the more repetitions of the patter will appear on the object.  Thread divergence is not an issue in this implementation, and it can be used with both the naive ray march and sphere tracing.  
+  
   ![](img/menger_sponge.png)
   
 * Lighting effects
