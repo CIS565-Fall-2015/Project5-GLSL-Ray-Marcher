@@ -12,9 +12,10 @@ Overview
 ========================
 
 [![](img/OverView.png)](https://www.shadertoy.com/view/4tjSRK)
-[Shadertoy Live Here !](https://www.shadertoy.com/view/4tjSRK)
 
-|![](img/HeightMap.png )
+[**Shadertoy Live Here !**](https://www.shadertoy.com/view/4tjSRK)
+
+![](img/HeightMap.png )
 
 Acknolegements
 ========================
@@ -70,7 +71,7 @@ Analysis
 
 |Naive Ray Marching					|Sphere Tracing
 |:---------------------------------:|:---------------------------------------:
-![](img/debug_IterNum_Naive.PNG )||![](img/debug_IterNum_ST.PNG )	
+![](img/debug_IterNum_Naive.PNG ) | ![](img/debug_IterNum_ST.PNG )	
 
 *Purple means less iteration and blue means more.
 
