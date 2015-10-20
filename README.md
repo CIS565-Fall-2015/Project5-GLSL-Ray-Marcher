@@ -25,16 +25,16 @@ Iñigo Quílez.
 *Terrain Raymarching* (2007).
 [Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
 
-Iñigo Quílez.
-*Terrain Raymarching* (2007).
-[Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
-  
 http://www.iquilezles.org/www/articles/menger/menger.htm - mendel sponge
 https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model - blinn-phong lighting
+
 http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf - ray marching/sphere tracing
+
 http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf - ambient occlusion/soft shadows
+
 https://www.shadertoy.com/view/4t2SRz - smoke color
 https://www.shadertoy.com/view/MdXGW2 - water
+https://www.shadertoy.com/view/MdX3zr - smoke movement
 
 
 
