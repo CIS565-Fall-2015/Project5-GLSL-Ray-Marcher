@@ -11,10 +11,10 @@
 Overview
 ========================
 
-[![](img/OverView.png)](https://www.shadertoy.com/)
-[Shadertoy](https://www.shadertoy.com/)
+[![](img/OverView.png)](https://www.shadertoy.com/view/4tjSRK)
+[Shadertoy Live Here !](https://www.shadertoy.com/view/4tjSRK)
 
-![](img/HeightMap0.PNG)
+|![](img/HeightMap.png )
 
 Acknolegements
 ========================
@@ -34,14 +34,13 @@ Features
 |:---------------------------------:|:---------------------------------------:
 |![](img/HeightMap.png )	|![](img/HeightMapNormal.png )
 |Distance Debug View			|Iteration Number Debug View
-|:---------------------------------:|:---------------------------------------:
 |![](img/HeightMapDistance.png )	|![](img/HeightMapIteration.png )
 
 *Purple means less iteration and blue means more.
 
 **Merger Sponge**
 
-![](img/MergerSponge_erosion.png )
+![](img/MS_erossion.png )
 
 A fun thing about merger sponge is that by simply changing the threshold with time, there would be
 an interesting erosion effect, as shown above.
