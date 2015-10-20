@@ -69,3 +69,9 @@ Here I used the distance to the camera to show the debug view. Instead of comput
 ![](img/debug1.png)
 ![](img/debug2.png)
 
+#PART VI: Ambient Occlusion and Soft Shadows:
+
+For this part of the code, I referred a lot from the (). The mapping function is different from the source, it returns a vecter4 with xyz a normal and w the distance to the object. The color calculation is basically borrowed from the source. The result is great.
+
+![](img/AO1.png)
+![](img/AO2.png)
