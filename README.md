@@ -12,6 +12,15 @@ Representative Images:
 ![](img/terrain1.png)
 ![](img/fractal1.png)
 
+PART O: Operations
+#define mode
+case 1: Smart Ray Casting
+case 2: Naive Ray Casting
+case 3: Height Map
+case 4: Fractals
+case 5: Ambient Occlusion and Soft Shadows
+case 6: Debug View
+
 PART I: Different Ray Marching Methods
 
 Sphere:
@@ -38,8 +47,8 @@ When we get the distance to the object and the normal, we get the intersection p
 ![](img/AO1.png)
 
 PART IV: Object Transformation
-To transform an object, we can size it up, move it and rotate it. All those all defined using matrix multiplication. After the transformation, we need to transform both the ray position and direction to the object coordinate. So we get the following result:
+To transform an object, we can size it up, move it and rotate it. All those all defined using matrix multiplication. After the transformation, we need to transform both the ray position and direction to the object coordinate. So we get the following results:
 ![](img/transform1.png)
 ![](img/transform2.png)
 ![](img/transform3.png)
-
+The images here has the lighting effects, but have no ambient occlusion and soft shadows. I have tried to apply those to them but failed. Because the ambient occlusion and soft shadows need to specify fixed position of objects without movement, which is not possible for transformation, so I split them as separate demonstration here. 
