@@ -12,7 +12,7 @@
 
 [![](img/bridge2.png)](https://www.shadertoy.com/view/Mt2XRV#)
 
-[![](img/debug_image_orig.png)](https://www.shadertoy.com/view/MlSSRK)
+[![](img/debug_image_orig.png)](https://www.shadertoy.com/view/MtSXR3)
 
 ### Acknowledgements
 
@@ -25,16 +25,15 @@ Iñigo Quílez.
 *Terrain Raymarching* (2007).
 [Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
 
-Iñigo Quílez.
-*Terrain Raymarching* (2007).
-[Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
-  
 http://www.iquilezles.org/www/articles/menger/menger.htm - mendel sponge
 https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model - blinn-phong lighting
 http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf - ray marching/sphere tracing
+
 http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf - ambient occlusion/soft shadows
+
 https://www.shadertoy.com/view/4t2SRz - smoke color
 https://www.shadertoy.com/view/MdXGW2 - water
+https://www.shadertoy.com/view/MdX3zr - smoke movement
 
 
 
@@ -93,9 +92,9 @@ are defined in the fragment shader code executed for each pixel.
 
 * Advanced distance estimators
   * Height-mapped terrain rendering {iq-terr}
-    * Height map terrain can be used to render complicated and never ending terrain very quickly.  This is done by using a texture to deterine the height of the terrain at each pixel.  The height of the point along the ray is compared to a value determined from the texture at specific coordinates.  This value can be manipulated in amany different ways to help get the desired resultes.  In this case, I used the average of the R, G, and B values of the color at those texture coordinates.  The image below shows a height map using a checkered texture.  While this method is very useful for rendering complicated scenes, it does require you use the naive method.  This is because you do not have specific objects in the scene, you have a height for each pixel given by the texture, and you would have to compare the distance of each spot on the terrain (each pixel).   This would end up taking much longer than just stepping through the ray by a constant value.  
+    * Height map terrain can be used to render complicated and never ending terrain very quickly.  This is done by using a texture to deterine the height of the terrain at each pixel.  The height of the point along the ray is compared to a value determined from the texture at specific coordinates.  This value can be manipulated in amany different ways to help get the desired resultes.  In this case, I used the average of the R, G, and B values of the color at those texture coordinates.  The image below on the left shows a height map using a checkered texture.  The image on the right is using two different textures.  One to obtain the height at each pixel, and another to actually texture the terrain.  While this method is very useful for rendering complicated scenes, it does require you use the naive method.  This is because you do not have specific objects in the scene, you have a height for each pixel given by the texture, and you would have to compare the distance of each spot on the terrain (each pixel).   This would end up taking much longer than just stepping through the ray by a constant value.  
   
-  ![](img/height_map1.png)
+<img src="img/height_map1.png" height="192" width="341.333333333"> <img src="img/height_map2.png" height="192" width="341.333333333"> 
 
   * Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
     * The fractal rendering shows a repeating desing on an object.  In the image below, it shows the difference of a box and cross repeating on the cube.  This is done by using the difference estimators fro the box and cross, along with the difference operator.  Then, you iterate through and apply the pattern to each smaller section of the cube.  The more iterations you step through, the more repetitions of the patter will appear on the object.  Thread divergence is not an issue in this implementation, and it can be used with both the naive ray march and sphere tracing.  
@@ -150,22 +149,8 @@ reference(s) you used.
   
 ![](img/pie.png)
 
-  * Plot this analysis using pie charts or a 100% stacked bar chart.
-* For each feature (required or extra), estimate whether branch divergence
-  plays a role in its performance characteristics, and, if so, point out the
-  branch in question.
-  (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
-
 
 ### Resources
-
-You **must** acknowledge any resources you use, including, but not limited to,
-the links below. **Do not copy non-trivial code verbatim.** Instead, use the
-references to understand the methods.
-
-For any code/material in the 565
-[slides](http://cis565-fall-2015.github.io/lectures/12-Ray-Marching.pptx),
-please reference the source found at the bottom of the slide.
 
 * {McGuire}
   Morgan McGuire, Williams College.
@@ -193,12 +178,6 @@ please reference the source found at the bottom of the slide.
 
 
 ## Submit
-
-### Post on Shadertoy
-
-Post your shader on Shadertoy (preferably *public*; *draft* will not work).
-For your title, come up with your own demo title and use the format
-`[CIS565 2015F] YOUR TITLE HERE` (also add this to the top of your README).
 
 In the Shadertoy description, include the following:
 
