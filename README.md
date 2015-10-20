@@ -79,6 +79,9 @@ There are two debug views provided. The first shows the distance to the surface 
 
 ## Analysis
 
+### Naive Marching vs. Sphere Tracing
+There are two ways to compare naive ray marching and sphere tracing. The first is to measure the time to render a frame in miliseconds and compare the values for both methods. Unfortunately here, even for the complex mandelbulb example, both the naive and sphere methods give a result of 16ms per frame. The other way to do this is to visually compare the methods by uncommenting the STEP_COUNT flag and comparing the results.
+
 ### Acknowledgements
 * [Morgan McGuire: Numerical Methods for Ray Tracing Implicitly Defined Surfaces](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
 * [Inigo Quilez: Terrain Raymarching](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
