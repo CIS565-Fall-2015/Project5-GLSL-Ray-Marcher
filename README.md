@@ -92,7 +92,7 @@ are defined in the fragment shader code executed for each pixel.
 ![](img/wood_material.png)
 
 * Advanced distance estimators
-  * (3pts) Height-mapped terrain rendering {iq-terr}
+  * Height-mapped terrain rendering {iq-terr}
     * Height map terrain can be used to render complicated and never ending terrain very quickly.  This is done by using a texture to deterine the height of the terrain at each pixel.  The height of the point along the ray is compared to a value determined from the texture at specific coordinates.  This value can be manipulated in amany different ways to help get the desired resultes.  In this case, I used the average of the R, G, and B values of the color at those texture coordinates.  The image below shows a height map using a checkered texture.  While this method is very useful for rendering complicated scenes, it does require you use the naive method.  This is because you do not have specific objects in the scene, you have a height for each pixel given by the texture, and you would have to compare the distance of each spot on the terrain (each pixel).   This would end up taking much longer than just stepping through the ray by a constant value.  
   
   ![](img/height_map1.png)
@@ -103,9 +103,12 @@ are defined in the fragment shader code executed for each pixel.
   ![](img/menger_sponge.png)
   
 * Lighting effects
-  * (3pts) Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
-  ![](img/soft_shadow.png)
-  * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
+  * Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
+    *  Soft shadowing requires a secondary ray cast.  This secondary ray is cast from the intersected surface point and directed towards the light.  If the ray intersects the light, then no shadow will be applied.  If the ray hits another object before reaching the light, a shadow is drawn.  The implementation of soft shadowing can take up a lot of time when rendering.  This is because, not only does it cause for more ray marching (using the sphere tracing), but it also can cause thread divergence.  
+  
+![](img/soft_shadow.png)
+ 
+  * Ambient occlusion {iq-prim}
   
 <img src="img/before_amb_occ.png" height="192" width="227.5"> <img src="img/amb_occ_debug.png" height="192" width="227.5"> <img src="img/ambient_occlusion.png" height="192" width="227.5">
 
