@@ -82,3 +82,4 @@ There are two debug views provided. The first shows the distance to the surface 
 ### Acknowledgements
 * [Morgan McGuire: Numerical Methods for Ray Tracing Implicitly Defined Surfaces](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
 * [Inigo Quilez: Terrain Raymarching](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
+* [morgan3d: Mandelbulb Explained](https://www.shadertoy.com/view/XsXXWS)
