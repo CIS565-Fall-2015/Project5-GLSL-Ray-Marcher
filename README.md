@@ -74,5 +74,11 @@ Here I used the distance to the camera to show the debug view. Instead of comput
 For this part of the code, I referred a lot from the (). The mapping function is different from the source, it returns a vecter4 with xyz a normal and w the distance to the object. The color calculation is basically borrowed from the source. The result is great.
 
 ![](img/AO1.png)
-![](img/AO2.png)
  
+#PART VII: Height Map:
+
+This part is a little interesting. I have to use naive method to do this part. For every x and z value of a coordinate, I use a height function(like y=cos(2.1x)*sin(2.3z)) to compute the height, if the height is greater than y, then the ray hit the map and return, otherwise it marches on. The height function is the most important part.
+Those two images used different height functions:
+
+![](img/terrain1.png)
+![](img/terrian2.png)
