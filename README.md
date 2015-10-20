@@ -12,7 +12,7 @@ Click the image above or click [here](https://www.shadertoy.com/view/MlBSzc) to 
 
 ## Description
 
-TODO
+A GLSL ray marching shader with support for naive ray marching, sphere tracing, Lambert lighting, soft shadows, and rendering of spheres, planes, boxes, rounded boxes, and toruses. Also provides rendering for height-mapped terrain, a mandelbulb fractal object, and union, intersection, subtraction, displacement, blending, and transformation operations.
 
 ## Features
 
@@ -31,7 +31,6 @@ Distance estimators are used to define the objects in our scene. Support for the
 * Box {[McGuire 7.3](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)}
 * Rounded Box {[McGuire 7.4](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)}
 * Torus {[McGuire 7.5](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)}
-
 
 ### Height-Mapped Terrain Distance Estimator
 
