@@ -41,7 +41,7 @@ note: to use "#define terrMap" the "#define naive" should be used at the same ti
 * Lighting effects
   *  Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
   *  Ambient occlusion  {iq-prim}
-![](img/no_t.png)
+![](img/1.1.png)
 * Debug views 
   * Distance to surface for each pixel: #define debugView1
   * Number of ray march iterations used for each pixel:  #define debugView2
