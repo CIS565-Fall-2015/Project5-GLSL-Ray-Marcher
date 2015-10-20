@@ -63,6 +63,8 @@ note: to use "#define terrMap" the "#define naive" should be used at the same ti
 the fixed footstep, so it iterates much. The naive ray marching is much more "expensive"
 
 * Compare time spent ray marching vs. time spent shading/lighting:
+      type                      | FPS           |time (ms)
+ 
   <p>|raymarching with terrain  |8 FPS          |132ms|</p>
   <p>|raymarching without terr  |49.2FPS  ||</p>
   <p>|ray marching without terr & AO: 50.1 FPS</p>
