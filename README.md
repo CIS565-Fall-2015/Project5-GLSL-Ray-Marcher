@@ -66,7 +66,7 @@ the fixed footstep, so it iterates much. The naive ray marching is much more "ex
      | type                      | FPS           |time (ms)
      | Mapping        | Generated HTML Element               | Database Column Type|
      |----------------|:-------------------------------------|:--------------------|
-     `boolean`       | `input[type=checkbox]`               | `boolean`           |
+     | `boolean`      | `input[type=checkbox]`               | `boolean`           |
      `country`       | `select` (countries as options)      | `string` with `name =~ /country/`
      `time_zone`     | `select` (timezones as options)      | `string` with `name =~ /time_zone/`
   <p>|raymarching with terrain  |8 FPS          |132ms|</p>
