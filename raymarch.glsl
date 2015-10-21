@@ -1,11 +1,14 @@
 // 0 = None, 1 = Position, 2 = Normals, 3 = Steps
-#define DEBUG 0
-#define SPHERE_TRACE 0
+#define DEBUG 3
+#define SPHERE_TRACE 1
 
-//Shapes from iq
-float sdPlane( vec3 p )
+/*****************Distance estimators from iq***************/
+//https://www.shadertoy.com/view/Xds3zN
+
+float sdTerrain( vec3 p )
 {
-    return p.y;
+    //http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm
+    return p.y - 1.0 * sin(p.x) * sin(p.z);
 }
 
 float sdSphere( vec3 p, float s )
@@ -47,16 +50,25 @@ vec2 estimateDistance(in vec3 point) {
     
     float d1 = sdSphere(point + vec3(-0.5, -0.6, 0), 0.15);
     float d2 = sdBox(point, vec3(0.2, 0.2, 0.2));
-    float d3 = sdCone(point + vec3(1, -0.2, -0.1),
+    float d3 = sdCone(point + vec3(1.2, -0.2, -0.1),
                      vec3 (0.7, 0.3, 0.7));
+    float d4 = sdTerrain(point + vec3(0, 0.5, 0));
+    float d5 = sdCylinder(point + vec3(-1.0, 0.1, 0.5),
+                         vec2(0.2, 0.8));
     
-    float nearest = unionDistance(d3, unionDistance(d1,d2));
+    float nearest = unionDistance(d5, 
+                                  unionDistance(unionDistance(d3,d4),
+                                  unionDistance(d1,d2)));
     float col = 0.0;
     
     if (nearest == d1) {
         col = 1.0;
     } else if(nearest == d2) {
         col = 2.0;
+    } else if(nearest == d3){
+        col = 3.0;
+    } else if(nearest == d4){
+        col = 4.0;
     } else {
         col = 3.0;
     }
@@ -66,8 +78,8 @@ vec2 estimateDistance(in vec3 point) {
 
 
 vec3 naiveRayMarch(in vec3 ro, in vec3 rd) {
-    const float maxDistance = 5.0;
-    const float dt = 0.01;
+    const float maxDistance = 50.0;
+    const float dt = 0.001;
     int steps = 0;
     for (float t = 0.0; t < maxDistance; t += dt) {
      steps++;
@@ -83,7 +95,7 @@ vec3 naiveRayMarch(in vec3 ro, in vec3 rd) {
 vec3 sphereTrace(in vec3 ro, in vec3 rd) {
     const float epsilon = 0.00001;
     const float minStep = 0.001;
-    const int maxSteps = 50;
+    const int maxSteps = 500;
     
     float t = 0.0;
     float dt = estimateDistance(ro + rd * t).x;
@@ -142,7 +154,7 @@ float softshadow( in vec3 ro, in vec3 rd, in float mint, in float tmax )
 
 }
 
-vec3 render(in vec3 ro, in vec3 rd) {
+vec3 render(in vec3 ro, in vec3 rd, in vec2 pixel) {
   
     vec3 marched_ray;
     vec3 BG = vec3(0.7);
@@ -179,8 +191,11 @@ vec3 render(in vec3 ro, in vec3 rd) {
                 col = vec3(0, 1, 1);
             } else if (marched_ray.z == 3.0) {
                 col = vec3(0.7, 0, 0);
+            } else {
+                col = vec3(0.5);
             }
-            return lambert(point, calcNormal(point), col);
+            
+            return 1.2 * lambert(point, calcNormal(point), col);
          } else {
            return BG;
          }
@@ -224,9 +239,9 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec3 rd = ca * normalize(vec3(p.xy, 2.0));
 
     // render
-    vec3 col = render(ro, rd);
+    vec3 col = render(ro, rd, fragCoord);
 
-    col = pow(col, vec3(0.4545));
+    col = pow(col, vec3(0.3545));
 
     fragColor = vec4(col, 1.0);
 }
