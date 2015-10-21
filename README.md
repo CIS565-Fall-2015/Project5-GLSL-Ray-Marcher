@@ -1,6 +1,4 @@
-# [CIS565 2015F] YOUR TITLE HERE
-
-**GLSL Ray Marching**
+# [CIS565 2015F] GLSL Ray Marching
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
