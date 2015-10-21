@@ -40,15 +40,14 @@ This Shadertoy uses material from the following resources:
 * Soft shadowing 
 * Union operator {McGuire 11.1}
 * Transformation operator {McGuire 11.5}
-[![](img/shadow.png)]
-
+*[![](img/shadow.png)]
 * Debug views
   * Distance to surface for each pixel
-  [![](img/position.png)]
+  *[![](img/position.png)]
   * Number of ray march iterations used for each pixel
-  [![](img/sphere_step.png)]
+  *[![](img/sphere_step.png)]
 * Height-mapped terrain rendering 
-  [![](img/naive.png)]
+  *[![](img/naive.png)]
 
   
 
