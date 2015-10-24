@@ -343,11 +343,11 @@ vec3 calcNormal( in vec3 pos )
 
 // ======================= Lightning =======================
 
-float calcAO( in vec3 pos, in vec3 nor )
+float computeAO( in vec3 pos, in vec3 nor ) //compute the ambient occlusion
 {
     float occ = 0.0;
     float sca = 1.0;
-    for( int i=0; i<5; i++ )
+    for( int i=0; i<5; i++ ) //sample over normal direction
     {
         float hr = 0.01 + 0.12*float(i)/4.0;
         vec3 aopos =  nor * hr + pos;
@@ -355,19 +355,22 @@ float calcAO( in vec3 pos, in vec3 nor )
         occ += -(dd-hr)*sca;
         sca *= 0.95;
     }
+
     return clamp( 1.0 - 3.0*occ, 0.0, 1.0 );    
 }
 
-float softshadow( in vec3 ro, in vec3 rd, in float tmin, in float tmax )
+float softshadow( in vec3 ro, in vec3 rd, in float tmin, in float tmax ) //compute the softshadow
 {
     float res = 1.0;
     float t = tmin;
-    for( int i=0; i<16; i++ )
+    for( int i=0; i<10; i++ ) //sample over the rd direction
     {
         float h = GetMinDis( ro + rd*t ).x;
         res = min( res, 5.0*h/t );
         t += clamp( h, 0.02, 0.10 );
-        if( h<0.001 || t>tmax ) break;
+        
+		
+		if( h<0.001 || t>tmax ) break;
     }
     return clamp( res, 0.0, 1.0 );
 
@@ -445,8 +448,8 @@ vec3 render( in vec3 ro, in vec3 rd )
         }
 
         // lighitng        
-       	//float occ  =1.0;//= calcAO( pos, nor );
-        float occ  = calcAO( pos, nor );
+       	//float occ  =1.0;//= computeAO( pos, nor );
+        float occ  = computeAO( pos, nor );
         vec3  lig = normalize( vec3(-0.6, 0.7, -0.5) );
         float amb = clamp( 0.5+0.5*nor.y, 0.0, 1.0 );
         float dif = clamp( dot( nor, lig ), 0.0, 1.0 );
