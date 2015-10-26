@@ -23,6 +23,8 @@ The Shadertoy demo includes a large set of debug flags, where you can turn on:
 * `OVERRELAX/SPEHRETRACE/NAIVE`: for different raymarching types
 * `DISTANCE/NORMAL/ITERS`: for different debug displays
 
+Check out the Shadertoy demo: there's animation!
+
 [![](img/thumb.png)][shadertoy]
 
   [shadertoy]: https://www.shadertoy.com/view/XISSRc
@@ -118,7 +120,9 @@ that location.
 
 For this raymarch we must use a naive method (with fixed step size), since the
 function does not compute a distance from a point on the ray to the terrain (it
-only defines the terrain height at a given point).
+only defines the terrain height at a given point). That makes this technique
+very, very slow -- especially when the other two raymarches (initial object and
+soft shadow) can be optimized with sphere tracing.
 
 #### Sphere Overrelaxation
 
@@ -127,13 +131,19 @@ Reference: McQuire ["Implicitly Defined Surfaces"][mcguire], Keinert ["Enhanced 
 The number of ray march iterations displayed as grayscale, with darker areas
 indicating fewer iterations before the surface is considered intersected.
 
-![](img/iters_spheretracing.png)
-
-![](img/iters_overrelax.png)
-
-(This method is not currently working.)
+(This method is not currently working...)
 
 ### Performance
+
+Performance data was taken from the following four scenes:
+
+![](img/scenes-all4.png)
+
+Data was taken with [stats.js][statsjs]. Unfortunately it was hard to get a good
+reading by using the ms timer in statsjs, so I mostly relied on taking the FPS
+counter and calculating millisecond timing by 1000/FPS.
+
+  [statsjs]: https://github.com/mrdoob/stats.js/
 
 Render times for different scenes grouped by raymarch type:
 
@@ -159,16 +169,21 @@ Main takeaways:
   light.
 
 * stats.js wasn't great for finding timing data: all of the shadow-only timings
-  are actually bound by the 60fps cap.
+  are actually bound by the 60fps cap. I intended to also take
+  no-shadow/no-terrain data, but given this finding it would not have been very
+  useful.
 
 * There sphere scene was similar to the close scene in composition, but had only
   one object rather than many. The difference in time between those two are
   likely due ot repeated distance function computations.
 
+Another comparison I should have done would be a box and a menger sponge of the
+same size.
+
 Since there's no use in directly comparing sphere-traced and naive times, this
 is a graph that scales render times by the full version of that raymarch type:
 
-![](img/perf_scaled.png)
+![](img/perf_scaled_times.png)
 
 ### Bonus images
 
@@ -179,6 +194,11 @@ Raw position data, with the sphere at (0, 0, 0) and a plane underneath.
 Normals for each geometry, computed with the equation given in McGuire (8).
 
 ![](img/debug_normals.png)
+
+Some geometry with iteration displayed as color (white indicates more raymarches
+before intersection).
+
+![](img/iters_spheretracing.png)
 
 Naive ray marching with a step size of 0.1 (too large), got wireframes instead
 of solid shapes:
