@@ -30,3 +30,6 @@ This Shadertoy uses material from the following resources:
 - Debug Views
 
 ## Performance Analysis
+#Fixed step size Vs Sphere tracing
+<img src=img/Fixed.png width=50%/><img src=img/Adaptive.png width=50%/>
+These images are displayed in debug mode to display the number of iterations, from white (requires less iterations) to black (requires more iterations). It is noticable that with fixed step size (Left), the screen is mostly black-gray, meaning it requires more iteration to reach the object. Meanwhile, even sphere tracing requires less iteration, it is noticable that the algorithm is expensive around the edges of the object. 
