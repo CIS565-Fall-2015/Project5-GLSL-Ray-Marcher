@@ -16,8 +16,8 @@
 
 This Shadertoy uses material from the following resources:
 
-# http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf
-# http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf
-# https://github.com/dsheets/gloc/blob/master/stdlib/matrix.glsl
+* http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf
+* http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf
+* https://github.com/dsheets/gloc/blob/master/stdlib/matrix.glsl
 
 ### Features
