@@ -28,4 +28,5 @@ This Shadertoy uses material from the following resources:
 - Union Operator
 - Transformation Operator
 - Debug Views
-- 
+
+## Performance Analysis
