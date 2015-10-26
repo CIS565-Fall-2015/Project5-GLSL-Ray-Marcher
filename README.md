@@ -10,7 +10,7 @@
 
 ### Live on Shadertoy
 
-[![](img/thumb.png)](https://www.shadertoy.com/view/MtSXRt)
+[![](img/src.png)](https://www.shadertoy.com/view/MtSXRt)
 
 ### Acknowledgements
 
