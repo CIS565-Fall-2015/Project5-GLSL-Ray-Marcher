@@ -1,6 +1,4 @@
-# [CIS565 2015F] YOUR TITLE HERE
-
-**GLSL Ray Marching**
+# GLSL Ray Marching
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
@@ -10,7 +8,7 @@
 
 ### Live on Shadertoy
 
-[![](img/src.png)](https://www.shadertoy.com/view/MtSXRt)
+<a href="https://www.shadertoy.com/view/MtSXRt"><img src=img/src.png width=50%/></a>
 
 ### Acknowledgements
 
