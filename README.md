@@ -19,3 +19,13 @@ This Shadertoy uses material from the following resources:
 * https://github.com/dsheets/gloc/blob/master/stdlib/matrix.glsl
 
 ### Features
+- Soft Shadow
+- Ambient Occlusion
+- Naive ray marching (fixed step size) & Sphere tracing (step size varies based on signed distance field) 
+  - Over-relaxation method of sphere tracing
+- 7 distance estimators.
+- Blinn phong lighting 
+- Union Operator
+- Transformation Operator
+- Debug Views
+- 
