@@ -45,9 +45,17 @@ This Shadertoy uses material from the following resources:
 
 ### Images
 
+####Distance Debug Image
 ![](img/position.png "Distance Debug Image")
+####Normal Debug Image
+![](img/normal.png "Normal Debug Image")
+####Sphere Tracing Step Count Debug Image
 ![](img/sphere_step.png "Step Count Debug Image"")
+####Naive Tracing Step Count Debug Image
+![](img/naive_step.png "Step Count Debug Image"")
+####Terrain
 ![](img/naive.png "Terrain Image")
-
+####Soft Shadow
+![](img/shadow.png "Terrain Image")
   
 
