@@ -18,6 +18,17 @@ This Shadertoy uses material from the following external resources:
 
 Basic scene setup using {iq-prim}
 
+##### References
+
+* Morgan McGuire, Williams College.*Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014)
+  * http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
+* Iñigo Quílez.*Raymarching Primitives* (2013)
+  * https://www.shadertoy.com/view/Xds3zN
+* Iñigo Quílez.
+  * http://www.iquilezles.org/www/articles/rmshadows/rmshadows.htm
+* Lukasz Jaroslaw Tomczak. *GPU Ray Marching of Distance Fields*
+  * http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf
+
 ### Features
 
 * Ray marching
