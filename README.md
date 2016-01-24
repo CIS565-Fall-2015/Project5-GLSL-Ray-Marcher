@@ -1,189 +1,139 @@
-# [CIS565 2015F] YOUR TITLE HERE
+# [CIS565 2015F] Raymarching Fun
 
 **GLSL Ray Marching**
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
-* (TODO) YOUR NAME HERE
-* Tested on: (TODO) **Google Chrome 222.2** on
-  Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+* Tongbo Sui
+* Tested on: Google Chrome 46.0.2490.71 on Windows 10, i5-3320M @ 2.60GHz 8GB, NVS 5400M 2GB (Personal)
 
-### Live on Shadertoy (TODO)
+### Live on Shadertoy
 
-[![](img/thumb.png)](https://www.shadertoy.com/view/TODO)
+[![](img/thumb.png)](https://www.shadertoy.com/view/4l2SzV)
 
 ### Acknowledgements
 
-This Shadertoy uses material from the following resources:
+This Shadertoy uses material from the following external resources:
+* Checker board material: https://www.shadertoy.com/view/Xds3zN
 
-* TODO
+Basic scene setup using {iq-prim}
 
-### (TODO: Your README)
+##### References
 
-
-Instructions (delete me)
-========================
-
-This is due at midnight on the evening of Monday, October 19.
-
-**Summary:** In this project, you'll see yet another way in which GPU
-parallelism and compute-efficiency can be used to render scenes.
-You'll write a program in the popular online shader editor
-[Shadertoy](http://www.shadertoy.com/).
-Your goal will be to implement and show off different features in a cool and
-interesting demo. See Shadertoy for inspiration - and get creative!
-
-Ray marching is an iterative ray casting method in which objects are
-represented as implicit surfaces defined by signed distance functions (SDFs). This
-method is widely used in the Shadertoy community to render complex scenes which
-are defined in the fragment shader code executed for each pixel.
-
-**Important Notes:**
-* Even though you will be coding in Shadertoy, it is important as always to
-  save versions of your code so that you do not lose progress! Commit often!
-* A significant portion of this project will be in write-up and performance
-  analysis - don't save it for later.
-
-**Provided Code:**
-The provided code in `raymarch.glsl` is straight from iq's Raymarching
-Primitives; see {iq-prim}. It just sets up a simple starter camera.
+* Morgan McGuire, Williams College.*Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014)
+  * http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
+* Iñigo Quílez.*Raymarching Primitives* (2013)
+  * https://www.shadertoy.com/view/Xds3zN
+* Iñigo Quílez.
+  * http://www.iquilezles.org/www/articles/rmshadows/rmshadows.htm
+* Lukasz Jaroslaw Tomczak. *GPU Ray Marching of Distance Fields*
+  * http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf
 
 ### Features
 
-All features must be visible in your final demo for full credit.
+* Ray marching
+  * Naive ray marching {McGuire}
+    * Uses fixed step size to progress rays
+    * Progression is bounded by maximum distance
+  * Sphere tracing {McGuire}
+    * Uses variable step size based on estimated distances
+    * Progression is bounded by maximum stepping iterations
+  * *Branch divergence*: both tracing method will allow a thread to terminate early if the pixel ray hits an explicit surface. Therefore it's highly possible that branches are diverged, since there is no set way to group those terminated with those did not on the fly.
 
-**Required Features:**
+###### Naive and sphere tracing
+![](img/naive-sphere.png)
 
-* Two ray marching methods (comparative analysis required)
-  * Naive ray marching (fixed step size) {McGuire 4}
-  * Sphere tracing (step size varies based on signed distance field) {McGuire 6}
-* 3 different distance estimators {McGuire 7} {iq-prim}
-  * With normal computation {McGuire 8}
-* One simple lighting computation (e.g. Lambert or Blinn-Phong).
-* Union operator {McGuire 11.1}
-  * Necessary for rendering multiple objects
-* Transformation operator {McGuire 11.5}
-* Debug views (preferably easily toggleable, e.g. with `#define`/`#if`)
+* Distance estimators {McGuire}
+  * Estimators
+    * Sphere
+    * Box
+    * Plane
+    * Rounded corner box
+    * Torus
+    * Cylinder
+  * *Branch divergence*: shouldn't have any effects since they do straight calculations
+
+###### Distance estimators
+![](img/estimators.png)
+
+* Transformation operator {McGuire}
+  * Takes a set `(vec3 translate, mat3 rotate, vec3 scale)` as input, and will transform the points in the inverse direction
+  * *Branch divergence*: shouldn't have any effects since they do straight calculations
+
+* Distance operators {McGuire}
+  * Union
+  * Subtraction
+  * *Branch divergence*: branching only happens with in the distance operators. If the scene is setup in a particular way, then all threads would branch the same way, hence no visible performance impacts. Otherwise there would be some divergence.
+
+###### Distance operators
+![](img/operators.png)
+
+* Normal computation {McGuire}
+  * Estimate surface normal on intersection point with differentiation
+  * *Branch divergence*: shouldn't have any effects since they do straight calculations
+
+###### Normal
+![](img/normal.png)
+
+* Lambert lighting with effects (sphere tracing only)
+  * Soft shadow {iq-shadow}
+    * Shadow with faked softness
+    * Shadow calculated by shooting rays from surface to light, and evaluate the closest surface hit by such rays. Multiple samples are taken to get the best result
+    * *Branch divergence*: same as ray marching
+  * Ambient occlusion {ljt-ao}
+    * Similar to soft shadow, but takes all samples into account instead of picking the best one
+    * Rays are shot from surface along normals, and stepped in fixed step size
+    * At each sample point the occlusion is calculated by the amount of the march sphere covered by some other surface
+    * *Branch divergence*: same as ray marching
+
+###### Lighting effects
+![](img/lightings.png)
+
+* Over-relaxation for sphere tracing {McGuire}
+  * Over-shoot the ray during marching in hope for hitting a surface in less iterations
+  * Implementation wise ineffective
+    * Due to the current implementation, the over-shooting is calculated the exact same way as for step size. Therefore at each iteration there are 2 calls to distance estimators, which essentially doubled the computation time compared to implementation without relaxation
+    * With over-relaxation: 44.7 FPS
+    * Without: 55.7 FPS
+  * Iteration-wise effective
+    * The over-relaxation indeed reduced iteration counts to surfaces
+    * However this may not be enough to offset the overhead brought by the current implementation
+  * *Branch divergence*: threads would diverge at the point where they decide whether the over-shot can be accepted. However this shouldn't be a significant performance impact since it happends at the end of the entire computation
+  * *Possible improvement*: only estimate related surfaces, instead of all surfaces
+
+###### Per fragment iteration with and without over-relaxation. Brighter means more iterations. Notice reduced iteration count on edges, and also on plane
+![](img/relax-norelax.png)
+
+* Debug views
   * Distance to surface for each pixel
   * Number of ray march iterations used for each pixel
+  * Surface normal
 
-**Extra Features:**
-
-You must do at least 10 points worth of extra features.
-
-* (0.25pt each, up to 1pt) Other basic distance estimators/operations {McGuire 7/11}
-* Advanced distance estimators
-  * (3pts) Height-mapped terrain rendering {iq-terr}
-  * (3pts) Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
-  * **Note** that these require naive ray marching, if there is no definable
-    SDF. They may be optimized using bounding spheres (see below).
-* Lighting effects
-  * (3pts) Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
-  * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
-* Optimizations (comparative analysis required!)
-  * (3pts) Over-relaxation method of sphere tracing {McGuire 12.1}
-  * (2pts) Analytical bounding spheres on objects in the scene {McGuire 12.2/12.3}
-  * (1pts) Analytical infinite planes {McGuire 12.3}
-
-This extra feature list is not comprehensive. If you have a particular idea
-that you would like to implement, please **contact us first** (preferably on
-the mailing list).
-
-## Write-up
-
-For each feature (required or extra), include a screenshot which clearly
-shows that feature in action. Briefly describe the feature and mention which
-reference(s) you used.
+###### Depth
+![](img/depth.png)
 
 ### Analysis
 
-* Provide an analysis comparing naive ray marching with sphere tracing
-  * In addition to FPS, implement a debug view which shows the "most expensive"
-    fragments by number of iterations required for each pixel. Compare these.
-* Compare time spent ray marching vs. time spent shading/lighting
-  * This can be done by taking measurements with different parts of your code
-    enabled (e.g. raymarching, raymarching+shadow, raymarching+shadow+AO).
-  * Plot this analysis using pie charts or a 100% stacked bar chart.
-* For each feature (required or extra), estimate whether branch divergence
-  plays a role in its performance characteristics, and, if so, point out the
-  branch in question.
-  (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
-* For each optimization feature, compare performance with and without the
-  optimization. Describe and demo the types of scenes which benefit from the
-  optimization.
+* Naive ray marching vs. sphere tracing
+  * Sphere tracing offers a significant improvement over naive tracing
+    * Sphere: 16ms / 57.7 FPS
+    * Naive: 100ms / 10.6 FPS
+  * As shown below. Naive tracing can have siginificantly more iterations per ray, since it steps a fixed amount at each iteration
+  * Sphere tracing requires much less efforts to hit the surface in comparison. The variable step size would allow the ray to leap forward when space is empty, and fine tune its steps when space is crowded
 
-**Tips:**
+###### Per fragment iteration. Brighter means more iterations
+![](img/iter-naive-sphere.png)
 
-* To avoid computing frame times given FPS, you can use the
-  [stats.js bookmarklet](https://github.com/mrdoob/stats.js/#bookmarklet)
-  to measure frame times in ms.
+###### Time spent marching vs. shading
+![](img/march-time.png)
 
-### Resources
+### References
 
-You **must** acknowledge any resources you use, including, but not limited to,
-the links below. **Do not copy non-trivial code verbatim.** Instead, use the
-references to understand the methods.
-
-For any code/material in the 565
-[slides](http://cis565-fall-2015.github.io/lectures/12-Ray-Marching.pptx),
-please reference the source found at the bottom of the slide.
-
-* {McGuire}
-  Morgan McGuire, Williams College.
-  *Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014).
-  [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
-  * You may credit and use code from this reference.
-* {iq-prim}
-  Iñigo Quílez.
-  *Raymarching Primitives* (2013).
-  [Shadertoy](https://www.shadertoy.com/view/Xds3zN)
-* {iq-terr}
-  Iñigo Quílez.
-  *Terrain Raymarching* (2007).
-  [Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
-  * You may credit and use code from this reference.
-* {iq-rwwtt}
-  Iñigo Quílez.
-  *Rendering Worlds with Two Triangles with raytracing on the GPU* (2008).
-  [Slides](http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
-* {Ashima}
-  Ashima Arts, Ian McEwan, Stefan Gustavson.
-  *webgl-noise*.
-  [GitHub](https://github.com/ashima/webgl-noise)
-  * You may use this code under the MIT-expat license.
-
-
-## Submit
-
-### Post on Shadertoy
-
-Post your shader on Shadertoy (preferably *public*; *draft* will not work).
-For your title, come up with your own demo title and use the format
-`[CIS565 2015F] YOUR TITLE HERE` (also add this to the top of your README).
-
-In the Shadertoy description, include the following:
-
-* A link to your GitHub repository with the Shadertoy code.
-* **IMPORTANT:** A copy of the *Acknowledgements* section from above.
-  * Remember, this is public - strangers will want to know where you got your
-    material.
-
-Add a screenshot of your result to `img/thumb.png`
-(right click rendering -> Save Image As), and put the link to your
-Shadertoy at the top of your README.
-
-### Pull Request
-
-**Even though your code is on Shadertoy, make sure it is also on GitHub!**
-
-1. Open a GitHub pull request so that we can see that you have finished.
-   The title should be "Submission: YOUR NAME".
-   * **ADDITIONALLY:**
-     In the body of the pull request, include a link to your repository.
-2. Send an email to the TA (gmail: kainino1+cis565@) with:
-   * **Subject**: in the form of `[CIS565] Project N: PENNKEY`.
-   * Direct link to your pull request on GitHub.
-   * Estimate the amount of time you spent on the project.
-   * If there were any outstanding problems, or if you did any extra
-     work, *briefly* explain.
-   * Feedback on the project itself, if any.
+* {McGuire} Morgan McGuire, Williams College.*Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014)
+  * http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
+* {iq-prim} Iñigo Quílez.*Raymarching Primitives* (2013)
+  * https://www.shadertoy.com/view/Xds3zN
+* {iq-shadow} Iñigo Quílez.
+  * http://www.iquilezles.org/www/articles/rmshadows/rmshadows.htm
+* {ljt-ao} Lukasz Jaroslaw Tomczak. *GPU Ray Marching of Distance Fields*
+  * http://www2.compute.dtu.dk/pubdb/views/edoc_download.php/6392/pdf/imm6392.pdf
