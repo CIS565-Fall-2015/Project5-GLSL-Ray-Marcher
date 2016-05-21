@@ -1,189 +1,211 @@
-# [CIS565 2015F] YOUR TITLE HERE
+# [CIS565 2015F] Shadertoy: Morph
 
 **GLSL Ray Marching**
 
 **University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 5**
 
-* (TODO) YOUR NAME HERE
-* Tested on: (TODO) **Google Chrome 222.2** on
-  Windows 22, i7-2222 @ 2.22GHz 22GB, GTX 222 222MB (Moore 2222 Lab)
+Terry Sun; Google Chrome 45.0, Arch Linux, Intel i5-4670, GTX 750
 
-### Live on Shadertoy (TODO)
+A ray-marching shader implemented as a fragment shader. For each pixel, a ray is
+shot from the camera into the scene. Rather than computing geometry
+_intersections_ (as would be typical in a raytracer), this "marches" along the
+ray and, at each point, computes the distances away from objects defined in the
+scene. Objects are defined implicitly with signed data functions.
 
-[![](img/thumb.png)](https://www.shadertoy.com/view/TODO)
+### [Live on Shadertoy!][shadertoy]
+
+The Shadertoy demo includes a large set of debug flags, where you can turn on:
+
+* `SCENE1/SCENE2`: SCENE2 contains the image below; SCENE1 contains the geometry demo
+* `PLANE/HEIGHTMAP`: enable or disable the (distance function-defined) plane below
+  the scene or the height-mapped terrain (the two options toggled independently)
+* `FIXEDCAM`: the camera rotates around the scene if 0
+* `OVERRELAX/SPEHRETRACE/NAIVE`: for different raymarching types
+* `DISTANCE/NORMAL/ITERS`: for different debug displays
+
+Check out the Shadertoy demo: there's animation!
+
+[![](img/thumb.png)][shadertoy]
+
+  [shadertoy]: https://www.shadertoy.com/view/XISSRc
 
 ### Acknowledgements
 
-This Shadertoy uses material from the following resources:
+This Shadertoy project uses *code* from the following resources:
 
-* TODO
+* Morgan McGuire's
+  *Numerical Methods for Ray Tracing Implicitly Defined Surfaces*.
+  [PDF][mcguire]
+* Iñigo Quílez's [Modeling with distance functions][iq-sdf]: [Shadertoy][iq-sdf-st]
+* Iñigo Quílez's [Terrain Raymarching][iq-terrain]
+* Iñigo Quílez's [Free Penumbra Shadows for Raymarching Distance Fields][iq-shadows]
+  (Soft shadows)
+* Iñigo Quílez's [Menger fractal][menger]
 
-### (TODO: Your README)
+  [mcguire]: http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf
+  [iq-sdf]: http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
+  [iq-sdf-st]: https://www.shadertoy.com/view/Xds3zN
+  [iq-terrain]: http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm
+  [iq-shadows]: http://www.iquilezles.org/www/articles/rmshadows/rmshadows.htm
+  [iq-menger]: http://www.iquilezles.org/www/articles/menger/menger.htm
 
+And uses the following as resources only:
 
-Instructions (delete me)
-========================
+* "Enhanced Sphere Tracing." Keinert, Schafer, Korndorf, Ganse, Stamminger.
+  [PDF][keinert]
 
-This is due at midnight on the evening of Monday, October 19.
-
-**Summary:** In this project, you'll see yet another way in which GPU
-parallelism and compute-efficiency can be used to render scenes.
-You'll write a program in the popular online shader editor
-[Shadertoy](http://www.shadertoy.com/).
-Your goal will be to implement and show off different features in a cool and
-interesting demo. See Shadertoy for inspiration - and get creative!
-
-Ray marching is an iterative ray casting method in which objects are
-represented as implicit surfaces defined by signed distance functions (SDFs). This
-method is widely used in the Shadertoy community to render complex scenes which
-are defined in the fragment shader code executed for each pixel.
-
-**Important Notes:**
-* Even though you will be coding in Shadertoy, it is important as always to
-  save versions of your code so that you do not lose progress! Commit often!
-* A significant portion of this project will be in write-up and performance
-  analysis - don't save it for later.
-
-**Provided Code:**
-The provided code in `raymarch.glsl` is straight from iq's Raymarching
-Primitives; see {iq-prim}. It just sets up a simple starter camera.
+  [keinert]: http://erleuchtet.org/~cupe/permanent/enhanced_sphere_tracing.pdf
 
 ### Features
 
-All features must be visible in your final demo for full credit.
+#### Technique
 
-**Required Features:**
+1. From the camera, shoot a ray into the scene. Then...
 
-* Two ray marching methods (comparative analysis required)
-  * Naive ray marching (fixed step size) {McGuire 4}
-  * Sphere tracing (step size varies based on signed distance field) {McGuire 6}
-* 3 different distance estimators {McGuire 7} {iq-prim}
-  * With normal computation {McGuire 8}
-* One simple lighting computation (e.g. Lambert or Blinn-Phong).
-* Union operator {McGuire 11.1}
-  * Necessary for rendering multiple objects
-* Transformation operator {McGuire 11.5}
-* Debug views (preferably easily toggleable, e.g. with `#define`/`#if`)
-  * Distance to surface for each pixel
-  * Number of ray march iterations used for each pixel
+  1. Naive raymarch: for every *fixed-size* step along a ray, compute the
+     distance away from all objects in the scene. An object is considered
+     intersected if it is below some small threshold.
 
-**Extra Features:**
+  2. Sphere tracing raymarch: at any given point along a ray, you have computed the
+     minimum distance *d* from objects in the scene in order to check for
+     intersections. Thus, if *d* doesn't indicate an intersection, it is safe to
+     take a step of length *d* along the ray.
 
-You must do at least 10 points worth of extra features.
+3. Terrain: If you have traveled some capped maximum distance away from the
+   camera, consider the ray as not intersecting the scene. However, there is
+   terrain!  Continue the same raymarch, but compute terrain height rather than
+   object distances. This must be a naive raymarch.
 
-* (0.25pt each, up to 1pt) Other basic distance estimators/operations {McGuire 7/11}
-* Advanced distance estimators
-  * (3pts) Height-mapped terrain rendering {iq-terr}
-  * (3pts) Fractal rendering (e.g. Menger sponge or Mandelbulb {McGuire 13.1})
-  * **Note** that these require naive ray marching, if there is no definable
-    SDF. They may be optimized using bounding spheres (see below).
-* Lighting effects
-  * (3pts) Soft shadowing using secondary rays {iq-prim} {iq-rwwtt p55}
-  * (3pts) Ambient occlusion (see 565 slides for another reference) {iq-prim}
-* Optimizations (comparative analysis required!)
-  * (3pts) Over-relaxation method of sphere tracing {McGuire 12.1}
-  * (2pts) Analytical bounding spheres on objects in the scene {McGuire 12.2/12.3}
-  * (1pts) Analytical infinite planes {McGuire 12.3}
+4. Shadows: Once the ray has intersected an object or terrain, initiate (yet
+   another) raymarch from the point of intersection to the light. This will
+   determine the shadowing factor at that point.
 
-This extra feature list is not comprehensive. If you have a particular idea
-that you would like to implement, please **contact us first** (preferably on
-the mailing list).
+5. Lighting: Put the above together (intersection point, shadow factor) with a
+   simple normal calculation for simple Lambert lighting.
 
-## Write-up
+#### Objects
 
-For each feature (required or extra), include a screenshot which clearly
-shows that feature in action. Briefly describe the feature and mention which
-reference(s) you used.
+Rererence:
+McGuire ["Implicitly Defined Surfaces"][mcguire],
+iq ["Modeling with distance functions"][iq-sdf],
+iq ["Menger fractal"][iq-menger]
 
-### Analysis
+![](img/geometries.png)
 
-* Provide an analysis comparing naive ray marching with sphere tracing
-  * In addition to FPS, implement a debug view which shows the "most expensive"
-    fragments by number of iterations required for each pixel. Compare these.
-* Compare time spent ray marching vs. time spent shading/lighting
-  * This can be done by taking measurements with different parts of your code
-    enabled (e.g. raymarching, raymarching+shadow, raymarching+shadow+AO).
-  * Plot this analysis using pie charts or a 100% stacked bar chart.
-* For each feature (required or extra), estimate whether branch divergence
-  plays a role in its performance characteristics, and, if so, point out the
-  branch in question.
-  (Like in CUDA, if threads diverge within a warp, performance takes a hit.)
-* For each optimization feature, compare performance with and without the
-  optimization. Describe and demo the types of scenes which benefit from the
-  optimization.
+Geometries are defined implicitly with signed distance functions, mostly taken
+verbatim out of iq's references. Objects are composed with union and
+intersection functions.
 
-**Tips:**
+#### Soft Shadows
 
-* To avoid computing frame times given FPS, you can use the
-  [stats.js bookmarklet](https://github.com/mrdoob/stats.js/#bookmarklet)
-  to measure frame times in ms.
+Reference: iq ["Modeling with distance functions"][iq-sdf], iq ["Free Penumbra Shadows for Raymarching Distance Fields"][iq-shadows]
 
-### Resources
+![](img/debug_softshadow_noise.png)
 
-You **must** acknowledge any resources you use, including, but not limited to,
-the links below. **Do not copy non-trivial code verbatim.** Instead, use the
-references to understand the methods.
+Compute a second raymarch from the intersection point to the light. Take the
+minimum over all points along the raymarch of the intersection distance against
+all objects in the scene. This yields soft shadows: even without a direct
+intersection, things that come _close_ to intersection result in shadows.
 
-For any code/material in the 565
-[slides](http://cis565-fall-2015.github.io/lectures/12-Ray-Marching.pptx),
-please reference the source found at the bottom of the slide.
+#### Height Mapped Terrain
 
-* {McGuire}
-  Morgan McGuire, Williams College.
-  *Numerical Methods for Ray Tracing Implicitly Defined Surfaces* (2014).
-  [PDF](http://graphics.cs.williams.edu/courses/cs371/f14/reading/implicit.pdf)
-  * You may credit and use code from this reference.
-* {iq-prim}
-  Iñigo Quílez.
-  *Raymarching Primitives* (2013).
-  [Shadertoy](https://www.shadertoy.com/view/Xds3zN)
-* {iq-terr}
-  Iñigo Quílez.
-  *Terrain Raymarching* (2007).
-  [Article](http://www.iquilezles.org/www/articles/terrainmarching/terrainmarching.htm)
-  * You may credit and use code from this reference.
-* {iq-rwwtt}
-  Iñigo Quílez.
-  *Rendering Worlds with Two Triangles with raytracing on the GPU* (2008).
-  [Slides](http://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
-* {Ashima}
-  Ashima Arts, Ian McEwan, Stefan Gustavson.
-  *webgl-noise*.
-  [GitHub](https://github.com/ashima/webgl-noise)
-  * You may use this code under the MIT-expat license.
+Reference: iq ["Terrain Raymarching"][iq-terrain]
 
+![](img/height.png)
 
-## Submit
+If a ray does not collide with any scene geometry after a max distance from the
+camera, instead compute an intersection with a terrain function. The terrain
+is defined with a function that takes an (x, z) pair and computes the height at
+that location.
 
-### Post on Shadertoy
+For this raymarch we must use a naive method (with fixed step size), since the
+function does not compute a distance from a point on the ray to the terrain (it
+only defines the terrain height at a given point). That makes this technique
+very, very slow -- especially when the other two raymarches (initial object and
+soft shadow) can be optimized with sphere tracing.
 
-Post your shader on Shadertoy (preferably *public*; *draft* will not work).
-For your title, come up with your own demo title and use the format
-`[CIS565 2015F] YOUR TITLE HERE` (also add this to the top of your README).
+#### Sphere Overrelaxation
 
-In the Shadertoy description, include the following:
+Reference: McQuire ["Implicitly Defined Surfaces"][mcguire], Keinert ["Enhanced Sphere Tracing"][keinert]
 
-* A link to your GitHub repository with the Shadertoy code.
-* **IMPORTANT:** A copy of the *Acknowledgements* section from above.
-  * Remember, this is public - strangers will want to know where you got your
-    material.
+The number of ray march iterations displayed as grayscale, with darker areas
+indicating fewer iterations before the surface is considered intersected.
 
-Add a screenshot of your result to `img/thumb.png`
-(right click rendering -> Save Image As), and put the link to your
-Shadertoy at the top of your README.
+(This method is not currently working...)
 
-### Pull Request
+### Performance
 
-**Even though your code is on Shadertoy, make sure it is also on GitHub!**
+Performance data was taken from the following four scenes:
 
-1. Open a GitHub pull request so that we can see that you have finished.
-   The title should be "Submission: YOUR NAME".
-   * **ADDITIONALLY:**
-     In the body of the pull request, include a link to your repository.
-2. Send an email to the TA (gmail: kainino1+cis565@) with:
-   * **Subject**: in the form of `[CIS565] Project N: PENNKEY`.
-   * Direct link to your pull request on GitHub.
-   * Estimate the amount of time you spent on the project.
-   * If there were any outstanding problems, or if you did any extra
-     work, *briefly* explain.
-   * Feedback on the project itself, if any.
+![](img/scenes-all4.png)
+
+Data was taken with [stats.js][statsjs]. Unfortunately it was hard to get a good
+reading by using the ms timer in statsjs, so I mostly relied on taking the FPS
+counter and calculating millisecond timing by 1000/FPS.
+
+  [statsjs]: https://github.com/mrdoob/stats.js/
+
+Render times for different scenes grouped by raymarch type:
+
+![](img/perf_raymarch_type.png)
+
+Easy to see why naive raymarching is not done.
+
+And the transpose, with only sphere tracing times:
+
+![](img/perf_scene.png)
+
+Main takeaways:
+
+* Scenes where most of the rays intersect (early) are fast.
+
+* Terrain is very slow, because all rays which hit terrain did not
+  intersect and had to complete a full raymarch, and _additionally_ had to go
+  through a second _naive_ raymarch.
+
+* Shadows have a small effect. The shadow timing is really the difference
+  between the all-scene and terrain-only scene. Reasonable: shadows should
+  involve a (relatively short) raymarch capped at distance from intersection to
+  light.
+
+* stats.js wasn't great for finding timing data: all of the shadow-only timings
+  are actually bound by the 60fps cap. I intended to also take
+  no-shadow/no-terrain data, but given this finding it would not have been very
+  useful.
+
+* There sphere scene was similar to the close scene in composition, but had only
+  one object rather than many. The difference in time between those two are
+  likely due ot repeated distance function computations.
+
+Another comparison I should have done would be a box and a menger sponge of the
+same size.
+
+Since there's no use in directly comparing sphere-traced and naive times, this
+is a graph that scales render times by the full version of that raymarch type:
+
+![](img/perf_scaled_times.png)
+
+### Bonus images
+
+Raw position data, with the sphere at (0, 0, 0) and a plane underneath.
+
+![](img/debug_distance.png)
+
+Normals for each geometry, computed with the equation given in McGuire (8).
+
+![](img/debug_normals.png)
+
+Some geometry with iteration displayed as color (white indicates more raymarches
+before intersection).
+
+![](img/iters_spheretracing.png)
+
+Naive ray marching with a step size of 0.1 (too large), got wireframes instead
+of solid shapes:
+
+![](img/bloop_wireframe.png)
+
+Overrelaxation without backwards step, resulting in stepping into the middle of
+the geometries (and gloopiness):
+
+![](img/bloop_overrelax_gloopy.png)
